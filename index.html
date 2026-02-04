@@ -1,0 +1,2942 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chat MAX - چت روم پیشرفته</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* صفحه لودینگ */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            text-align: center;
+            transition: opacity 0.5s ease;
+        }
+
+        .logo {
+            font-size: 80px;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glow 2s infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 10px #4ecdc4); }
+            50% { filter: drop-shadow(0 0 20px #4ecdc4); }
+        }
+
+        .app-title {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .loading-text {
+            font-size: 18px;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, #4ecdc4, #44a08d);
+            animation: load 2s linear forwards;
+        }
+
+        @keyframes load {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        /* صفحات */
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            background: #f8f9fa;
+        }
+
+        .page.active {
+            display: flex;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* صفحه ثبت‌نام */
+        .register-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .register-header {
+            background: linear-gradient(to right, #1a1a2e, #16213e);
+            color: white;
+            padding: 40px 20px 30px;
+            text-align: center;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .return-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .return-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .register-form {
+            flex: 1;
+            padding: 30px 20px;
+            overflow-y: auto;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 12px;
+            color: #333;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid #e1e5ee;
+            border-radius: 15px;
+            font-size: 16px;
+            background: white;
+            transition: all 0.3s ease;
+            color: #333;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4ecdc4;
+            box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.1);
+        }
+
+        .avatars-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 25px 0 35px;
+        }
+
+        .avatar-option {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 4px solid transparent;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+        }
+
+        .avatar-option:hover {
+            transform: scale(1.05);
+        }
+
+        .avatar-option.selected {
+            border-color: #4ecdc4;
+            background: #e6f7f5;
+            transform: scale(1.1);
+        }
+
+        .avatar-option.creator-only {
+            border-color: #007bff;
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            position: relative;
+        }
+
+        .avatar-option.creator-only::after {
+            content: '🌟';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 20px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(to right, #4ecdc4, #44a08d);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(78, 205, 196, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(to right, #6c757d, #495057);
+        }
+
+        .btn-danger {
+            background: linear-gradient(to right, #ff6b6b, #ff4757);
+        }
+
+        .btn-warning {
+            background: linear-gradient(to right, #ffa502, #ff7f00);
+        }
+
+        .btn-success {
+            background: linear-gradient(to right, #2ed573, #1dd1a1);
+        }
+
+        .password-note {
+            background: #e6f7f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-right: 4px solid #4ecdc4;
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* صفحه چت */
+        .chat-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: #f8f9fa;
+        }
+
+        .chat-header {
+            background: linear-gradient(to right, #1a1a2e, #16213e);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .chat-title {
+            font-size: 22px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chat-title:hover {
+            transform: scale(1.05);
+        }
+
+        .chat-title i {
+            color: #4ecdc4;
+        }
+
+        .online-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: #f8f9fa;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 15px;
+            border-radius: 20px;
+            position: relative;
+            animation: messageAppear 0.3s ease forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        @keyframes messageAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.received {
+            align-self: flex-start;
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .message-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .message-sender {
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .user-tick {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            font-size: 10px;
+        }
+
+        .tick-creator {
+            background: #007bff;
+            color: white;
+        }
+
+        .tick-admin {
+            background: #333;
+            color: white;
+        }
+
+        .message-content {
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.8;
+            text-align: left;
+        }
+
+        .chat-input-container {
+            padding: 15px 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .chat-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #message-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 15px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        #message-input:focus {
+            outline: none;
+            border-color: #4ecdc4;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+        }
+
+        #send-button {
+            min-width: 80px;
+            height: 55px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+        }
+
+        #send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(78, 205, 196, 0.4);
+            background: linear-gradient(135deg, #44a08d, #4ecdc4);
+        }
+
+        .tab-bar {
+            display: flex;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            padding: 10px 0;
+        }
+
+        .tab-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .tab-item.active {
+            color: #4ecdc4;
+        }
+
+        .tab-item i {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .tab-item span {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .tab-item:hover {
+            color: #4ecdc4;
+        }
+
+        /* صفحه کاربران */
+        .users-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .users-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .users-header h2 {
+            font-size: 24px;
+            color: #1a1a2e;
+            margin-bottom: 10px;
+        }
+
+        .users-stats {
+            display: flex;
+            justify-content: space-around;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 800;
+            color: #4ecdc4;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .users-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .user-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: #f0f2f5;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-phone {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-dot.online {
+            background: #4ade80;
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-dot.offline {
+            background: #ff6b6b;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn.edit {
+            background: #4ecdc4;
+            color: white;
+        }
+
+        .action-btn.edit:hover {
+            background: #44a08d;
+            transform: scale(1.05);
+        }
+
+        .action-btn.ban {
+            background: #ffa502;
+            color: white;
+        }
+
+        .action-btn.ban:hover {
+            background: #ff7f00;
+            transform: scale(1.05);
+        }
+
+        .action-btn.block {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .action-btn.block:hover {
+            background: #ff4757;
+            transform: scale(1.05);
+        }
+
+        .action-btn.unblock {
+            background: #2ed573;
+            color: white;
+        }
+
+        .action-btn.unblock:hover {
+            background: #1dd1a1;
+            transform: scale(1.05);
+        }
+
+        .action-btn.admin {
+            background: #333;
+            color: white;
+        }
+
+        .action-btn.admin:hover {
+            background: #555;
+            transform: scale(1.05);
+        }
+
+        /* پنل سازنده */
+        .creator-panel {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 3px solid #007bff;
+        }
+
+        .creator-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .creator-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .creator-control {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .creator-control label {
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .creator-control input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .creator-control input:focus {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #007bff;
+        }
+
+        .creator-control input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* مدال‌ها */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(to right, #1a1a2e, #16213e);
+            color: white;
+            padding: 20px;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 20px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        /* نوتیفیکیشن */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+            max-width: 300px;
+            border-right: 5px solid #4ecdc4;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-icon {
+            color: #4ecdc4;
+            font-size: 20px;
+        }
+
+        /* پیام خالی چت */
+        .empty-chat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #999;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .empty-chat i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        /* انیمیشن‌ها */
+        .message.sent {
+            animation: sentMessage 0.5s ease forwards;
+        }
+
+        @keyframes sentMessage {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .input-error {
+            border-color: #ff6b6b !important;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* اطلاعات بن */
+        .ban-info {
+            background: #ffeaa7;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .ban-time {
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+
+        /* لیست کاربران مسدود */
+        .blocked-users-list {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .blocked-user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .blocked-user-item:last-child {
+            border-bottom: none;
+        }
+
+        /* ویژگی جدید: سیستم گزارش */
+        .report-button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .reported-message {
+            background: #ffeaa7 !important;
+            border: 2px solid #ff6b6b !important;
+        }
+
+        .reports-panel {
+            background: #f8d7da;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        /* ویژگی جدید: ارسال تصویر */
+        .image-message {
+            max-width: 200px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .image-upload-btn {
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* ویژگی جدید: پاسخ به پیام */
+        .reply-container {
+            background: #f0f2f5;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-right: 4px solid #4ecdc4;
+        }
+
+        .reply-sender {
+            font-weight: bold;
+            font-size: 12px;
+            color: #4ecdc4;
+        }
+
+        .reply-text {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .cancel-reply {
+            color: #ff6b6b;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        /* رسپانسیو */
+        @media (max-width: 480px) {
+            .register-header {
+                padding: 30px 15px 25px;
+            }
+            
+            .register-header h1 {
+                font-size: 24px;
+            }
+            
+            .avatars-container {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+            }
+            
+            .avatar-option {
+                width: 70px;
+                height: 70px;
+                font-size: 35px;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+            
+            #send-button {
+                min-width: 70px;
+                height: 50px;
+                padding: 0 15px;
+                font-size: 14px;
+            }
+            
+            .creator-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .user-actions {
+                flex-direction: column;
+            }
+            
+            .users-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .stat-item {
+                flex-direction: row;
+                justify-content: space-between;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- صفحه لودینگ -->
+    <div id="loading-screen" class="active">
+        <div class="logo">
+            <i class="fas fa-comments"></i>
+        </div>
+        <h1 class="app-title">Chat MAX</h1>
+        <p class="loading-text">در حال راه‌اندازی چت روم پیشرفته...</p>
+        <div class="progress-bar">
+            <div class="progress"></div>
+        </div>
+    </div>
+
+    <!-- صفحه ثبت‌نام -->
+    <div id="register-page" class="page">
+        <div class="register-container">
+            <div class="register-header">
+                <button class="return-btn" onclick="showPage('login-page')">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <h1>ثبت نام در Chat MAX</h1>
+                <p>لطفا اطلاعات خود را وارد کنید</p>
+            </div>
+            
+            <div class="register-form">
+                <div id="step1" class="step active">
+                    <div class="form-group">
+                        <label>نام و نام خانوادگی</label>
+                        <input type="text" id="user-name" placeholder="نام کامل خود را وارد کنید" autocomplete="off">
+                    </div>
+                    <button type="button" class="btn" onclick="nextStep(2)">ادامه</button>
+                    <p style="text-align: center; margin-top: 20px; font-size: 14px; color: #666;">
+                        قبلاً ثبت‌نام کرده‌اید؟ 
+                        <a href="#" onclick="showPage('login-page')" style="color: #4ecdc4; text-decoration: none;">وارد شوید</a>
+                    </p>
+                </div>
+                
+                <div id="step2" class="step">
+                    <div class="form-group">
+                        <label>شماره موبایل</label>
+                        <input type="tel" id="user-phone" placeholder="09123456789" maxlength="11" autocomplete="off">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>آواتار خود را انتخاب کنید</label>
+                        <div class="avatars-container">
+                            <div class="avatar-option" onclick="selectAvatar(this, '👨')">👨</div>
+                            <div class="avatar-option" onclick="selectAvatar(this, '👩')">👩</div>
+                            <div class="avatar-option" onclick="selectAvatar(this, '👦')">👦</div>
+                            <div class="avatar-option" onclick="selectAvatar(this, '👧')">👧</div>
+                            <div class="avatar-option" onclick="selectAvatar(this, '🧑‍💻')">🧑‍💻</div>
+                            <div class="avatar-option creator-only" onclick="selectAvatar(this, '🤴')">🤴</div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn" onclick="nextStep(3)">ادامه</button>
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(1)">بازگشت</button>
+                </div>
+                
+                <div id="step3" class="step">
+                    <div class="form-group">
+                        <label>رمز عبور شخصی</label>
+                        <input type="password" id="user-password" placeholder="رمز عبور شخصی خود را انتخاب کنید" autocomplete="off">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>رمز عبور اجباری چت روم</label>
+                        <input type="password" id="chat-room-password" placeholder="رمز عبور چت روم را وارد کنید" autocomplete="off">
+                        <div class="password-note">
+                            <strong>رمز عبور اجباری چت روم:</strong> <span id="current-chat-password">CHATMAX_2024</span>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn" onclick="registerUser()">ایجاد حساب کاربری</button>
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(2)">بازگشت</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه ورود -->
+    <div id="login-page" class="page">
+        <div class="register-container">
+            <div class="register-header">
+                <button class="return-btn" onclick="showPage('register-page')">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <h1>ورود به Chat MAX</h1>
+                <p>با حساب کاربری خود وارد شوید</p>
+            </div>
+            
+            <div class="register-form" style="max-width: 400px; margin: 0 auto;">
+                <div class="form-group">
+                    <label>شماره موبایل</label>
+                    <input type="tel" id="login-phone" placeholder="شماره موبایل خود را وارد کنید" autocomplete="off">
+                </div>
+                
+                <div class="form-group">
+                    <label>رمز عبور شخصی</label>
+                    <input type="password" id="login-password" placeholder="رمز عبور شخصی خود را وارد کنید" autocomplete="off">
+                </div>
+                
+                <div class="form-group">
+                    <label>رمز عبور اجباری چت روم</label>
+                    <input type="password" id="login-chat-password" placeholder="رمز عبور چت روم را وارد کنید" autocomplete="off">
+                </div>
+                
+                <button type="button" class="btn" onclick="loginUser()">ورود به چت روم</button>
+                
+                <p style="text-align: center; margin-top: 20px; font-size: 14px; color: #666;">
+                    حساب کاربری ندارید؟ 
+                    <a href="#" onclick="showPage('register-page')" style="color: #4ecdc4; text-decoration: none;">ثبت‌نام کنید</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه اصلی چت -->
+    <div id="main-chat-page" class="page">
+        <div class="chat-header">
+            <div class="chat-title" onclick="showUsersPage()">
+                <i class="fas fa-comments"></i>
+                Chat MAX
+                <span class="online-count">
+                    <span class="online-dot"></span>
+                    <span id="online-count-text">0</span>
+                </span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="user-avatar" id="header-avatar" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">👤</div>
+                <span id="header-username" style="font-weight: 600;">کاربر</span>
+                <button onclick="showSettingsModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="chat-messages" id="chat-messages">
+            <!-- پیام‌ها اینجا نمایش داده می‌شوند -->
+        </div>
+        
+        <div class="chat-input-container">
+            <form class="chat-form" id="chat-form">
+                <input type="text" id="message-input" placeholder="پیام خود را بنویسید..." autocomplete="off">
+                <button type="button" id="send-button" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i> ارسال
+                </button>
+            </form>
+        </div>
+        
+        <div class="tab-bar">
+            <div class="tab-item active" onclick="showChatPage()">
+                <i class="fas fa-comment-dots"></i>
+                <span>چت</span>
+            </div>
+            <div class="tab-item" onclick="showUsersPage()">
+                <i class="fas fa-users"></i>
+                <span>کاربران</span>
+            </div>
+            <div class="tab-item" onclick="showSettingsModal()">
+                <i class="fas fa-cog"></i>
+                <span>تنظیمات</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه کاربران -->
+    <div id="users-page" class="page">
+        <div class="users-container">
+            <div class="users-header">
+                <h2>کاربران Chat MAX</h2>
+                <p>لیست کاربران ثبت‌نام کرده</p>
+            </div>
+            
+            <div class="users-stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="total-users">0</div>
+                    <div class="stat-label">کاربر کل</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="online-users">0</div>
+                    <div class="stat-label">آنلاین</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="offline-users">0</div>
+                    <div class="stat-label">آفلاین</div>
+                </div>
+            </div>
+            
+            <!-- پنل سازنده (فقط برای شماره 09904844031 نمایش داده می‌شود) -->
+            <div id="creator-panel" style="display: none;">
+                <div class="creator-panel">
+                    <div class="creator-title">
+                        <i class="fas fa-crown"></i>
+                        پنل مدیریت سازنده (متین)
+                    </div>
+                    
+                    <div class="creator-controls">
+                        <div class="creator-control">
+                            <label>تغییر رمز عبور چت روم</label>
+                            <input type="password" id="new-chat-password" placeholder="رمز عبور جدید چت روم">
+                            <button class="btn btn-warning" onclick="updateChatPassword()" style="margin-top: 10px; padding: 12px;">
+                                <i class="fas fa-key"></i> تغییر رمز چت روم
+                            </button>
+                        </div>
+                        
+                        <div class="creator-control">
+                            <label>پاک کردن همه پیام‌ها</label>
+                            <button class="btn btn-danger" onclick="clearAllMessages()" style="margin-top: 10px; padding: 12px;">
+                                <i class="fas fa-trash"></i> پاک کردن همه پیام‌ها
+                            </button>
+                        </div>
+                        
+                        <div class="creator-control">
+                            <label>ارسال اعلان به همه</label>
+                            <input type="text" id="announcement-text" placeholder="متن اعلان عمومی">
+                            <button class="btn btn-success" onclick="sendAnnouncement()" style="margin-top: 10px; padding: 12px;">
+                                <i class="fas fa-bullhorn"></i> ارسال اعلان
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="creator-control">
+                        <label>کاربران مسدود دائمی</label>
+                        <div id="blocked-users-list" class="blocked-users-list">
+                            <p style="color: white; text-align: center; opacity: 0.7; padding: 10px;">
+                                هیچ کاربری مسدود دائمی نشده است
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="creator-control" style="margin-top: 20px;">
+                        <label>گزارش‌های دریافتی</label>
+                        <div id="reports-list" class="blocked-users-list" style="max-height: 200px;">
+                            <p style="color: white; text-align: center; opacity: 0.7; padding: 10px;">
+                                هیچ گزارشی دریافت نشده است
+                            </p>
+                        </div>
+                        <button class="btn btn-danger" onclick="clearAllReports()" style="margin-top: 10px; padding: 10px;">
+                            <i class="fas fa-trash-alt"></i> پاک کردن همه گزارش‌ها
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="users-list" id="users-list">
+                <!-- کاربران اینجا نمایش داده می‌شوند -->
+            </div>
+            
+            <button class="btn" onclick="showChatPage()" style="margin-top: 20px;">
+                <i class="fas fa-arrow-right"></i> بازگشت به چت
+            </button>
+        </div>
+        
+        <div class="tab-bar">
+            <div class="tab-item" onclick="showChatPage()">
+                <i class="fas fa-comment-dots"></i>
+                <span>چت</span>
+            </div>
+            <div class="tab-item active" onclick="showUsersPage()">
+                <i class="fas fa-users"></i>
+                <span>کاربران</span>
+            </div>
+            <div class="tab-item" onclick="showSettingsModal()">
+                <i class="fas fa-cog"></i>
+                <span>تنظیمات</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- مدال تنظیمات -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>تنظیمات حساب کاربری</h3>
+                <button class="close-modal" onclick="closeSettingsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>نام کاربری</label>
+                    <input type="text" id="settings-username" placeholder="نام کاربری جدید">
+                    <button class="btn" onclick="updateUsername()" style="margin-top: 10px;">تغییر نام</button>
+                </div>
+                
+                <div class="form-group">
+                    <label>تغییر آواتار</label>
+                    <div class="avatars-container">
+                        <div class="avatar-option" onclick="selectAvatarInModal(this, '👨')">👨</div>
+                        <div class="avatar-option" onclick="selectAvatarInModal(this, '👩')">👩</div>
+                        <div class="avatar-option" onclick="selectAvatarInModal(this, '👦')">👦</div>
+                        <div class="avatar-option" onclick="selectAvatarInModal(this, '👧')">👧</div>
+                        <div class="avatar-option" onclick="selectAvatarInModal(this, '🧑‍💻')">🧑‍💻</div>
+                        <div class="avatar-option creator-only" onclick="selectAvatarInModal(this, '🤴')">🤴</div>
+                    </div>
+                    <button class="btn" onclick="updateAvatar()" style="margin-top: 10px;">تغییر آواتار</button>
+                </div>
+                
+                <div class="form-group">
+                    <label>تغییر رمز عبور شخصی</label>
+                    <input type="password" id="settings-current-password" placeholder="رمز عبور فعلی">
+                    <input type="password" id="settings-new-password" placeholder="رمز عبور جدید" style="margin-top: 10px;">
+                    <input type="password" id="settings-confirm-password" placeholder="تکرار رمز عبور" style="margin-top: 10px;">
+                    <button class="btn" onclick="updatePassword()" style="margin-top: 10px;">تغییر رمز عبور</button>
+                </div>
+                
+                <button class="btn" onclick="logout()" style="background: #ff6b6b; margin-top: 20px;">
+                    <i class="fas fa-sign-out-alt"></i> خروج از حساب کاربری
+                </button>
+                
+                <button class="btn btn-secondary" onclick="closeSettingsModal()" style="margin-top: 10px;">
+                    <i class="fas fa-arrow-right"></i> بازگشت
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- مدال مدیریت کاربر -->
+    <div class="modal" id="user-management-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>مدیریت کاربر</h3>
+                <button class="close-modal" onclick="closeUserManagementModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="user-management-info"></div>
+                
+                <div class="form-group">
+                    <label>ویرایش نام کاربر</label>
+                    <input type="text" id="edit-user-name" placeholder="نام جدید کاربر">
+                    <button class="btn" onclick="saveUserName()" style="margin-top: 10px;">
+                        <i class="fas fa-save"></i> ذخیره نام
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <label>بن کاربر (مدت زمان)</label>
+                    <select id="ban-duration">
+                        <option value="5">5 دقیقه</option>
+                        <option value="15">15 دقیقه</option>
+                        <option value="60">1 ساعت</option>
+                        <option value="1440">1 روز</option>
+                        <option value="10080">1 هفته</option>
+                        <option value="permanent">مسدود دائمی</option>
+                    </select>
+                    <button class="btn btn-danger" onclick="banUser()" id="ban-button" style="margin-top: 10px;">
+                        <i class="fas fa-ban"></i> بن/مسدود کردن
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <label>تغییر وضعیت ادمین</label>
+                    <button class="btn btn-warning" onclick="toggleAdminStatus()" id="admin-toggle-button" style="margin-top: 10px;">
+                        <i class="fas fa-user-shield"></i> تغییر وضعیت ادمین
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نوتیفیکیشن -->
+    <div class="notification" id="notification">
+        <div class="notification-icon">
+            <i class="fas fa-bell"></i>
+        </div>
+        <div>
+            <div id="notification-title" style="font-weight: bold;">اعلان</div>
+            <div id="notification-message" style="font-size: 14px;">پیام جدید</div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== متغیرهای جهانی ====================
+        let currentUser = null;
+        let currentStep = 1;
+        let selectedAvatar = '👤';
+        let selectedAvatarInModal = null;
+        let currentChatPassword = "CHATMAX_2024";
+        const CREATOR_PHONE = "09904844031";
+        const CREATOR_NAME = "متین";
+        let chatUpdateInterval = null;
+        let userToManage = null;
+        let replyingTo = null;
+        
+        // ==================== توابع اصلی ====================
+        
+        // نمایش صفحه مورد نظر
+        function showPage(pageId) {
+            // پنهان کردن همه صفحات
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // نمایش صفحه درخواستی
+            document.getElementById(pageId).classList.add('active');
+            
+            if (pageId === 'main-chat-page') {
+                loadChatData();
+                startChatUpdates();
+                checkUserBanned();
+            } else if (pageId === 'users-page') {
+                loadUsersList();
+                
+                // نمایش پنل سازنده فقط اگر سازنده است
+                if (currentUser && currentUser.phone === CREATOR_PHONE) {
+                    document.getElementById('creator-panel').style.display = 'block';
+                    loadBlockedUsersList();
+                    loadReportsList();
+                } else {
+                    document.getElementById('creator-panel').style.display = 'none';
+                }
+            } else if (pageId === 'register-page') {
+                resetRegistrationForm();
+            }
+        }
+        
+        // نمایش صفحه چت
+        function showChatPage() {
+            showPage('main-chat-page');
+        }
+        
+        // نمایش صفحه کاربران
+        function showUsersPage() {
+            if (!currentUser) {
+                showNotification('لطفا ابتدا وارد شوید', 'خطا');
+                showPage('login-page');
+                return;
+            }
+            showPage('users-page');
+        }
+        
+        // تغییر مرحله ثبت‌نام
+        function nextStep(step) {
+            if (!validateStep(currentStep)) return;
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`step${step}`).classList.add('active');
+            currentStep = step;
+        }
+        
+        // بازگشت به مرحله قبلی
+        function prevStep(step) {
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`step${step}`).classList.add('active');
+            currentStep = step;
+        }
+        
+        // اعتبارسنجی مراحل ثبت‌نام
+        function validateStep(step) {
+            if (step === 1) {
+                const name = document.getElementById('user-name').value.trim();
+                if (!name) {
+                    showNotification('لطفا نام خود را وارد کنید', 'خطا');
+                    return false;
+                }
+            } else if (step === 2) {
+                const phone = document.getElementById('user-phone').value.trim();
+                const phoneRegex = /^09[0-9]{9}$/;
+                if (!phoneRegex.test(phone)) {
+                    showNotification('شماره موبایل معتبر وارد کنید', 'خطا');
+                    return false;
+                }
+                
+                // بررسی مسدودیت دائمی
+                const blockedUsers = getBlockedUsers();
+                if (blockedUsers.includes(phone)) {
+                    showNotification('سلام دوست گرامی شما توسط متین مسدود دائمی شدید. لطفاً منتظر رفع دائمی از طرف سازنده وب باشید. ممنون از شما شکیبا.', 'مسدودیت دائمی');
+                    document.getElementById('user-phone').classList.add('input-error');
+                    setTimeout(() => {
+                        document.getElementById('user-phone').classList.remove('input-error');
+                    }, 500);
+                    return false;
+                }
+                
+                // بررسی آواتار انحصاری سازنده
+                if (selectedAvatar === '🤴' && phone !== CREATOR_PHONE) {
+                    showNotification('این آواتار فقط برای سازنده است', 'خطا');
+                    return false;
+                }
+                
+                if (!selectedAvatar) {
+                    showNotification('لطفا یک آواتار انتخاب کنید', 'خطا');
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        // انتخاب آواتار
+        function selectAvatar(element, avatar) {
+            document.querySelectorAll('.avatar-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            selectedAvatar = avatar;
+        }
+        
+        // ثبت نام کاربر
+        function registerUser() {
+            const name = document.getElementById('user-name').value.trim();
+            const phone = document.getElementById('user-phone').value.trim();
+            const password = document.getElementById('user-password').value.trim();
+            const chatRoomPassword = document.getElementById('chat-room-password').value.trim();
+            
+            if (!name || !phone || !password || !chatRoomPassword) {
+                showNotification('لطفا تمام فیلدها را پر کنید', 'خطا');
+                return;
+            }
+            
+            // بررسی مسدودیت دائمی
+            const blockedUsers = getBlockedUsers();
+            if (blockedUsers.includes(phone)) {
+                showNotification('سلام دوست گرامی شما توسط متین مسدود دائمی شدید. لطفاً منتظر رفع دائمی از طرف سازنده وب باشید. ممنون از شما شکیبا.', 'مسدودیت دائمی');
+                return;
+            }
+            
+            // بررسی آواتار انحصاری
+            if (selectedAvatar === '🤴' && phone !== CREATOR_PHONE) {
+                showNotification('این آواتار فقط برای سازنده است', 'خطا');
+                return;
+            }
+            
+            if (chatRoomPassword !== currentChatPassword) {
+                showNotification('رمز عبور چت روم اشتباه است', 'خطا');
+                return;
+            }
+            
+            const users = getUsersFromStorage();
+            if (users.find(user => user.phone === phone)) {
+                showNotification('کاربری با این شماره موبایل وجود دارد', 'خطا');
+                return;
+            }
+            
+            const newUser = {
+                id: Date.now(),
+                name: name,
+                phone: phone,
+                avatar: selectedAvatar,
+                password: password,
+                online: true,
+                isAdmin: false,
+                isCreator: phone === CREATOR_PHONE,
+                registeredAt: new Date().toISOString(),
+                lastActivity: new Date().toISOString(),
+                bannedUntil: null
+            };
+            
+            users.push(newUser);
+            saveUsersToStorage(users);
+            
+            currentUser = newUser;
+            saveCurrentUserToStorage(currentUser);
+            
+            addUserToChatServer(newUser);
+            
+            showNotification('حساب کاربری با موفقیت ایجاد شد!', 'موفقیت');
+            
+            setTimeout(() => {
+                showPage('main-chat-page');
+            }, 1000);
+        }
+        
+        // ورود کاربر
+        function loginUser() {
+            const phone = document.getElementById('login-phone').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+            const chatRoomPassword = document.getElementById('login-chat-password').value.trim();
+            
+            if (!phone || !password || !chatRoomPassword) {
+                showNotification('لطفا تمام فیلدها را پر کنید', 'خطا');
+                return;
+            }
+            
+            // بررسی مسدودیت دائمی
+            const blockedUsers = getBlockedUsers();
+            if (blockedUsers.includes(phone)) {
+                showNotification('سلام دوست گرامی شما توسط متین مسدود دائمی شدید. لطفاً منتظر رفع دائمی از طرف سازنده وب باشید. ممنون از شما شکیبا.', 'مسدودیت دائمی');
+                return;
+            }
+            
+            if (chatRoomPassword !== currentChatPassword) {
+                showNotification('رمز عبور چت روم اشتباه است', 'خطا');
+                return;
+            }
+            
+            const users = getUsersFromStorage();
+            const user = users.find(u => u.phone === phone && u.password === password);
+            
+            if (!user) {
+                showNotification('شماره موبایل یا رمز عبور اشتباه است', 'خطا');
+                return;
+            }
+            
+            // بررسی بن بودن
+            if (user.bannedUntil && new Date(user.bannedUntil) > new Date()) {
+                const remainingTime = Math.ceil((new Date(user.bannedUntil) - new Date()) / 1000 / 60);
+                showNotification(`شما بن شده‌اید! زمان باقی‌مانده: ${remainingTime} دقیقه`, 'بن شده');
+                return;
+            }
+            
+            user.online = true;
+            user.lastActivity = new Date().toISOString();
+            saveUsersToStorage(users);
+            
+            currentUser = user;
+            saveCurrentUserToStorage(currentUser);
+            
+            addUserToChatServer(user);
+            
+            showNotification(`خوش آمدید ${user.name}!`, 'ورود موفق');
+            
+            setTimeout(() => {
+                showPage('main-chat-page');
+            }, 1000);
+        }
+        
+        // ==================== توابع چت ====================
+        
+        // اضافه کردن کاربر به چت سرور
+        function addUserToChatServer(user) {
+            const chatServer = getChatServer();
+            
+            if (!chatServer.users.find(u => u.id === user.id)) {
+                chatServer.users.push({
+                    id: user.id,
+                    name: user.name,
+                    avatar: user.avatar,
+                    phone: user.phone,
+                    online: true,
+                    isAdmin: user.isAdmin,
+                    isCreator: user.isCreator,
+                    joinedAt: new Date().toISOString(),
+                    lastActivity: new Date().toISOString()
+                });
+                
+                saveChatServer(chatServer);
+                
+                const welcomeMessage = {
+                    id: Date.now(),
+                    type: 'system',
+                    text: `👋 ${user.name} به چت روم پیوست`,
+                    time: new Date().toISOString(),
+                    userId: 'system'
+                };
+                
+                chatServer.messages.push(welcomeMessage);
+                saveChatServer(chatServer);
+                
+                loadChatMessages();
+            }
+        }
+        
+        // بارگذاری داده‌های چت
+        function loadChatData() {
+            if (!currentUser) {
+                const savedUser = getCurrentUserFromStorage();
+                if (savedUser) {
+                    currentUser = savedUser;
+                } else {
+                    showPage('login-page');
+                    return;
+                }
+            }
+            
+            document.getElementById('header-username').textContent = currentUser.name;
+            document.getElementById('header-avatar').textContent = currentUser.avatar;
+            
+            // نمایش رمز چت روم فعلی برای سازنده
+            if (currentUser.isCreator) {
+                document.getElementById('current-chat-password').textContent = currentChatPassword;
+            }
+            
+            loadChatMessages();
+            updateOnlineCount();
+        }
+        
+        // بارگذاری پیام‌های چت
+        function loadChatMessages() {
+            const chatMessages = document.getElementById('chat-messages');
+            const chatServer = getChatServer();
+            
+            chatMessages.innerHTML = '';
+            
+            // اگر پیامی وجود ندارد
+            if (chatServer.messages.length === 0) {
+                chatMessages.innerHTML = `
+                    <div class="empty-chat">
+                        <i class="fas fa-comment-slash"></i>
+                        <h3>هنوز هیچ پیامی ارسال نشده است!</h3>
+                        <p>اولین نفری باشید که پیام می‌فرستد</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // نمایش همه پیام‌ها
+            chatServer.messages.forEach(message => {
+                displayMessage(message);
+            });
+            
+            setTimeout(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 100);
+        }
+        
+        // نمایش پیام در چت
+        function displayMessage(message) {
+            const chatMessages = document.getElementById('chat-messages');
+            
+            // اگر پیام خالی نمایش داده می‌شود، آن را حذف کن
+            const emptyChat = chatMessages.querySelector('.empty-chat');
+            if (emptyChat) {
+                emptyChat.remove();
+            }
+            
+            const messageDiv = document.createElement('div');
+            
+            if (message.type === 'system') {
+                // پیام سیستم
+                messageDiv.className = 'message received';
+                messageDiv.style.maxWidth = '100%';
+                messageDiv.style.background = '#e6f7f5';
+                messageDiv.style.textAlign = 'center';
+                messageDiv.style.border = '1px solid #4ecdc4';
+                
+                const time = new Date(message.time).toLocaleTimeString('fa-IR', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                messageDiv.innerHTML = `
+                    <div class="message-content" style="color: #1a1a2e;">${message.text}</div>
+                    <div class="message-time">${time}</div>
+                `;
+            } else {
+                // پیام عادی
+                const isSent = message.userId === currentUser.id;
+                messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+                
+                // پیدا کردن اطلاعات فرستنده
+                const chatServer = getChatServer();
+                const user = chatServer.users.find(u => u.id === message.userId) || { name: 'کاربر', avatar: '👤', isCreator: false, isAdmin: false };
+                
+                const time = new Date(message.time).toLocaleTimeString('fa-IR', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                // تیک آبی برای سازنده و تیک سیاه برای ادمین
+                let tick = '';
+                if (user.isCreator) {
+                    tick = '<span class="user-tick tick-creator"><i class="fas fa-check"></i></span>';
+                } else if (user.isAdmin) {
+                    tick = '<span class="user-tick tick-admin"><i class="fas fa-check"></i></span>';
+                }
+                
+                // دکمه گزارش برای کاربران به جز خودشان و سازنده
+                let reportButton = '';
+                if (!isSent && currentUser && !currentUser.isCreator) {
+                    reportButton = `
+                        <button class="report-button" onclick="reportMessage(${message.id})" style="margin-top: 5px;">
+                            <i class="fas fa-flag"></i> گزارش
+                        </button>
+                    `;
+                }
+                
+                // اگر پیام گزارش شده است
+                if (message.reported) {
+                    messageDiv.classList.add('reported-message');
+                }
+                
+                // اگر پاسخ به پیامی است
+                let replySection = '';
+                if (message.replyTo) {
+                    const originalMessage = chatServer.messages.find(m => m.id === message.replyTo);
+                    if (originalMessage) {
+                        const originalUser = chatServer.users.find(u => u.id === originalMessage.userId) || { name: 'کاربر' };
+                        replySection = `
+                            <div class="reply-container">
+                                <div class="reply-sender">پاسخ به ${originalUser.name}</div>
+                                <div class="reply-text">${originalMessage.text.substring(0, 50)}${originalMessage.text.length > 50 ? '...' : ''}</div>
+                            </div>
+                        `;
+                    }
+                }
+                
+                messageDiv.innerHTML = `
+                    <div class="message-header">
+                        <div class="message-avatar">${user.avatar}</div>
+                        <div class="message-sender">
+                            ${isSent ? 'شما' : user.name}
+                            ${tick}
+                        </div>
+                    </div>
+                    ${replySection}
+                    <div class="message-content">${message.text}</div>
+                    ${reportButton}
+                    <div class="message-time">${time}</div>
+                    <div style="margin-top: 5px;">
+                        <button class="report-button" onclick="replyToMessage(${message.id})" style="background: #4ecdc4; padding: 3px 8px; font-size: 10px;">
+                            <i class="fas fa-reply"></i> پاسخ
+                        </button>
+                    </div>
+                `;
+            }
+            
+            chatMessages.appendChild(messageDiv);
+        }
+        
+        // ارسال پیام
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const text = input.value.trim();
+            
+            // اعتبارسنجی
+            if (!text) {
+                showNotification('لطفا پیامی بنویسید', 'خطا');
+                input.focus();
+                return;
+            }
+            
+            if (!currentUser) {
+                showNotification('لطفا ابتدا وارد شوید', 'خطا');
+                return;
+            }
+            
+            // بررسی بن بودن کاربر
+            if (currentUser.bannedUntil && new Date(currentUser.bannedUntil) > new Date()) {
+                const remainingTime = Math.ceil((new Date(currentUser.bannedUntil) - new Date()) / 1000 / 60);
+                showNotification(`شما بن شده‌اید! زمان باقی‌مانده: ${remainingTime} دقیقه`, 'بن شده');
+                return;
+            }
+            
+            // ایجاد پیام جدید
+            const newMessage = {
+                id: Date.now(),
+                type: 'message',
+                text: text,
+                time: new Date().toISOString(),
+                userId: currentUser.id,
+                replyTo: replyingTo || null
+            };
+            
+            // اضافه کردن پیام به چت سرور
+            const chatServer = getChatServer();
+            chatServer.messages.push(newMessage);
+            saveChatServer(chatServer);
+            
+            // نمایش پیام
+            displayMessage(newMessage);
+            
+            // پاک کردن فیلد ورودی و تنظیمات پاسخ
+            input.value = '';
+            input.focus();
+            replyingTo = null;
+            
+            // اسکرول به پایین
+            const chatMessages = document.getElementById('chat-messages');
+            setTimeout(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 100);
+            
+            // نوتیفیکیشن
+            showNotification('پیام شما ارسال شد', 'موفقیت');
+        }
+        
+        // پاسخ به پیام
+        function replyToMessage(messageId) {
+            const chatServer = getChatServer();
+            const message = chatServer.messages.find(m => m.id === messageId);
+            
+            if (message) {
+                const user = chatServer.users.find(u => u.id === message.userId) || { name: 'کاربر' };
+                replyingTo = messageId;
+                
+                const input = document.getElementById('message-input');
+                input.value = '';
+                input.placeholder = `پاسخ به ${user.name}: ${message.text.substring(0, 30)}...`;
+                input.focus();
+                
+                showNotification(`در حال پاسخ به ${user.name}`, 'پاسخ');
+            }
+        }
+        
+        // گزارش پیام
+        function reportMessage(messageId) {
+            if (!currentUser) return;
+            
+            const chatServer = getChatServer();
+            const message = chatServer.messages.find(m => m.id === messageId);
+            
+            if (message) {
+                // ذخیره گزارش
+                const reports = getReportsFromStorage();
+                const newReport = {
+                    id: Date.now(),
+                    messageId: messageId,
+                    reporterId: currentUser.id,
+                    reporterName: currentUser.name,
+                    reportedAt: new Date().toISOString(),
+                    messageText: message.text,
+                    messageSender: chatServer.users.find(u => u.id === message.userId)?.name || 'ناشناس'
+                };
+                
+                reports.push(newReport);
+                saveReportsToStorage(reports);
+                
+                // علامت گذاری پیام به عنوان گزارش شده
+                message.reported = true;
+                saveChatServer(chatServer);
+                
+                // بارگذاری مجدد پیام‌ها
+                loadChatMessages();
+                
+                showNotification('پیام با موفقیت گزارش شد', 'گزارش');
+                
+                // اگر سازنده آنلاین است، نوتیفیکیشن
+                if (currentUser.isCreator) {
+                    loadReportsList();
+                }
+            }
+        }
+        
+        // شروع به‌روزرسانی‌های خودکار
+        function startChatUpdates() {
+            if (chatUpdateInterval) clearInterval(chatUpdateInterval);
+            
+            chatUpdateInterval = setInterval(() => {
+                updateOnlineStatus();
+                updateOnlineCount();
+                checkBannedUsers();
+            }, 3000);
+        }
+        
+        // به‌روزرسانی وضعیت آنلاین
+        function updateOnlineStatus() {
+            if (!currentUser) return;
+            
+            const users = getUsersFromStorage();
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            if (userIndex !== -1) {
+                users[userIndex].lastActivity = new Date().toISOString();
+                saveUsersToStorage(users);
+            }
+            
+            const chatServer = getChatServer();
+            const serverUserIndex = chatServer.users.findIndex(u => u.id === currentUser.id);
+            if (serverUserIndex !== -1) {
+                chatServer.users[serverUserIndex].lastActivity = new Date().toISOString();
+                saveChatServer(chatServer);
+            }
+        }
+        
+        // به‌روزرسانی تعداد کاربران آنلاین
+        function updateOnlineCount() {
+            const chatServer = getChatServer();
+            const onlineCount = chatServer.users.filter(user => {
+                if (!user.lastActivity) return false;
+                const lastActivity = new Date(user.lastActivity);
+                const now = new Date();
+                const diffInSeconds = (now - lastActivity) / 1000;
+                return diffInSeconds < 30;
+            }).length;
+            
+            document.getElementById('online-count-text').textContent = onlineCount;
+        }
+        
+        // ==================== توابع لیست کاربران ====================
+        
+        function loadUsersList() {
+            const usersList = document.getElementById('users-list');
+            const chatServer = getChatServer();
+            
+            const totalUsers = chatServer.users.length;
+            const onlineUsers = chatServer.users.filter(user => {
+                if (!user.lastActivity) return false;
+                const lastActivity = new Date(user.lastActivity);
+                const now = new Date();
+                return (now - lastActivity) / 1000 < 30;
+            }).length;
+            const offlineUsers = totalUsers - onlineUsers;
+            
+            document.getElementById('total-users').textContent = totalUsers;
+            document.getElementById('online-users').textContent = onlineUsers;
+            document.getElementById('offline-users').textContent = offlineUsers;
+            
+            usersList.innerHTML = '';
+            
+            // اگر کاربری وجود ندارد
+            if (chatServer.users.length === 0) {
+                usersList.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <i class="fas fa-users" style="font-size: 60px; opacity: 0.5; margin-bottom: 20px;"></i>
+                        <h3>هنوز کاربری ثبت‌نام نکرده است</h3>
+                        <p>اولین نفری باشید که ثبت‌نام می‌کند</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            chatServer.users.forEach(user => {
+                const isOnline = user.lastActivity && (new Date() - new Date(user.lastActivity)) / 1000 < 30;
+                const userElement = document.createElement('div');
+                userElement.className = 'user-item';
+                
+                // دریافت اطلاعات کامل کاربر
+                const users = getUsersFromStorage();
+                const fullUser = users.find(u => u.id === user.id) || user;
+                
+                // تیک آبی برای سازنده و تیک سیاه برای ادمین
+                let tick = '';
+                if (user.isCreator) {
+                    tick = '<span class="user-tick tick-creator"><i class="fas fa-check"></i></span>';
+                } else if (user.isAdmin) {
+                    tick = '<span class="user-tick tick-admin"><i class="fas fa-check"></i></span>';
+                }
+                
+                let banInfo = '';
+                if (fullUser.bannedUntil && new Date(fullUser.bannedUntil) > new Date()) {
+                    const remainingTime = Math.ceil((new Date(fullUser.bannedUntil) - new Date()) / 1000 / 60);
+                    const banDate = new Date(fullUser.bannedUntil).toLocaleString('fa-IR');
+                    banInfo = `<div class="ban-info"><i class="fas fa-ban"></i> بن شده - زمان باقی‌مانده: ${remainingTime} دقیقه<br>تا: <span class="ban-time">${banDate}</span></div>`;
+                }
+                
+                userElement.innerHTML = `
+                    <div class="user-info">
+                        <div class="user-avatar">${user.avatar}</div>
+                        <div class="user-details">
+                            <div class="user-name">
+                                ${user.name}
+                                ${tick}
+                            </div>
+                            <div class="user-phone">${user.phone}</div>
+                            <div class="user-status">
+                                <span class="status-dot ${isOnline ? 'online' : 'offline'}"></span>
+                                <span>${isOnline ? 'آنلاین' : 'آفلاین'}</span>
+                            </div>
+                            ${banInfo}
+                        </div>
+                    </div>
+                `;
+                
+                // اضافه کردن دکمه‌های مدیریت فقط برای سازنده
+                if (currentUser && currentUser.phone === CREATOR_PHONE && !user.isCreator) {
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'user-actions';
+                    
+                    // بررسی مسدودیت دائمی
+                    const blockedUsers = getBlockedUsers();
+                    const isPermanentlyBlocked = blockedUsers.includes(user.phone);
+                    
+                    let blockBtnText = 'مسدود دائمی';
+                    let blockBtnClass = 'block';
+                    let blockBtnOnClick = `permanentBlockUser('${user.phone}')`;
+                    
+                    if (isPermanentlyBlocked) {
+                        blockBtnText = 'رفع مسدودیت';
+                        blockBtnClass = 'unblock';
+                        blockBtnOnClick = `unblockUser('${user.phone}')`;
+                    }
+                    
+                    actionsDiv.innerHTML = `
+                        <button class="action-btn edit" onclick="openUserManagement('${user.phone}')">
+                            <i class="fas fa-edit"></i> مدیریت
+                        </button>
+                        <button class="action-btn ${blockBtnClass}" onclick="${blockBtnOnClick}">
+                            <i class="fas ${blockBtnClass === 'block' ? 'fa-ban' : 'fa-unlock'}"></i> ${blockBtnText}
+                        </button>
+                    `;
+                    
+                    userElement.appendChild(actionsDiv);
+                }
+                
+                usersList.appendChild(userElement);
+            });
+        }
+        
+        // ==================== توابع مدیریت کاربران ====================
+        
+        function openUserManagement(phone) {
+            const users = getUsersFromStorage();
+            userToManage = users.find(u => u.phone === phone);
+            
+            if (!userToManage) {
+                showNotification('کاربر پیدا نشد', 'خطا');
+                return;
+            }
+            
+            document.getElementById('user-management-info').innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                    <div class="user-avatar" style="font-size: 40px;">${userToManage.avatar}</div>
+                    <div>
+                        <h4>${userToManage.name}</h4>
+                        <p style="color: #666; font-size: 14px;">${userToManage.phone}</p>
+                        <p style="font-size: 12px;">
+                            ${userToManage.isCreator ? '<span class="user-tick tick-creator"><i class="fas fa-check"></i> سازنده</span>' : ''}
+                            ${userToManage.isAdmin ? '<span class="user-tick tick-admin"><i class="fas fa-check"></i> ادمین</span>' : ''}
+                            ${userToManage.bannedUntil && new Date(userToManage.bannedUntil) > new Date() ? 
+                                `<span style="color: #ff6b6b;"><i class="fas fa-ban"></i> بن شده</span>` : ''}
+                        </p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('edit-user-name').value = userToManage.name;
+            
+            // تنظیم متن دکمه‌ها
+            if (userToManage.isAdmin) {
+                document.getElementById('admin-toggle-button').innerHTML = '<i class="fas fa-user-minus"></i> حذف ادمین';
+                document.getElementById('admin-toggle-button').className = 'btn btn-warning';
+            } else {
+                document.getElementById('admin-toggle-button').innerHTML = '<i class="fas fa-user-shield"></i> ادمین کردن';
+                document.getElementById('admin-toggle-button').className = 'btn btn-success';
+            }
+            
+            if (userToManage.bannedUntil && new Date(userToManage.bannedUntil) > new Date()) {
+                document.getElementById('ban-button').innerHTML = '<i class="fas fa-unlock"></i> رفع بن';
+                document.getElementById('ban-button').className = 'btn btn-success';
+            } else {
+                document.getElementById('ban-button').innerHTML = '<i class="fas fa-ban"></i> بن/مسدود کردن';
+                document.getElementById('ban-button').className = 'btn btn-danger';
+            }
+            
+            document.getElementById('user-management-modal').classList.add('active');
+        }
+        
+        function closeUserManagementModal() {
+            document.getElementById('user-management-modal').classList.remove('active');
+            userToManage = null;
+        }
+        
+        function saveUserName() {
+            if (!userToManage) return;
+            
+            const newName = document.getElementById('edit-user-name').value.trim();
+            if (!newName) {
+                showNotification('لطفا نام جدید را وارد کنید', 'خطا');
+                return;
+            }
+            
+            // به‌روزرسانی در localStorage
+            const users = getUsersFromStorage();
+            const userIndex = users.findIndex(u => u.id === userToManage.id);
+            if (userIndex !== -1) {
+                users[userIndex].name = newName;
+                saveUsersToStorage(users);
+            }
+            
+            // به‌روزرسانی در چت سرور
+            const chatServer = getChatServer();
+            const serverUserIndex = chatServer.users.findIndex(u => u.id === userToManage.id);
+            if (serverUserIndex !== -1) {
+                chatServer.users[serverUserIndex].name = newName;
+                saveChatServer(chatServer);
+            }
+            
+            // به‌روزرسانی کاربر جاری اگر خودش است
+            if (currentUser && currentUser.id === userToManage.id) {
+                currentUser.name = newName;
+                saveCurrentUserToStorage(currentUser);
+                document.getElementById('header-username').textContent = newName;
+            }
+            
+            showNotification('نام کاربر با موفقیت تغییر کرد', 'موفقیت');
+            closeUserManagementModal();
+            loadUsersList();
+        }
+        
+        function banUser() {
+            if (!userToManage) return;
+            
+            if (userToManage.bannedUntil && new Date(userToManage.bannedUntil) > new Date()) {
+                // رفع بن
+                const users = getUsersFromStorage();
+                const userIndex = users.findIndex(u => u.id === userToManage.id);
+                if (userIndex !== -1) {
+                    users[userIndex].bannedUntil = null;
+                    saveUsersToStorage(users);
+                }
+                
+                showNotification('بن کاربر برداشته شد', 'موفقیت');
+            } else {
+                // بن کردن
+                const duration = document.getElementById('ban-duration').value;
+                
+                if (duration === 'permanent') {
+                    // مسدودیت دائمی
+                    permanentBlockUser(userToManage.phone);
+                } else {
+                    // بن موقت
+                    const minutes = parseInt(duration);
+                    const bannedUntil = new Date(Date.now() + minutes * 60 * 1000).toISOString();
+                    
+                    const users = getUsersFromStorage();
+                    const userIndex = users.findIndex(u => u.id === userToManage.id);
+                    if (userIndex !== -1) {
+                        users[userIndex].bannedUntil = bannedUntil;
+                        saveUsersToStorage(users);
+                    }
+                    
+                    // نمایش پیام بن در چت
+                    const banMessage = {
+                        id: Date.now(),
+                        type: 'system',
+                        text: `⚠️ ${userToManage.name} برای ${duration} دقیقه بن شد`,
+                        time: new Date().toISOString(),
+                        userId: 'system'
+                    };
+                    
+                    const chatServer = getChatServer();
+                    chatServer.messages.push(banMessage);
+                    saveChatServer(chatServer);
+                    
+                    showNotification(`کاربر برای ${duration} دقیقه بن شد`, 'موفقیت');
+                }
+            }
+            
+            closeUserManagementModal();
+            loadUsersList();
+            loadChatMessages();
+            loadBlockedUsersList();
+        }
+        
+        function permanentBlockUser(phone) {
+            const blockedUsers = getBlockedUsers();
+            if (!blockedUsers.includes(phone)) {
+                blockedUsers.push(phone);
+                saveBlockedUsers(blockedUsers);
+                
+                // پیدا کردن نام کاربر
+                const users = getUsersFromStorage();
+                const user = users.find(u => u.phone === phone);
+                const userName = user ? user.name : 'کاربر';
+                
+                // نمایش پیام مسدودیت در چت
+                const blockMessage = {
+                    id: Date.now(),
+                    type: 'system',
+                    text: `🚫 ${userName} توسط سازنده (متین) مسدود دائمی شد`,
+                    time: new Date().toISOString(),
+                    userId: 'system'
+                };
+                
+                const chatServer = getChatServer();
+                chatServer.messages.push(blockMessage);
+                saveChatServer(chatServer);
+                
+                // حذف کاربر از لیست کاربران آنلاین
+                const chatServerIndex = chatServer.users.findIndex(u => u.phone === phone);
+                if (chatServerIndex !== -1) {
+                    chatServer.users.splice(chatServerIndex, 1);
+                    saveChatServer(chatServer);
+                }
+            }
+            
+            showNotification('کاربر مسدود دائمی شد', 'موفقیت');
+        }
+        
+        function toggleAdminStatus() {
+            if (!userToManage) return;
+            
+            const users = getUsersFromStorage();
+            const userIndex = users.findIndex(u => u.id === userToManage.id);
+            if (userIndex !== -1) {
+                users[userIndex].isAdmin = !users[userIndex].isAdmin;
+                saveUsersToStorage(users);
+                
+                const chatServer = getChatServer();
+                const serverUserIndex = chatServer.users.findIndex(u => u.id === userToManage.id);
+                if (serverUserIndex !== -1) {
+                    chatServer.users[serverUserIndex].isAdmin = users[userIndex].isAdmin;
+                    saveChatServer(chatServer);
+                }
+                
+                const status = users[userIndex].isAdmin ? 'ادمین شد' : 'از ادمینی حذف شد';
+                showNotification(`کاربر ${status}`, 'موفقیت');
+                
+                closeUserManagementModal();
+                loadUsersList();
+            }
+        }
+        
+        function checkBannedUsers() {
+            const users = getUsersFromStorage();
+            const now = new Date();
+            
+            users.forEach(user => {
+                if (user.bannedUntil && new Date(user.bannedUntil) <= now) {
+                    user.bannedUntil = null;
+                }
+            });
+            
+            saveUsersToStorage(users);
+        }
+        
+        function checkUserBanned() {
+            if (!currentUser) return;
+            
+            if (currentUser.bannedUntil && new Date(currentUser.bannedUntil) > new Date()) {
+                const remainingTime = Math.ceil((new Date(currentUser.bannedUntil) - new Date()) / 1000 / 60);
+                showNotification(`شما بن شده‌اید! زمان باقی‌مانده: ${remainingTime} دقیقه`, 'بن شده');
+                
+                // غیرفعال کردن دکمه ارسال
+                document.getElementById('send-button').disabled = true;
+                document.getElementById('message-input').disabled = true;
+                document.getElementById('send-button').style.opacity = '0.5';
+                document.getElementById('message-input').style.opacity = '0.5';
+            } else {
+                // فعال کردن دکمه ارسال
+                document.getElementById('send-button').disabled = false;
+                document.getElementById('message-input').disabled = false;
+                document.getElementById('send-button').style.opacity = '1';
+                document.getElementById('message-input').style.opacity = '1';
+            }
+        }
+        
+        // ==================== توابع پنل سازنده ====================
+        
+        function loadBlockedUsersList() {
+            const blockedUsersList = document.getElementById('blocked-users-list');
+            const blockedUsers = getBlockedUsers();
+            
+            blockedUsersList.innerHTML = '';
+            
+            if (blockedUsers.length === 0) {
+                blockedUsersList.innerHTML = '<p style="color: white; text-align: center; opacity: 0.7; padding: 10px;">هیچ کاربری مسدود دائمی نشده است</p>';
+                return;
+            }
+            
+            blockedUsers.forEach(phone => {
+                const userDiv = document.createElement('div');
+                userDiv.className = 'blocked-user-item';
+                
+                const users = getUsersFromStorage();
+                const user = users.find(u => u.phone === phone);
+                const userName = user ? user.name : 'کاربر ناشناس';
+                
+                userDiv.innerHTML = `
+                    <div>
+                        <span style="font-weight: bold; color: white;">${userName}</span>
+                        <span style="font-size: 12px; color: rgba(255,255,255,0.7); margin-right: 10px;">${phone}</span>
+                    </div>
+                    <button onclick="unblockUser('${phone}')" style="background: #2ed573; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px;">
+                        رفع مسدودیت
+                    </button>
+                `;
+                
+                blockedUsersList.appendChild(userDiv);
+            });
+        }
+        
+        function loadReportsList() {
+            const reportsList = document.getElementById('reports-list');
+            const reports = getReportsFromStorage();
+            
+            reportsList.innerHTML = '';
+            
+            if (reports.length === 0) {
+                reportsList.innerHTML = '<p style="color: white; text-align: center; opacity: 0.7; padding: 10px;">هیچ گزارشی دریافت نشده است</p>';
+                return;
+            }
+            
+            reports.forEach(report => {
+                const reportDiv = document.createElement('div');
+                reportDiv.className = 'blocked-user-item';
+                
+                const reportTime = new Date(report.reportedAt).toLocaleString('fa-IR');
+                
+                reportDiv.innerHTML = `
+                    <div>
+                        <span style="font-weight: bold; color: white;">${report.messageSender}</span>
+                        <span style="font-size: 10px; color: rgba(255,255,255,0.7); margin-right: 10px; display: block; margin-top: 5px;">
+                            گزارش شده توسط: ${report.reporterName}
+                        </span>
+                        <span style="font-size: 10px; color: rgba(255,255,255,0.7); display: block; margin-top: 2px;">
+                            پیام: ${report.messageText.substring(0, 50)}${report.messageText.length > 50 ? '...' : ''}
+                        </span>
+                        <span style="font-size: 9px; color: rgba(255,255,255,0.5); display: block; margin-top: 2px;">
+                            ${reportTime}
+                        </span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                        <button onclick="deleteReportedMessage(${report.messageId})" style="background: #ff6b6b; color: white; border: none; padding: 3px 8px; border-radius: 3px; cursor: pointer; font-size: 10px;">
+                            حذف پیام
+                        </button>
+                        <button onclick="ignoreReport(${report.id})" style="background: #6c757d; color: white; border: none; padding: 3px 8px; border-radius: 3px; cursor: pointer; font-size: 10px;">
+                            نادیده گرفتن
+                        </button>
+                    </div>
+                `;
+                
+                reportsList.appendChild(reportDiv);
+            });
+        }
+        
+        function deleteReportedMessage(messageId) {
+            const chatServer = getChatServer();
+            const messageIndex = chatServer.messages.findIndex(m => m.id === messageId);
+            
+            if (messageIndex !== -1) {
+                chatServer.messages.splice(messageIndex, 1);
+                saveChatServer(chatServer);
+                
+                // حذف گزارش‌های مربوط به این پیام
+                const reports = getReportsFromStorage();
+                const filteredReports = reports.filter(r => r.messageId !== messageId);
+                saveReportsToStorage(filteredReports);
+                
+                showNotification('پیام گزارش شده حذف شد', 'موفقیت');
+                loadChatMessages();
+                loadReportsList();
+            }
+        }
+        
+        function ignoreReport(reportId) {
+            const reports = getReportsFromStorage();
+            const filteredReports = reports.filter(r => r.id !== reportId);
+            saveReportsToStorage(filteredReports);
+            
+            showNotification('گزارش نادیده گرفته شد', 'موفقیت');
+            loadReportsList();
+        }
+        
+        function clearAllReports() {
+            if (confirm('آیا مطمئن هستید که می‌خواهید همه گزارش‌ها را پاک کنید؟')) {
+                saveReportsToStorage([]);
+                showNotification('همه گزارش‌ها پاک شدند', 'موفقیت');
+                loadReportsList();
+            }
+        }
+        
+        function unblockUser(phone) {
+            const blockedUsers = getBlockedUsers();
+            const index = blockedUsers.indexOf(phone);
+            
+            if (index !== -1) {
+                blockedUsers.splice(index, 1);
+                saveBlockedUsers(blockedUsers);
+                
+                showNotification('مسدودیت کاربر برداشته شد', 'موفقیت');
+                loadBlockedUsersList();
+                loadUsersList();
+            }
+        }
+        
+        function updateChatPassword() {
+            if (!currentUser || currentUser.phone !== CREATOR_PHONE) {
+                showNotification('فقط سازنده می‌تواند رمز چت روم را تغییر دهد', 'خطا');
+                return;
+            }
+            
+            const newPassword = document.getElementById('new-chat-password').value.trim();
+            if (!newPassword) {
+                showNotification('لطفا رمز عبور جدید را وارد کنید', 'خطا');
+                return;
+            }
+            
+            currentChatPassword = newPassword;
+            localStorage.setItem('chatRoomPassword', newPassword);
+            document.getElementById('current-chat-password').textContent = newPassword;
+            document.getElementById('new-chat-password').value = '';
+            
+            showNotification('رمز عبور چت روم با موفقیت تغییر کرد', 'موفقیت');
+        }
+        
+        function sendAnnouncement() {
+            if (!currentUser || currentUser.phone !== CREATOR_PHONE) {
+                showNotification('فقط سازنده می‌تواند اعلان ارسال کند', 'خطا');
+                return;
+            }
+            
+            const announcementText = document.getElementById('announcement-text').value.trim();
+            if (!announcementText) {
+                showNotification('لطفا متن اعلان را وارد کنید', 'خطا');
+                return;
+            }
+            
+            const announcementMessage = {
+                id: Date.now(),
+                type: 'system',
+                text: `📢 اعلان سازنده: ${announcementText}`,
+                time: new Date().toISOString(),
+                userId: 'system'
+            };
+            
+            const chatServer = getChatServer();
+            chatServer.messages.push(announcementMessage);
+            saveChatServer(chatServer);
+            
+            document.getElementById('announcement-text').value = '';
+            
+            showNotification('اعلان با موفقیت ارسال شد', 'موفقیت');
+            loadChatMessages();
+        }
+        
+        function clearAllMessages() {
+            if (!currentUser || currentUser.phone !== CREATOR_PHONE) {
+                showNotification('فقط سازنده می‌تواند همه پیام‌ها را پاک کند', 'خطا');
+                return;
+            }
+            
+            if (confirm('آیا مطمئن هستید که می‌خواهید همه پیام‌ها را پاک کنید؟')) {
+                const chatServer = getChatServer();
+                chatServer.messages = [{
+                    id: Date.now(),
+                    type: 'system',
+                    text: '💬 چت روم توسط سازنده پاکسازی شد',
+                    time: new Date().toISOString(),
+                    userId: 'system'
+                }];
+                saveChatServer(chatServer);
+                
+                loadChatMessages();
+                showNotification('همه پیام‌ها پاک شدند', 'موفقیت');
+            }
+        }
+        
+        // ==================== توابع تنظیمات ====================
+        
+        function showSettingsModal() {
+            if (!currentUser) {
+                showNotification('لطفا ابتدا وارد شوید', 'خطا');
+                return;
+            }
+            document.getElementById('settings-modal').classList.add('active');
+            document.getElementById('settings-username').value = currentUser.name;
+        }
+        
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').classList.remove('active');
+        }
+        
+        function selectAvatarInModal(element, avatar) {
+            document.querySelectorAll('#settings-modal .avatar-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            selectedAvatarInModal = avatar;
+        }
+        
+        function updateUsername() {
+            const newName = document.getElementById('settings-username').value.trim();
+            if (!newName) {
+                showNotification('لطفا نام جدید را وارد کنید', 'خطا');
+                return;
+            }
+            
+            const users = getUsersFromStorage();
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            if (userIndex !== -1) {
+                users[userIndex].name = newName;
+                saveUsersToStorage(users);
+            }
+            
+            const chatServer = getChatServer();
+            const serverUserIndex = chatServer.users.findIndex(u => u.id === currentUser.id);
+            if (serverUserIndex !== -1) {
+                chatServer.users[serverUserIndex].name = newName;
+                saveChatServer(chatServer);
+            }
+            
+            currentUser.name = newName;
+            saveCurrentUserToStorage(currentUser);
+            document.getElementById('header-username').textContent = newName;
+            showNotification('نام کاربری با موفقیت تغییر کرد', 'موفقیت');
+        }
+        
+        function updateAvatar() {
+            if (!selectedAvatarInModal) {
+                showNotification('لطفا یک آواتار انتخاب کنید', 'خطا');
+                return;
+            }
+            
+            // بررسی آواتار انحصاری
+            if (selectedAvatarInModal === '🤴' && currentUser.phone !== CREATOR_PHONE) {
+                showNotification('این آواتار فقط برای سازنده است', 'خطا');
+                return;
+            }
+            
+            const users = getUsersFromStorage();
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            if (userIndex !== -1) {
+                users[userIndex].avatar = selectedAvatarInModal;
+                saveUsersToStorage(users);
+            }
+            
+            const chatServer = getChatServer();
+            const serverUserIndex = chatServer.users.findIndex(u => u.id === currentUser.id);
+            if (serverUserIndex !== -1) {
+                chatServer.users[serverUserIndex].avatar = selectedAvatarInModal;
+                saveChatServer(chatServer);
+            }
+            
+            currentUser.avatar = selectedAvatarInModal;
+            saveCurrentUserToStorage(currentUser);
+            document.getElementById('header-avatar').textContent = selectedAvatarInModal;
+            showNotification('آواتار با موفقیت تغییر کرد', 'موفقیت');
+        }
+        
+        function updatePassword() {
+            const currentPassword = document.getElementById('settings-current-password').value.trim();
+            const newPassword = document.getElementById('settings-new-password').value.trim();
+            const confirmPassword = document.getElementById('settings-confirm-password').value.trim();
+            
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                showNotification('لطفا تمام فیلدها را پر کنید', 'خطا');
+                return;
+            }
+            
+            if (currentPassword !== currentUser.password) {
+                showNotification('رمز عبور فعلی اشتباه است', 'خطا');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showNotification('رمز عبور جدید و تکرار آن مطابقت ندارند', 'خطا');
+                return;
+            }
+            
+            const users = getUsersFromStorage();
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            if (userIndex !== -1) {
+                users[userIndex].password = newPassword;
+                saveUsersToStorage(users);
+            }
+            
+            currentUser.password = newPassword;
+            saveCurrentUserToStorage(currentUser);
+            
+            document.getElementById('settings-current-password').value = '';
+            document.getElementById('settings-new-password').value = '';
+            document.getElementById('settings-confirm-password').value = '';
+            
+            showNotification('رمز عبور با موفقیت تغییر کرد', 'موفقیت');
+        }
+        
+        function logout() {
+            if (confirm('آیا از حساب خود خارج می‌شوید؟')) {
+                if (currentUser) {
+                    const users = getUsersFromStorage();
+                    const userIndex = users.findIndex(u => u.id === currentUser.id);
+                    if (userIndex !== -1) {
+                        users[userIndex].online = false;
+                        saveUsersToStorage(users);
+                    }
+                }
+                
+                localStorage.removeItem('currentChatUser');
+                currentUser = null;
+                
+                if (chatUpdateInterval) {
+                    clearInterval(chatUpdateInterval);
+                    chatUpdateInterval = null;
+                }
+                
+                closeSettingsModal();
+                showPage('login-page');
+                showNotification('با موفقیت خارج شدید', 'خروج');
+            }
+        }
+        
+        // ==================== توابع ذخیره‌سازی ====================
+        
+        function getUsersFromStorage() {
+            const users = localStorage.getItem('chatUsers');
+            return users ? JSON.parse(users) : [];
+        }
+        
+        function saveUsersToStorage(users) {
+            localStorage.setItem('chatUsers', JSON.stringify(users));
+        }
+        
+        function getCurrentUserFromStorage() {
+            const user = localStorage.getItem('currentChatUser');
+            return user ? JSON.parse(user) : null;
+        }
+        
+        function saveCurrentUserToStorage(user) {
+            localStorage.setItem('currentChatUser', JSON.stringify(user));
+        }
+        
+        function getChatServer() {
+            const chatServer = localStorage.getItem('chatServer');
+            if (chatServer) {
+                return JSON.parse(chatServer);
+            } else {
+                const newChatServer = {
+                    users: [],
+                    messages: [
+                        {
+                            id: 1,
+                            type: 'system',
+                            text: '👋 به Chat MAX خوش آمدید! اینجا می‌توانید با سایر کاربران چت کنید.',
+                            time: new Date().toISOString(),
+                            userId: 'system'
+                        },
+                        {
+                            id: 2,
+                            type: 'system',
+                            text: '📱 سازنده: متین (09904844031)',
+                            time: new Date().toISOString(),
+                            userId: 'system'
+                        }
+                    ]
+                };
+                saveChatServer(newChatServer);
+                return newChatServer;
+            }
+        }
+        
+        function saveChatServer(chatServer) {
+            localStorage.setItem('chatServer', JSON.stringify(chatServer));
+        }
+        
+        function getBlockedUsers() {
+            const blocked = localStorage.getItem('blockedUsers');
+            return blocked ? JSON.parse(blocked) : [];
+        }
+        
+        function saveBlockedUsers(users) {
+            localStorage.setItem('blockedUsers', JSON.stringify(users));
+        }
+        
+        function getReportsFromStorage() {
+            const reports = localStorage.getItem('chatReports');
+            return reports ? JSON.parse(reports) : [];
+        }
+        
+        function saveReportsToStorage(reports) {
+            localStorage.setItem('chatReports', JSON.stringify(reports));
+        }
+        
+        // ==================== توابع کمکی ====================
+        
+        function showNotification(message, title = 'اعلان') {
+            const notification = document.getElementById('notification');
+            document.getElementById('notification-title').textContent = title;
+            document.getElementById('notification-message').textContent = message;
+            
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        function resetRegistrationForm() {
+            currentStep = 1;
+            selectedAvatar = '👤';
+            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+            document.getElementById('step1').classList.add('active');
+            document.getElementById('user-name').value = '';
+            document.getElementById('user-phone').value = '';
+            document.getElementById('user-password').value = '';
+            document.getElementById('chat-room-password').value = '';
+            document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
+        }
+        
+        // ==================== رویدادها ====================
+        
+        // رویداد فرم چت
+        document.getElementById('chat-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            sendMessage();
+        });
+        
+        // رویداد کلید Enter
+        document.getElementById('message-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // رویداد بارگذاری صفحه
+        window.addEventListener('load', function() {
+            // بارگذاری رمز چت روم
+            const savedPassword = localStorage.getItem('chatRoomPassword');
+            if (savedPassword) {
+                currentChatPassword = savedPassword;
+                document.getElementById('current-chat-password').textContent = savedPassword;
+            }
+            
+            setTimeout(() => {
+                document.getElementById('loading-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loading-screen').style.display = 'none';
+                    
+                    const savedUser = getCurrentUserFromStorage();
+                    if (savedUser) {
+                        currentUser = savedUser;
+                        
+                        // بررسی مسدودیت دائمی
+                        const blockedUsers = getBlockedUsers();
+                        if (blockedUsers.includes(currentUser.phone)) {
+                            showNotification(`سلام دوست گرامی شما توسط متین مسدود دائمی شدید پس منتظر رفع دائمی از طرف سازنده وب باشید ممنون از شما شکیبا.`, 'مسدودیت دائمی');
+                            localStorage.removeItem('currentChatUser');
+                            currentUser = null;
+                            showPage('login-page');
+                            return;
+                        }
+                        
+                        showPage('main-chat-page');
+                    } else {
+                        showPage('register-page');
+                    }
+                }, 500);
+            }, 2500);
+        });
+    </script>
+</body>
+</html>
