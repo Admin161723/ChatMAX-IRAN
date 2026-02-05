@@ -1125,14 +1125,6 @@
             }
         }
     </style>
-    
-    <!-- ==================== تنظیمات JSONBin.io ==================== -->
-    <script>
-        // 🔴 🔴 🔴 این دو خط را با اطلاعات خودت عوض کن 🔴 🔴 🔴
-        const JSONBIN_ID = '6984ae3a43b1c97be967c32b';  // Bin ID تو
-        const JSONBIN_KEY = '$2a$10$P2f/7ECPzq3HSI.6DSdcr.MaV748WQF7smMQL1bczP6YF4XKwjNvG';  // Master Key تو
-        // ==============================================================
-    </script>
 </head>
 <body>
     <!-- صفحه لودینگ -->
@@ -1493,6 +1485,13 @@
                         <i class="fas fa-user-shield"></i> تغییر وضعیت ادمین
                     </button>
                 </div>
+                
+                <div class="form-group">
+                    <label>حذف کاربر</label>
+                    <button class="btn btn-danger" onclick="deleteUser()" id="delete-user-button" style="margin-top: 10px;">
+                        <i class="fas fa-trash"></i> حذف کامل کاربر
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1508,1362 +1507,1544 @@
         </div>
     </div>
 
-    <script>
-        // ==================== متغیرهای جهانی ====================
-        let currentUser = null;
-        let currentStep = 1;
-        let selectedAvatar = '👤';
-        let selectedAvatarInModal = null;
-        let currentChatPassword = "CHATMAX_2024";
-        const CREATOR_PHONE = "09904844031";
-        const CREATOR_NAME = "متین";
-        let chatUpdateInterval = null;
-        let userToManage = null;
-        let replyingTo = null;
-        
-        // ==================== توابع JSONBin.io ====================
-        
-        // دریافت داده‌های چت از سرور
-        async function getChatServer() {
-            try {
-                console.log('دریافت داده از JSONBin.io...');
-                const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`, {
-                    headers: {
-                        'X-Master-Key': JSONBIN_KEY,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (!response.ok) {
-                    console.log('خطا در دریافت:', response.status);
-                    return createDefaultChatServer();
-                }
-                
-                const data = await response.json();
-                console.log('داده دریافت شد:', data);
-                
-                if (!data.record || !data.record.messages) {
-                    return createDefaultChatServer();
-                }
-                
-                return data.record;
-            } catch (error) {
-                console.log('خطا در اتصال:', error);
-                return createDefaultChatServer();
+    <!-- لینک به فایل JavaScript -->
+    <script src="script.js"></script>
+<script>
+// ==================== تنظیمات JSONBin.io ====================
+// 🔴 این دو خط را با اطلاعات خودت عوض کن 🔴
+const JSONBIN_ID = '6984ae3a43b1c97be967c32b';  // Bin ID تو
+const JSONBIN_KEY = '$2a$10$P2f/7ECPzq3HSI.6DSdcr.MaV748WQF7smMQL1bczP6YF4XKwjNvG';  // Master Key تو
+// ==============================================================
+
+// ==================== متغیرهای جهانی ====================
+let currentUser = null;
+let currentStep = 1;
+let selectedAvatar = '👤';
+let selectedAvatarInModal = null;
+let currentChatPassword = "CHATMAX_2024";
+const CREATOR_PHONE = "09904844031";
+const CREATOR_NAME = "متین";
+let chatUpdateInterval = null;
+let userToManage = null;
+let replyingTo = null;
+
+// ==================== توابع JSONBin.io ====================
+
+// دریافت داده‌های چت از سرور
+async function getChatServer() {
+    try {
+        console.log('دریافت داده از JSONBin.io...');
+        const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`, {
+            headers: {
+                'X-Master-Key': JSONBIN_KEY,
+                'Content-Type': 'application/json'
             }
+        });
+        
+        if (!response.ok) {
+            console.log('خطا در دریافت:', response.status);
+            return createDefaultChatServer();
         }
         
-        // ایجاد سرور چت پیش‌فرض
-        function createDefaultChatServer() {
-            return {
-                users: [],
-                messages: [
-                    {
-                        id: 1,
-                        type: 'system',
-                        text: '👋 به Chat MAX خوش آمدید!',
-                        time: new Date().toISOString(),
-                        userId: 'system'
-                    },
-                    {
-                        id: 2,
-                        type: 'system',
-                        text: '💬 حالا می‌توانید با همه چت کنید!',
-                        time: new Date().toISOString(),
-                        userId: 'system'
-                    }
-                ]
-            };
+        const data = await response.json();
+        console.log('داده دریافت شد:', data);
+        
+        if (!data.record || !data.record.messages) {
+            return createDefaultChatServer();
         }
         
-        // ذخیره داده‌های چت در سرور
-        async function saveChatServer(chatServer) {
-            try {
-                // محدود کردن پیام‌ها به ۱۰۰ تای آخر
-                if (chatServer.messages.length > 100) {
-                    chatServer.messages = chatServer.messages.slice(-100);
-                }
-                
-                console.log('ذخیره داده در JSONBin.io...');
-                const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': JSONBIN_KEY
-                    },
-                    body: JSON.stringify(chatServer)
-                });
-                
-                if (!response.ok) {
-                    console.log('خطا در ذخیره:', response.status);
-                } else {
-                    console.log('داده با موفقیت ذخیره شد');
-                }
-            } catch (error) {
-                console.log('خطا در ذخیره:', error);
+        return data.record;
+    } catch (error) {
+        console.log('خطا در اتصال:', error);
+        return createDefaultChatServer();
+    }
+}
+
+// ایجاد سرور چت پیش‌فرض
+function createDefaultChatServer() {
+    return {
+        users: [],
+        messages: [
+            {
+                id: 1,
+                type: 'system',
+                text: '👋 به Chat MAX خوش آمدید!',
+                time: new Date().toISOString(),
+                userId: 'system'
+            },
+            {
+                id: 2,
+                type: 'system',
+                text: '💬 حالا می‌توانید با همه چت کنید!',
+                time: new Date().toISOString(),
+                userId: 'system'
             }
+        ]
+    };
+}
+
+// ذخیره داده‌های چت در سرور
+async function saveChatServer(chatServer) {
+    try {
+        // محدود کردن پیام‌ها به ۱۰۰ تای آخر
+        if (chatServer.messages.length > 100) {
+            chatServer.messages = chatServer.messages.slice(-100);
         }
         
-        // ==================== توابع اصلی ====================
+        console.log('ذخیره داده در JSONBin.io...');
+        const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': JSONBIN_KEY
+            },
+            body: JSON.stringify(chatServer)
+        });
         
-        // نمایش صفحه مورد نظر
-        function showPage(pageId) {
-            // پنهان کردن همه صفحات
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-            
-            // نمایش صفحه درخواستی
-            document.getElementById(pageId).classList.add('active');
-            
-            if (pageId === 'main-chat-page') {
-                loadChatData();
-                startChatUpdates();
-                checkUserBanned();
-            } else if (pageId === 'users-page') {
-                loadUsersList();
-                
-                // نمایش پنل سازنده فقط اگر سازنده است
-                if (currentUser && currentUser.phone === CREATOR_PHONE) {
-                    document.getElementById('creator-panel').style.display = 'block';
-                    loadBlockedUsersList();
-                    loadReportsList();
-                } else {
-                    document.getElementById('creator-panel').style.display = 'none';
-                }
-            } else if (pageId === 'register-page') {
-                resetRegistrationForm();
-            }
+        if (!response.ok) {
+            console.log('خطا در ذخیره:', response.status);
+        } else {
+            console.log('داده با موفقیت ذخیره شد');
+        }
+    } catch (error) {
+        console.log('خطا در ذخیره:', error);
+    }
+}
+
+// ==================== توابع اصلی ====================
+
+// نمایش صفحه مورد نظر
+function showPage(pageId) {
+    // پنهان کردن همه صفحات
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+    
+    // نمایش صفحه درخواستی
+    document.getElementById(pageId).classList.add('active');
+    
+    if (pageId === 'main-chat-page') {
+        loadChatData();
+        startChatUpdates();
+        checkUserBanned();
+    } else if (pageId === 'users-page') {
+        loadUsersList();
+        
+        // نمایش پنل سازنده فقط اگر سازنده است
+        if (currentUser && currentUser.phone === CREATOR_PHONE) {
+            document.getElementById('creator-panel').style.display = 'block';
+            loadBlockedUsersList();
+            loadReportsList();
+        } else {
+            document.getElementById('creator-panel').style.display = 'none';
+        }
+    } else if (pageId === 'register-page') {
+        resetRegistrationForm();
+    }
+}
+
+// نمایش صفحه چت
+function showChatPage() {
+    showPage('main-chat-page');
+}
+
+// نمایش صفحه کاربران
+function showUsersPage() {
+    if (!currentUser) {
+        showNotification('لطفا ابتدا وارد شوید', 'خطا');
+        showPage('login-page');
+        return;
+    }
+    showPage('users-page');
+}
+
+// تغییر مرحله ثبت‌نام
+function nextStep(step) {
+    if (!validateStep(currentStep)) return;
+    document.getElementById(`step${currentStep}`).classList.remove('active');
+    document.getElementById(`step${step}`).classList.add('active');
+    currentStep = step;
+}
+
+// بازگشت به مرحله قبلی
+function prevStep(step) {
+    document.getElementById(`step${currentStep}`).classList.remove('active');
+    document.getElementById(`step${step}`).classList.add('active');
+    currentStep = step;
+}
+
+// اعتبارسنجی مراحل ثبت‌نام
+function validateStep(step) {
+    if (step === 1) {
+        const name = document.getElementById('user-name').value.trim();
+        if (!name) {
+            showNotification('لطفا نام خود را وارد کنید', 'خطا');
+            return false;
+        }
+    } else if (step === 2) {
+        const phone = document.getElementById('user-phone').value.trim();
+        const phoneRegex = /^09[0-9]{9}$/;
+        if (!phoneRegex.test(phone)) {
+            showNotification('شماره موبایل معتبر وارد کنید', 'خطا');
+            return false;
         }
         
-        // نمایش صفحه چت
-        function showChatPage() {
-            showPage('main-chat-page');
+        // بررسی مسدودیت دائمی
+        const blockedUsers = getBlockedUsers();
+        if (blockedUsers.includes(phone)) {
+            showNotification('سلام دوست گرامی شما توسط متین مسدود دائمی شدید. لطفاً منتظر رفع دائمی از طرف سازنده وب باشید. ممنون از شما شکیبا.', 'مسدودیت دائمی');
+            document.getElementById('user-phone').classList.add('input-error');
+            setTimeout(() => {
+                document.getElementById('user-phone').classList.remove('input-error');
+            }, 500);
+            return false;
         }
         
-        // نمایش صفحه کاربران
-        function showUsersPage() {
-            if (!currentUser) {
-                showNotification('لطفا ابتدا وارد شوید', 'خطا');
-                showPage('login-page');
-                return;
-            }
-            showPage('users-page');
+        // بررسی آواتار انحصاری سازنده
+        if (selectedAvatar === '🤴' && phone !== CREATOR_PHONE) {
+            showNotification('این آواتار فقط برای سازنده است', 'خطا');
+            return false;
         }
         
-        // تغییر مرحله ثبت‌نام
-        function nextStep(step) {
-            if (!validateStep(currentStep)) return;
-            document.getElementById(`step${currentStep}`).classList.remove('active');
-            document.getElementById(`step${step}`).classList.add('active');
-            currentStep = step;
+        if (!selectedAvatar) {
+            showNotification('لطفا یک آواتار انتخاب کنید', 'خطا');
+            return false;
         }
+    }
+    return true;
+}
+
+// انتخاب آواتار
+function selectAvatar(element, avatar) {
+    document.querySelectorAll('.avatar-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+    element.classList.add('selected');
+    selectedAvatar = avatar;
+}
+
+// ثبت نام کاربر
+async function registerUser() {
+    const name = document.getElementById('user-name').value.trim();
+    const phone = document.getElementById('user-phone').value.trim();
+    const password = document.getElementById('user-password').value.trim();
+    const chatRoomPassword = document.getElementById('chat-room-password').value.trim();
+    
+    if (!name || !phone || !password || !chatRoomPassword) {
+        showNotification('لطفا تمام فیلدها را پر کنید', 'خطا');
+        return;
+    }
+    
+    // بررسی مسدودیت دائمی
+    const blockedUsers = getBlockedUsers();
+    if (blockedUsers.includes(phone)) {
+        showNotification('سلام دوست گرامی شما توسط متین مسدود دائمی شدید. لطفاً منتظر رفع دائمی از طرف سازنده وب باشید. ممنون از شما شکیبا.', 'مسدودیت دائمی');
+        return;
+    }
+    
+    // بررسی آواتار انحصاری
+    if (selectedAvatar === '🤴' && phone !== CREATOR_PHONE) {
+        showNotification('این آواتار فقط برای سازنده است', 'خطا');
+        return;
+    }
+    
+    if (chatRoomPassword !== currentChatPassword) {
+        showNotification('رمز عبور چت روم اشتباه است', 'خطا');
+        return;
+    }
+    
+    const users = getUsersFromStorage();
+    if (users.find(user => user.phone === phone)) {
+        showNotification('کاربری با این شماره موبایل وجود دارد', 'خطا');
+        return;
+    }
+    
+    const newUser = {
+        id: Date.now(),
+        name: name,
+        phone: phone,
+        avatar: selectedAvatar,
+        password: password,
+        online: true,
+        isAdmin: false,
+        isCreator: phone === CREATOR_PHONE,
+        registeredAt: new Date().toISOString(),
+        lastActivity: new Date().toISOString(),
+        bannedUntil: null
+    };
+    
+    users.push(newUser);
+    saveUsersToStorage(users);
+    
+    currentUser = newUser;
+    saveCurrentUserToStorage(currentUser);
+    
+    await addUserToChatServer(newUser);
+    
+    showNotification('حساب کاربری با موفقیت ایجاد شد!', 'موفقیت');
+    
+    setTimeout(() => {
+        showPage('main-chat-page');
+    }, 1000);
+}
+
+// ورود کاربر
+async function loginUser() {
+    const phone = document.getElementById('login-phone').value.trim();
+    const password = document.getElementById('login-password').value.trim();
+    const chatRoomPassword = document.getElementById('login-chat-password').value.trim();
+    
+    if (!phone || !password || !chatRoomPassword) {
+        showNotification('لطفا تمام فیلدها را پر کنید', 'خطا');
+        return;
+    }
+    
+    // بررسی مسدودیت دائمی
+    const blockedUsers = getBlockedUsers();
+    if (blockedUsers.includes(phone)) {
+        showNotification('سلام دوست گرامی شما توسط متین مسدود دائمی شدید. لطفاً منتظر رفع دائمی از طرف سازنده وب باشید. ممنون از شما شکیبا.', 'مسدودیت دائمی');
+        return;
+    }
+    
+    if (chatRoomPassword !== currentChatPassword) {
+        showNotification('رمز عبور چت روم اشتباه است', 'خطا');
+        return;
+    }
+    
+    const users = getUsersFromStorage();
+    const user = users.find(u => u.phone === phone && u.password === password);
+    
+    if (!user) {
+        showNotification('شماره موبایل یا رمز عبور اشتباه است', 'خطا');
+        return;
+    }
+    
+    // بررسی بن بودن
+    if (user.bannedUntil && new Date(user.bannedUntil) > new Date()) {
+        const remainingTime = Math.ceil((new Date(user.bannedUntil) - new Date()) / 1000 / 60);
+        showNotification(`شما بن شده‌اید! زمان باقی‌مانده: ${remainingTime} دقیقه`, 'بن شده');
+        return;
+    }
+    
+    user.online = true;
+    user.lastActivity = new Date().toISOString();
+    saveUsersToStorage(users);
+    
+    currentUser = user;
+    saveCurrentUserToStorage(currentUser);
+    
+    await addUserToChatServer(user);
+    
+    showNotification(`خوش آمدید ${user.name}!`, 'ورود موفق');
+    
+    setTimeout(() => {
+        showPage('main-chat-page');
+    }, 1000);
+}
+
+// ==================== توابع چت ====================
+
+// اضافه کردن کاربر به چت سرور
+async function addUserToChatServer(user) {
+    try {
+        const chatServer = await getChatServer();
         
-        // بازگشت به مرحله قبلی
-        function prevStep(step) {
-            document.getElementById(`step${currentStep}`).classList.remove('active');
-            document.getElementById(`step${step}`).classList.add('active');
-            currentStep = step;
-        }
-        
-        // اعتبارسنجی مراحل ثبت‌نام
-        function validateStep(step) {
-            if (step === 1) {
-                const name = document.getElementById('user-name').value.trim();
-                if (!name) {
-                    showNotification('لطفا نام خود را وارد کنید', 'خطا');
-                    return false;
-                }
-            } else if (step === 2) {
-                const phone = document.getElementById('user-phone').value.trim();
-                const phoneRegex = /^09[0-9]{9}$/;
-                if (!phoneRegex.test(phone)) {
-                    showNotification('شماره موبایل معتبر وارد کنید', 'خطا');
-                    return false;
-                }
-                
-                // بررسی مسدودیت دائمی
-                const blockedUsers = getBlockedUsers();
-                if (blockedUsers.includes(phone)) {
-                    showNotification('سلام دوست گرامی شما توسط متین مسدود دائمی شدید. لطفاً منتظر رفع دائمی از طرف سازنده وب باشید. ممنون از شما شکیبا.', 'مسدودیت دائمی');
-                    document.getElementById('user-phone').classList.add('input-error');
-                    setTimeout(() => {
-                        document.getElementById('user-phone').classList.remove('input-error');
-                    }, 500);
-                    return false;
-                }
-                
-                // بررسی آواتار انحصاری سازنده
-                if (selectedAvatar === '🤴' && phone !== CREATOR_PHONE) {
-                    showNotification('این آواتار فقط برای سازنده است', 'خطا');
-                    return false;
-                }
-                
-                if (!selectedAvatar) {
-                    showNotification('لطفا یک آواتار انتخاب کنید', 'خطا');
-                    return false;
-                }
-            }
-            return true;
-        }
-        
-        // انتخاب آواتار
-        function selectAvatar(element, avatar) {
-            document.querySelectorAll('.avatar-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            element.classList.add('selected');
-            selectedAvatar = avatar;
-        }
-        
-        // ثبت نام کاربر
-        async function registerUser() {
-            const name = document.getElementById('user-name').value.trim();
-            const phone = document.getElementById('user-phone').value.trim();
-            const password = document.getElementById('user-password').value.trim();
-            const chatRoomPassword = document.getElementById('chat-room-password').value.trim();
-            
-            if (!name || !phone || !password || !chatRoomPassword) {
-                showNotification('لطفا تمام فیلدها را پر کنید', 'خطا');
-                return;
-            }
-            
-            // بررسی مسدودیت دائمی
-            const blockedUsers = getBlockedUsers();
-            if (blockedUsers.includes(phone)) {
-                showNotification('سلام دوست گرامی شما توسط متین مسدود دائمی شدید. لطفاً منتظر رفع دائمی از طرف سازنده وب باشید. ممنون از شما شکیبا.', 'مسدودیت دائمی');
-                return;
-            }
-            
-            // بررسی آواتار انحصاری
-            if (selectedAvatar === '🤴' && phone !== CREATOR_PHONE) {
-                showNotification('این آواتار فقط برای سازنده است', 'خطا');
-                return;
-            }
-            
-            if (chatRoomPassword !== currentChatPassword) {
-                showNotification('رمز عبور چت روم اشتباه است', 'خطا');
-                return;
-            }
-            
-            const users = getUsersFromStorage();
-            if (users.find(user => user.phone === phone)) {
-                showNotification('کاربری با این شماره موبایل وجود دارد', 'خطا');
-                return;
-            }
-            
-            const newUser = {
-                id: Date.now(),
-                name: name,
-                phone: phone,
-                avatar: selectedAvatar,
-                password: password,
+        if (!chatServer.users.find(u => u.id === user.id)) {
+            chatServer.users.push({
+                id: user.id,
+                name: user.name,
+                avatar: user.avatar,
+                phone: user.phone,
                 online: true,
-                isAdmin: false,
-                isCreator: phone === CREATOR_PHONE,
-                registeredAt: new Date().toISOString(),
-                lastActivity: new Date().toISOString(),
-                bannedUntil: null
+                isAdmin: user.isAdmin,
+                isCreator: user.isCreator,
+                joinedAt: new Date().toISOString(),
+                lastActivity: new Date().toISOString()
+            });
+            
+            await saveChatServer(chatServer);
+            
+            const welcomeMessage = {
+                id: Date.now(),
+                type: 'system',
+                text: `👋 ${user.name} به چت روم پیوست`,
+                time: new Date().toISOString(),
+                userId: 'system'
             };
             
-            users.push(newUser);
-            saveUsersToStorage(users);
+            chatServer.messages.push(welcomeMessage);
+            await saveChatServer(chatServer);
             
-            currentUser = newUser;
-            saveCurrentUserToStorage(currentUser);
-            
-            await addUserToChatServer(newUser);
-            
-            showNotification('حساب کاربری با موفقیت ایجاد شد!', 'موفقیت');
-            
-            setTimeout(() => {
-                showPage('main-chat-page');
-            }, 1000);
+            loadChatMessages();
+        }
+    } catch (error) {
+        console.error('خطا در اضافه کردن کاربر:', error);
+    }
+}
+
+// بارگذاری داده‌های چت
+async function loadChatData() {
+    if (!currentUser) {
+        const savedUser = getCurrentUserFromStorage();
+        if (savedUser) {
+            currentUser = savedUser;
+        } else {
+            showPage('login-page');
+            return;
+        }
+    }
+    
+    document.getElementById('header-username').textContent = currentUser.name;
+    document.getElementById('header-avatar').textContent = currentUser.avatar;
+    
+    // نمایش رمز چت روم فعلی برای سازنده
+    if (currentUser.isCreator) {
+        document.getElementById('current-chat-password').textContent = currentChatPassword;
+    }
+    
+    await loadChatMessages();
+    updateOnlineCount();
+}
+
+// بارگذاری پیام‌های چت
+async function loadChatMessages() {
+    const chatMessages = document.getElementById('chat-messages');
+    const chatServer = await getChatServer();
+    
+    chatMessages.innerHTML = '';
+    
+    // اگر پیامی وجود ندارد
+    if (chatServer.messages.length === 0) {
+        chatMessages.innerHTML = `
+            <div class="empty-chat">
+                <i class="fas fa-comment-slash"></i>
+                <h3>هنوز هیچ پیامی ارسال نشده است!</h3>
+                <p>اولین نفری باشید که پیام می‌فرستد</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // نمایش همه پیام‌ها
+    chatServer.messages.forEach(message => {
+        displayMessage(message);
+    });
+    
+    setTimeout(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 100);
+}
+
+// نمایش پیام در چت
+async function displayMessage(message) {
+    const chatMessages = document.getElementById('chat-messages');
+    
+    // اگر پیام خالی نمایش داده می‌شود، آن را حذف کن
+    const emptyChat = chatMessages.querySelector('.empty-chat');
+    if (emptyChat) {
+        emptyChat.remove();
+    }
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.setAttribute('data-message-id', message.id);
+    
+    if (message.type === 'system') {
+        // پیام سیستم
+        messageDiv.className = 'message received';
+        messageDiv.style.maxWidth = '100%';
+        messageDiv.style.background = '#e6f7f5';
+        messageDiv.style.textAlign = 'center';
+        messageDiv.style.border = '1px solid #4ecdc4';
+        
+        const time = new Date(message.time).toLocaleTimeString('fa-IR', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        messageDiv.innerHTML = `
+            <div class="message-content" style="color: #1a1a2e;">${message.text}</div>
+            <div class="message-time">${time}</div>
+        `;
+    } else {
+        // پیام عادی
+        const isSent = message.userId === currentUser.id;
+        messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+        
+        // پیدا کردن اطلاعات فرستنده
+        const chatServer = await getChatServer();
+        const user = chatServer.users.find(u => u.id === message.userId) || { name: 'کاربر', avatar: '👤', isCreator: false, isAdmin: false };
+        
+        const time = new Date(message.time).toLocaleTimeString('fa-IR', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        // تیک آبی برای سازنده و تیک سیاه برای ادمین
+        let tick = '';
+        if (user.isCreator) {
+            tick = '<span class="user-tick tick-creator"><i class="fas fa-check"></i></span>';
+        } else if (user.isAdmin) {
+            tick = '<span class="user-tick tick-admin"><i class="fas fa-check"></i></span>';
         }
         
-        // ورود کاربر
-        async function loginUser() {
-            const phone = document.getElementById('login-phone').value.trim();
-            const password = document.getElementById('login-password').value.trim();
-            const chatRoomPassword = document.getElementById('login-chat-password').value.trim();
-            
-            if (!phone || !password || !chatRoomPassword) {
-                showNotification('لطفا تمام فیلدها را پر کنید', 'خطا');
-                return;
-            }
-            
-            // بررسی مسدودیت دائمی
-            const blockedUsers = getBlockedUsers();
-            if (blockedUsers.includes(phone)) {
-                showNotification('سلام دوست گرامی شما توسط متین مسدود دائمی شدید. لطفاً منتظر رفع دائمی از طرف سازنده وب باشید. ممنون از شما شکیبا.', 'مسدودیت دائمی');
-                return;
-            }
-            
-            if (chatRoomPassword !== currentChatPassword) {
-                showNotification('رمز عبور چت روم اشتباه است', 'خطا');
-                return;
-            }
-            
-            const users = getUsersFromStorage();
-            const user = users.find(u => u.phone === phone && u.password === password);
-            
-            if (!user) {
-                showNotification('شماره موبایل یا رمز عبور اشتباه است', 'خطا');
-                return;
-            }
-            
-            // بررسی بن بودن
-            if (user.bannedUntil && new Date(user.bannedUntil) > new Date()) {
-                const remainingTime = Math.ceil((new Date(user.bannedUntil) - new Date()) / 1000 / 60);
-                showNotification(`شما بن شده‌اید! زمان باقی‌مانده: ${remainingTime} دقیقه`, 'بن شده');
-                return;
-            }
-            
-            user.online = true;
-            user.lastActivity = new Date().toISOString();
-            saveUsersToStorage(users);
-            
-            currentUser = user;
-            saveCurrentUserToStorage(currentUser);
-            
-            await addUserToChatServer(user);
-            
-            showNotification(`خوش آمدید ${user.name}!`, 'ورود موفق');
-            
-            setTimeout(() => {
-                showPage('main-chat-page');
-            }, 1000);
+        // دکمه گزارش برای کاربران به جز خودشان و سازنده
+        let reportButton = '';
+        if (!isSent && currentUser && !currentUser.isCreator) {
+            reportButton = `
+                <button class="report-button" onclick="reportMessage(${message.id})" style="margin-top: 5px;">
+                    <i class="fas fa-flag"></i> گزارش
+                </button>
+            `;
         }
         
-        // ==================== توابع چت ====================
-        
-        // اضافه کردن کاربر به چت سرور
-        async function addUserToChatServer(user) {
-            try {
-                const chatServer = await getChatServer();
-                
-                if (!chatServer.users.find(u => u.id === user.id)) {
-                    chatServer.users.push({
-                        id: user.id,
-                        name: user.name,
-                        avatar: user.avatar,
-                        phone: user.phone,
-                        online: true,
-                        isAdmin: user.isAdmin,
-                        isCreator: user.isCreator,
-                        joinedAt: new Date().toISOString(),
-                        lastActivity: new Date().toISOString()
-                    });
-                    
-                    await saveChatServer(chatServer);
-                    
-                    const welcomeMessage = {
-                        id: Date.now(),
-                        type: 'system',
-                        text: `👋 ${user.name} به چت روم پیوست`,
-                        time: new Date().toISOString(),
-                        userId: 'system'
-                    };
-                    
-                    chatServer.messages.push(welcomeMessage);
-                    await saveChatServer(chatServer);
-                    
-                    loadChatMessages();
-                }
-            } catch (error) {
-                console.error('خطا در اضافه کردن کاربر:', error);
-            }
+        // دکمه حذف پیام - فقط برای سازنده، ادمین و صاحب پیام
+        let deleteButton = '';
+        if (currentUser && (currentUser.isCreator || currentUser.isAdmin || currentUser.id === message.userId)) {
+            deleteButton = `
+                <button class="report-button" onclick="deleteMessage(${message.id})" style="background: #ff4757; margin-left: 5px;">
+                    <i class="fas fa-trash"></i> حذف
+                </button>
+            `;
         }
         
-        // بارگذاری داده‌های چت
-        async function loadChatData() {
-            if (!currentUser) {
-                const savedUser = getCurrentUserFromStorage();
-                if (savedUser) {
-                    currentUser = savedUser;
-                } else {
-                    showPage('login-page');
-                    return;
-                }
-            }
-            
-            document.getElementById('header-username').textContent = currentUser.name;
-            document.getElementById('header-avatar').textContent = currentUser.avatar;
-            
-            // نمایش رمز چت روم فعلی برای سازنده
-            if (currentUser.isCreator) {
-                document.getElementById('current-chat-password').textContent = currentChatPassword;
-            }
-            
-            await loadChatMessages();
-            updateOnlineCount();
+        // اگر پیام گزارش شده است
+        if (message.reported) {
+            messageDiv.classList.add('reported-message');
         }
         
-        // بارگذاری پیام‌های چت
-        async function loadChatMessages() {
-            const chatMessages = document.getElementById('chat-messages');
-            const chatServer = await getChatServer();
-            
-            chatMessages.innerHTML = '';
-            
-            // اگر پیامی وجود ندارد
-            if (chatServer.messages.length === 0) {
-                chatMessages.innerHTML = `
-                    <div class="empty-chat">
-                        <i class="fas fa-comment-slash"></i>
-                        <h3>هنوز هیچ پیامی ارسال نشده است!</h3>
-                        <p>اولین نفری باشید که پیام می‌فرستد</p>
+        // اگر پاسخ به پیامی است
+        let replySection = '';
+        if (message.replyTo) {
+            const originalMessage = chatServer.messages.find(m => m.id === message.replyTo);
+            if (originalMessage) {
+                const originalUser = chatServer.users.find(u => u.id === originalMessage.userId) || { name: 'کاربر' };
+                replySection = `
+                    <div class="reply-container">
+                        <div class="reply-sender">پاسخ به ${originalUser.name}</div>
+                        <div class="reply-text">${originalMessage.text.substring(0, 50)}${originalMessage.text.length > 50 ? '...' : ''}</div>
                     </div>
                 `;
-                return;
             }
-            
-            // نمایش همه پیام‌ها
-            chatServer.messages.forEach(message => {
-                displayMessage(message);
-            });
-            
-            setTimeout(() => {
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }, 100);
         }
         
-        // نمایش پیام در چت
-        function displayMessage(message) {
+        messageDiv.innerHTML = `
+            <div class="message-header">
+                <div class="message-avatar">${user.avatar}</div>
+                <div class="message-sender">
+                    ${isSent ? 'شما' : user.name}
+                    ${tick}
+                </div>
+            </div>
+            ${replySection}
+            <div class="message-content">${message.text}</div>
+            <div style="margin-top: 5px;">
+                ${reportButton}
+                <button class="report-button" onclick="replyToMessage(${message.id})" style="background: #4ecdc4; padding: 3px 8px; font-size: 10px;">
+                    <i class="fas fa-reply"></i> پاسخ
+                </button>
+                ${deleteButton}
+            </div>
+            <div class="message-time">${time}</div>
+        `;
+    }
+    
+    chatMessages.appendChild(messageDiv);
+}
+
+// حذف پیام
+async function deleteMessage(messageId) {
+    if (!currentUser) {
+        showNotification('لطفا ابتدا وارد شوید', 'خطا');
+        return;
+    }
+    
+    if (!confirm('آیا مطمئن هستید که می‌خواهید این پیام را حذف کنید؟')) {
+        return;
+    }
+    
+    try {
+        const chatServer = await getChatServer();
+        const messageIndex = chatServer.messages.findIndex(m => m.id === messageId);
+        
+        if (messageIndex === -1) {
+            showNotification('پیام پیدا نشد', 'خطا');
+            return;
+        }
+        
+        const message = chatServer.messages[messageIndex];
+        
+        // بررسی مجوز حذف
+        if (!currentUser.isCreator && !currentUser.isAdmin && currentUser.id !== message.userId) {
+            showNotification('شما مجاز به حذف این پیام نیستید', 'خطا');
+            return;
+        }
+        
+        // حذف پیام
+        chatServer.messages.splice(messageIndex, 1);
+        await saveChatServer(chatServer);
+        
+        // حذف از صفحه
+        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+        if (messageElement) {
+            messageElement.remove();
+        }
+        
+        // اگر همه پیام‌ها حذف شدند، پیام خالی نمایش دهیم
+        if (chatServer.messages.length === 0) {
             const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = `
+                <div class="empty-chat">
+                    <i class="fas fa-comment-slash"></i>
+                    <h3>هنوز هیچ پیامی ارسال نشده است!</h3>
+                    <p>اولین نفری باشید که پیام می‌فرستد</p>
+                </div>
+            `;
+        }
+        
+        showNotification('پیام با موفقیت حذف شد', 'موفقیت');
+    } catch (error) {
+        console.error('خطا در حذف پیام:', error);
+        showNotification('خطا در حذف پیام', 'خطا');
+    }
+}
+
+// ارسال پیام
+async function sendMessage() {
+    const input = document.getElementById('message-input');
+    const text = input.value.trim();
+    
+    // اعتبارسنجی
+    if (!text) {
+        showNotification('لطفا پیامی بنویسید', 'خطا');
+        input.focus();
+        return;
+    }
+    
+    if (!currentUser) {
+        showNotification('لطفا ابتدا وارد شوید', 'خطا');
+        return;
+    }
+    
+    // بررسی بن بودن کاربر
+    if (currentUser.bannedUntil && new Date(currentUser.bannedUntil) > new Date()) {
+        const remainingTime = Math.ceil((new Date(currentUser.bannedUntil) - new Date()) / 1000 / 60);
+        showNotification(`شما بن شده‌اید! زمان باقی‌مانده: ${remainingTime} دقیقه`, 'بن شده');
+        return;
+    }
+    
+    // ایجاد پیام جدید
+    const newMessage = {
+        id: Date.now(),
+        type: 'message',
+        text: text,
+        time: new Date().toISOString(),
+        userId: currentUser.id,
+        replyTo: replyingTo || null
+    };
+    
+    try {
+        // دریافت داده‌های فعلی
+        const chatServer = await getChatServer();
+        
+        // اضافه کردن پیام جدید
+        chatServer.messages.push(newMessage);
+        
+        // ذخیره در سرور
+        await saveChatServer(chatServer);
+        
+        // نمایش پیام
+        displayMessage(newMessage);
+        
+        // پاک کردن فیلد ورودی و تنظیمات پاسخ
+        input.value = '';
+        input.focus();
+        replyingTo = null;
+        
+        // اسکرول به پایین
+        const chatMessages = document.getElementById('chat-messages');
+        setTimeout(() => {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 100);
+        
+        // نوتیفیکیشن
+        showNotification('پیام شما ارسال شد', 'موفقیت');
+    } catch (error) {
+        console.error('خطا در ارسال پیام:', error);
+        showNotification('خطا در ارسال پیام', 'خطا');
+    }
+}
+
+// پاسخ به پیام
+async function replyToMessage(messageId) {
+    const chatServer = await getChatServer();
+    const message = chatServer.messages.find(m => m.id === messageId);
+    
+    if (message) {
+        const user = chatServer.users.find(u => u.id === message.userId) || { name: 'کاربر' };
+        replyingTo = messageId;
+        
+        const input = document.getElementById('message-input');
+        input.value = '';
+        input.placeholder = `پاسخ به ${user.name}: ${message.text.substring(0, 30)}...`;
+        input.focus();
+        
+        showNotification(`در حال پاسخ به ${user.name}`, 'پاسخ');
+    }
+}
+
+// گزارش پیام
+async function reportMessage(messageId) {
+    if (!currentUser) return;
+    
+    const chatServer = await getChatServer();
+    const message = chatServer.messages.find(m => m.id === messageId);
+    
+    if (message) {
+        // ذخیره گزارش
+        const reports = getReportsFromStorage();
+        const newReport = {
+            id: Date.now(),
+            messageId: messageId,
+            reporterId: currentUser.id,
+            reporterName: currentUser.name,
+            reportedAt: new Date().toISOString(),
+            messageText: message.text,
+            messageSender: chatServer.users.find(u => u.id === message.userId)?.name || 'ناشناس'
+        };
+        
+        reports.push(newReport);
+        saveReportsToStorage(reports);
+        
+        // علامت گذاری پیام به عنوان گزارش شده
+        message.reported = true;
+        await saveChatServer(chatServer);
+        
+        // بارگذاری مجدد پیام‌ها
+        loadChatMessages();
+        
+        showNotification('پیام با موفقیت گزارش شد', 'گزارش');
+        
+        // اگر سازنده آنلاین است، نوتیفیکیشن
+        if (currentUser.isCreator) {
+            loadReportsList();
+        }
+    }
+}
+
+// شروع به‌روزرسانی‌های خودکار
+function startChatUpdates() {
+    if (chatUpdateInterval) clearInterval(chatUpdateInterval);
+    
+    chatUpdateInterval = setInterval(async () => {
+        await updateOnlineStatus();
+        await updateOnlineCount();
+        checkBannedUsers();
+    }, 5000);
+}
+
+// به‌روزرسانی وضعیت آنلاین
+async function updateOnlineStatus() {
+    if (!currentUser) return;
+    
+    const users = getUsersFromStorage();
+    const userIndex = users.findIndex(u => u.id === currentUser.id);
+    if (userIndex !== -1) {
+        users[userIndex].lastActivity = new Date().toISOString();
+        saveUsersToStorage(users);
+    }
+    
+    try {
+        const chatServer = await getChatServer();
+        const serverUserIndex = chatServer.users.findIndex(u => u.id === currentUser.id);
+        if (serverUserIndex !== -1) {
+            chatServer.users[serverUserIndex].lastActivity = new Date().toISOString();
+            await saveChatServer(chatServer);
+        }
+    } catch (error) {
+        console.error('خطا در به‌روزرسانی وضعیت:', error);
+    }
+}
+
+// به‌روزرسانی تعداد کاربران آنلاین
+async function updateOnlineCount() {
+    try {
+        const chatServer = await getChatServer();
+        const onlineCount = chatServer.users.filter(user => {
+            if (!user.lastActivity) return false;
+            const lastActivity = new Date(user.lastActivity);
+            const now = new Date();
+            const diffInSeconds = (now - lastActivity) / 1000;
+            return diffInSeconds < 30;
+        }).length;
+        
+        document.getElementById('online-count-text').textContent = onlineCount;
+    } catch (error) {
+        console.error('خطا در به‌روزرسانی تعداد آنلاین:', error);
+    }
+}
+
+// ==================== توابع لیست کاربران ====================
+
+async function loadUsersList() {
+    const usersList = document.getElementById('users-list');
+    
+    try {
+        const chatServer = await getChatServer();
+        
+        const totalUsers = chatServer.users.length;
+        const onlineUsers = chatServer.users.filter(user => {
+            if (!user.lastActivity) return false;
+            const lastActivity = new Date(user.lastActivity);
+            const now = new Date();
+            return (now - lastActivity) / 1000 < 30;
+        }).length;
+        const offlineUsers = totalUsers - onlineUsers;
+        
+        document.getElementById('total-users').textContent = totalUsers;
+        document.getElementById('online-users').textContent = onlineUsers;
+        document.getElementById('offline-users').textContent = offlineUsers;
+        
+        usersList.innerHTML = '';
+        
+        // اگر کاربری وجود ندارد
+        if (chatServer.users.length === 0) {
+            usersList.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #666;">
+                    <i class="fas fa-users" style="font-size: 60px; opacity: 0.5; margin-bottom: 20px;"></i>
+                    <h3>هنوز کاربری ثبت‌نام نکرده است</h3>
+                    <p>اولین نفری باشید که ثبت‌نام می‌کند</p>
+                </div>
+            `;
+            return;
+        }
+        
+        chatServer.users.forEach(user => {
+            const isOnline = user.lastActivity && (new Date() - new Date(user.lastActivity)) / 1000 < 30;
+            const userElement = document.createElement('div');
+            userElement.className = 'user-item';
             
-            // اگر پیام خالی نمایش داده می‌شود، آن را حذف کن
-            const emptyChat = chatMessages.querySelector('.empty-chat');
-            if (emptyChat) {
-                emptyChat.remove();
+            // دریافت اطلاعات کامل کاربر
+            const users = getUsersFromStorage();
+            const fullUser = users.find(u => u.id === user.id) || user;
+            
+            // تیک آبی برای سازنده و تیک سیاه برای ادمین
+            let tick = '';
+            if (user.isCreator) {
+                tick = '<span class="user-tick tick-creator"><i class="fas fa-check"></i></span>';
+            } else if (user.isAdmin) {
+                tick = '<span class="user-tick tick-admin"><i class="fas fa-check"></i></span>';
             }
             
-            const messageDiv = document.createElement('div');
+            let banInfo = '';
+            if (fullUser.bannedUntil && new Date(fullUser.bannedUntil) > new Date()) {
+                const remainingTime = Math.ceil((new Date(fullUser.bannedUntil) - new Date()) / 1000 / 60);
+                const banDate = new Date(fullUser.bannedUntil).toLocaleString('fa-IR');
+                banInfo = `<div class="ban-info"><i class="fas fa-ban"></i> بن شده - زمان باقی‌مانده: ${remainingTime} دقیقه<br>تا: <span class="ban-time">${banDate}</span></div>`;
+            }
             
-            if (message.type === 'system') {
-                // پیام سیستم
-                messageDiv.className = 'message received';
-                messageDiv.style.maxWidth = '100%';
-                messageDiv.style.background = '#e6f7f5';
-                messageDiv.style.textAlign = 'center';
-                messageDiv.style.border = '1px solid #4ecdc4';
-                
-                const time = new Date(message.time).toLocaleTimeString('fa-IR', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
-                messageDiv.innerHTML = `
-                    <div class="message-content" style="color: #1a1a2e;">${message.text}</div>
-                    <div class="message-time">${time}</div>
-                `;
-            } else {
-                // پیام عادی
-                const isSent = message.userId === currentUser.id;
-                messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
-                
-                // پیدا کردن اطلاعات فرستنده
-                const chatServer = getChatServerFromCache();
-                let user = { name: 'کاربر', avatar: '👤', isCreator: false, isAdmin: false };
-                
-                if (chatServer && chatServer.users) {
-                    const foundUser = chatServer.users.find(u => u.id === message.userId);
-                    if (foundUser) user = foundUser;
-                }
-                
-                const time = new Date(message.time).toLocaleTimeString('fa-IR', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
-                // تیک آبی برای سازنده و تیک سیاه برای ادمین
-                let tick = '';
-                if (user.isCreator) {
-                    tick = '<span class="user-tick tick-creator"><i class="fas fa-check"></i></span>';
-                } else if (user.isAdmin) {
-                    tick = '<span class="user-tick tick-admin"><i class="fas fa-check"></i></span>';
-                }
-                
-                // دکمه گزارش برای کاربران به جز خودشان و سازنده
-                let reportButton = '';
-                if (!isSent && currentUser && !currentUser.isCreator) {
-                    reportButton = `
-                        <button class="report-button" onclick="reportMessage(${message.id})" style="margin-top: 5px;">
-                            <i class="fas fa-flag"></i> گزارش
-                        </button>
-                    `;
-                }
-                
-                // اگر پیام گزارش شده است
-                if (message.reported) {
-                    messageDiv.classList.add('reported-message');
-                }
-                
-                // اگر پاسخ به پیامی است
-                let replySection = '';
-                if (message.replyTo) {
-                    const chatServer = getChatServerFromCache();
-                    if (chatServer) {
-                        const originalMessage = chatServer.messages.find(m => m.id === message.replyTo);
-                        if (originalMessage) {
-                            const originalUser = chatServer.users.find(u => u.id === originalMessage.userId) || { name: 'کاربر' };
-                            replySection = `
-                                <div class="reply-container">
-                                    <div class="reply-sender">پاسخ به ${originalUser.name}</div>
-                                    <div class="reply-text">${originalMessage.text.substring(0, 50)}${originalMessage.text.length > 50 ? '...' : ''}</div>
-                                </div>
-                            `;
-                        }
-                    }
-                }
-                
-                messageDiv.innerHTML = `
-                    <div class="message-header">
-                        <div class="message-avatar">${user.avatar}</div>
-                        <div class="message-sender">
-                            ${isSent ? 'شما' : user.name}
+            userElement.innerHTML = `
+                <div class="user-info">
+                    <div class="user-avatar">${user.avatar}</div>
+                    <div class="user-details">
+                        <div class="user-name">
+                            ${user.name}
                             ${tick}
                         </div>
-                    </div>
-                    ${replySection}
-                    <div class="message-content">${message.text}</div>
-                    ${reportButton}
-                    <div class="message-time">${time}</div>
-                    <div style="margin-top: 5px;">
-                        <button class="report-button" onclick="replyToMessage(${message.id})" style="background: #4ecdc4; padding: 3px 8px; font-size: 10px;">
-                            <i class="fas fa-reply"></i> پاسخ
-                        </button>
-                    </div>
-                `;
-            }
-            
-            chatMessages.appendChild(messageDiv);
-        }
-        
-        // دریافت کش سرور چت
-        let chatServerCache = null;
-        
-        async function getChatServerFromCache() {
-            if (!chatServerCache) {
-                chatServerCache = await getChatServer();
-            }
-            return chatServerCache;
-        }
-        
-        // ارسال پیام
-        async function sendMessage() {
-            const input = document.getElementById('message-input');
-            const text = input.value.trim();
-            
-            // اعتبارسنجی
-            if (!text) {
-                showNotification('لطفا پیامی بنویسید', 'خطا');
-                input.focus();
-                return;
-            }
-            
-            if (!currentUser) {
-                showNotification('لطفا ابتدا وارد شوید', 'خطا');
-                return;
-            }
-            
-            // بررسی بن بودن کاربر
-            if (currentUser.bannedUntil && new Date(currentUser.bannedUntil) > new Date()) {
-                const remainingTime = Math.ceil((new Date(currentUser.bannedUntil) - new Date()) / 1000 / 60);
-                showNotification(`شما بن شده‌اید! زمان باقی‌مانده: ${remainingTime} دقیقه`, 'بن شده');
-                return;
-            }
-            
-            // ایجاد پیام جدید
-            const newMessage = {
-                id: Date.now(),
-                type: 'message',
-                text: text,
-                time: new Date().toISOString(),
-                userId: currentUser.id,
-                replyTo: replyingTo || null
-            };
-            
-            try {
-                // دریافت داده‌های فعلی
-                const chatServer = await getChatServer();
-                
-                // اضافه کردن پیام جدید
-                chatServer.messages.push(newMessage);
-                
-                // ذخیره در سرور
-                await saveChatServer(chatServer);
-                chatServerCache = chatServer;
-                
-                // نمایش پیام
-                displayMessage(newMessage);
-                
-                // پاک کردن فیلد ورودی و تنظیمات پاسخ
-                input.value = '';
-                input.focus();
-                replyingTo = null;
-                
-                // اسکرول به پایین
-                const chatMessages = document.getElementById('chat-messages');
-                setTimeout(() => {
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                }, 100);
-                
-                // نوتیفیکیشن
-                showNotification('پیام شما ارسال شد', 'موفقیت');
-            } catch (error) {
-                console.error('خطا در ارسال پیام:', error);
-                showNotification('خطا در ارسال پیام', 'خطا');
-            }
-        }
-        
-        // پاسخ به پیام
-        async function replyToMessage(messageId) {
-            const chatServer = await getChatServer();
-            const message = chatServer.messages.find(m => m.id === messageId);
-            
-            if (message) {
-                const user = chatServer.users.find(u => u.id === message.userId) || { name: 'کاربر' };
-                replyingTo = messageId;
-                
-                const input = document.getElementById('message-input');
-                input.value = '';
-                input.placeholder = `پاسخ به ${user.name}: ${message.text.substring(0, 30)}...`;
-                input.focus();
-                
-                showNotification(`در حال پاسخ به ${user.name}`, 'پاسخ');
-            }
-        }
-        
-        // گزارش پیام
-        async function reportMessage(messageId) {
-            if (!currentUser) return;
-            
-            const chatServer = await getChatServer();
-            const message = chatServer.messages.find(m => m.id === messageId);
-            
-            if (message) {
-                // ذخیره گزارش
-                const reports = getReportsFromStorage();
-                const newReport = {
-                    id: Date.now(),
-                    messageId: messageId,
-                    reporterId: currentUser.id,
-                    reporterName: currentUser.name,
-                    reportedAt: new Date().toISOString(),
-                    messageText: message.text,
-                    messageSender: chatServer.users.find(u => u.id === message.userId)?.name || 'ناشناس'
-                };
-                
-                reports.push(newReport);
-                saveReportsToStorage(reports);
-                
-                // علامت گذاری پیام به عنوان گزارش شده
-                message.reported = true;
-                await saveChatServer(chatServer);
-                chatServerCache = chatServer;
-                
-                // بارگذاری مجدد پیام‌ها
-                loadChatMessages();
-                
-                showNotification('پیام با موفقیت گزارش شد', 'گزارش');
-                
-                // اگر سازنده آنلاین است، نوتیفیکیشن
-                if (currentUser.isCreator) {
-                    loadReportsList();
-                }
-            }
-        }
-        
-        // شروع به‌روزرسانی‌های خودکار
-        function startChatUpdates() {
-            if (chatUpdateInterval) clearInterval(chatUpdateInterval);
-            
-            chatUpdateInterval = setInterval(async () => {
-                await updateOnlineStatus();
-                await updateOnlineCount();
-                checkBannedUsers();
-            }, 5000);
-        }
-        
-        // به‌روزرسانی وضعیت آنلاین
-        async function updateOnlineStatus() {
-            if (!currentUser) return;
-            
-            const users = getUsersFromStorage();
-            const userIndex = users.findIndex(u => u.id === currentUser.id);
-            if (userIndex !== -1) {
-                users[userIndex].lastActivity = new Date().toISOString();
-                saveUsersToStorage(users);
-            }
-            
-            try {
-                const chatServer = await getChatServer();
-                const serverUserIndex = chatServer.users.findIndex(u => u.id === currentUser.id);
-                if (serverUserIndex !== -1) {
-                    chatServer.users[serverUserIndex].lastActivity = new Date().toISOString();
-                    await saveChatServer(chatServer);
-                    chatServerCache = chatServer;
-                }
-            } catch (error) {
-                console.error('خطا در به‌روزرسانی وضعیت:', error);
-            }
-        }
-        
-        // به‌روزرسانی تعداد کاربران آنلاین
-        async function updateOnlineCount() {
-            try {
-                const chatServer = await getChatServer();
-                const onlineCount = chatServer.users.filter(user => {
-                    if (!user.lastActivity) return false;
-                    const lastActivity = new Date(user.lastActivity);
-                    const now = new Date();
-                    const diffInSeconds = (now - lastActivity) / 1000;
-                    return diffInSeconds < 30;
-                }).length;
-                
-                document.getElementById('online-count-text').textContent = onlineCount;
-            } catch (error) {
-                console.error('خطا در به‌روزرسانی تعداد آنلاین:', error);
-            }
-        }
-        
-        // ==================== توابع لیست کاربران ====================
-        
-        async function loadUsersList() {
-            const usersList = document.getElementById('users-list');
-            
-            try {
-                const chatServer = await getChatServer();
-                chatServerCache = chatServer;
-                
-                const totalUsers = chatServer.users.length;
-                const onlineUsers = chatServer.users.filter(user => {
-                    if (!user.lastActivity) return false;
-                    const lastActivity = new Date(user.lastActivity);
-                    const now = new Date();
-                    return (now - lastActivity) / 1000 < 30;
-                }).length;
-                const offlineUsers = totalUsers - onlineUsers;
-                
-                document.getElementById('total-users').textContent = totalUsers;
-                document.getElementById('online-users').textContent = onlineUsers;
-                document.getElementById('offline-users').textContent = offlineUsers;
-                
-                usersList.innerHTML = '';
-                
-                // اگر کاربری وجود ندارد
-                if (chatServer.users.length === 0) {
-                    usersList.innerHTML = `
-                        <div style="text-align: center; padding: 40px; color: #666;">
-                            <i class="fas fa-users" style="font-size: 60px; opacity: 0.5; margin-bottom: 20px;"></i>
-                            <h3>هنوز کاربری ثبت‌نام نکرده است</h3>
-                            <p>اولین نفری باشید که ثبت‌نام می‌کند</p>
+                        ${currentUser && currentUser.isCreator ? `<div class="user-phone">${user.phone}</div>` : ''}
+                        <div class="user-status">
+                            <span class="status-dot ${isOnline ? 'online' : 'offline'}"></span>
+                            <span>${isOnline ? 'آنلاین' : 'آفلاین'}</span>
                         </div>
-                    `;
-                    return;
-                }
-                
-                chatServer.users.forEach(user => {
-                    const isOnline = user.lastActivity && (new Date() - new Date(user.lastActivity)) / 1000 < 30;
-                    const userElement = document.createElement('div');
-                    userElement.className = 'user-item';
-                    
-                    // دریافت اطلاعات کامل کاربر
-                    const users = getUsersFromStorage();
-                    const fullUser = users.find(u => u.id === user.id) || user;
-                    
-                    // تیک آبی برای سازنده و تیک سیاه برای ادمین
-                    let tick = '';
-                    if (user.isCreator) {
-                        tick = '<span class="user-tick tick-creator"><i class="fas fa-check"></i></span>';
-                    } else if (user.isAdmin) {
-                        tick = '<span class="user-tick tick-admin"><i class="fas fa-check"></i></span>';
-                    }
-                    
-                    let banInfo = '';
-                    if (fullUser.bannedUntil && new Date(fullUser.bannedUntil) > new Date()) {
-                        const remainingTime = Math.ceil((new Date(fullUser.bannedUntil) - new Date()) / 1000 / 60);
-                        const banDate = new Date(fullUser.bannedUntil).toLocaleString('fa-IR');
-                        banInfo = `<div class="ban-info"><i class="fas fa-ban"></i> بن شده - زمان باقی‌مانده: ${remainingTime} دقیقه<br>تا: <span class="ban-time">${banDate}</span></div>`;
-                    }
-                    
-                    userElement.innerHTML = `
-                        <div class="user-info">
-                            <div class="user-avatar">${user.avatar}</div>
-                            <div class="user-details">
-                                <div class="user-name">
-                                    ${user.name}
-                                    ${tick}
-                                </div>
-                                <div class="user-phone">${user.phone}</div>
-                                <div class="user-status">
-                                    <span class="status-dot ${isOnline ? 'online' : 'offline'}"></span>
-                                    <span>${isOnline ? 'آنلاین' : 'آفلاین'}</span>
-                                </div>
-                                ${banInfo}
-                            </div>
-                        </div>
-                    `;
-                    
-                    // اضافه کردن دکمه‌های مدیریت فقط برای سازنده
-                    if (currentUser && currentUser.phone === CREATOR_PHONE && !user.isCreator) {
-                        const actionsDiv = document.createElement('div');
-                        actionsDiv.className = 'user-actions';
-                        
-                        // بررسی مسدودیت دائمی
-                        const blockedUsers = getBlockedUsers();
-                        const isPermanentlyBlocked = blockedUsers.includes(user.phone);
-                        
-                        let blockBtnText = 'مسدود دائمی';
-                        let blockBtnClass = 'block';
-                        let blockBtnOnClick = `permanentBlockUser('${user.phone}')`;
-                        
-                        if (isPermanentlyBlocked) {
-                            blockBtnText = 'رفع مسدودیت';
-                            blockBtnClass = 'unblock';
-                            blockBtnOnClick = `unblockUser('${user.phone}')`;
-                        }
-                        
-                        actionsDiv.innerHTML = `
-                            <button class="action-btn edit" onclick="openUserManagement('${user.phone}')">
-                                <i class="fas fa-edit"></i> مدیریت
-                            </button>
-                            <button class="action-btn ${blockBtnClass}" onclick="${blockBtnOnClick}">
-                                <i class="fas ${blockBtnClass === 'block' ? 'fa-ban' : 'fa-unlock'}"></i> ${blockBtnText}
-                            </button>
-                        `;
-                        
-                        userElement.appendChild(actionsDiv);
-                    }
-                    
-                    usersList.appendChild(userElement);
-                });
-            } catch (error) {
-                console.error('خطا در بارگذاری لیست کاربران:', error);
-                usersList.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: #ff6b6b;">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 60px; margin-bottom: 20px;"></i>
-                        <h3>خطا در بارگذاری کاربران</h3>
-                        <p>لطفا دوباره تلاش کنید</p>
-                    </div>
-                `;
-            }
-        }
-        
-        // ==================== توابع مدیریت کاربران ====================
-        
-        function openUserManagement(phone) {
-            const users = getUsersFromStorage();
-            userToManage = users.find(u => u.phone === phone);
-            
-            if (!userToManage) {
-                showNotification('کاربر پیدا نشد', 'خطا');
-                return;
-            }
-            
-            document.getElementById('user-management-info').innerHTML = `
-                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
-                    <div class="user-avatar" style="font-size: 40px;">${userToManage.avatar}</div>
-                    <div>
-                        <h4>${userToManage.name}</h4>
-                        <p style="color: #666; font-size: 14px;">${userToManage.phone}</p>
-                        <p style="font-size: 12px;">
-                            ${userToManage.isCreator ? '<span class="user-tick tick-creator"><i class="fas fa-check"></i> سازنده</span>' : ''}
-                            ${userToManage.isAdmin ? '<span class="user-tick tick-admin"><i class="fas fa-check"></i> ادمین</span>' : ''}
-                            ${userToManage.bannedUntil && new Date(userToManage.bannedUntil) > new Date() ? 
-                                `<span style="color: #ff6b6b;"><i class="fas fa-ban"></i> بن شده</span>` : ''}
-                        </p>
+                        ${banInfo}
                     </div>
                 </div>
             `;
             
-            document.getElementById('edit-user-name').value = userToManage.name;
-            
-            // تنظیم متن دکمه‌ها
-            if (userToManage.isAdmin) {
-                document.getElementById('admin-toggle-button').innerHTML = '<i class="fas fa-user-minus"></i> حذف ادمین';
-                document.getElementById('admin-toggle-button').className = 'btn btn-warning';
-            } else {
-                document.getElementById('admin-toggle-button').innerHTML = '<i class="fas fa-user-shield"></i> ادمین کردن';
-                document.getElementById('admin-toggle-button').className = 'btn btn-success';
-            }
-            
-            if (userToManage.bannedUntil && new Date(userToManage.bannedUntil) > new Date()) {
-                document.getElementById('ban-button').innerHTML = '<i class="fas fa-unlock"></i> رفع بن';
-                document.getElementById('ban-button').className = 'btn btn-success';
-            } else {
-                document.getElementById('ban-button').innerHTML = '<i class="fas fa-ban"></i> بن/مسدود کردن';
-                document.getElementById('ban-button').className = 'btn btn-danger';
-            }
-            
-            document.getElementById('user-management-modal').classList.add('active');
-        }
-        
-        function closeUserManagementModal() {
-            document.getElementById('user-management-modal').classList.remove('active');
-            userToManage = null;
-        }
-        
-        async function saveUserName() {
-            if (!userToManage) return;
-            
-            const newName = document.getElementById('edit-user-name').value.trim();
-            if (!newName) {
-                showNotification('لطفا نام جدید را وارد کنید', 'خطا');
-                return;
-            }
-            
-            // به‌روزرسانی در localStorage
-            const users = getUsersFromStorage();
-            const userIndex = users.findIndex(u => u.id === userToManage.id);
-            if (userIndex !== -1) {
-                users[userIndex].name = newName;
-                saveUsersToStorage(users);
-            }
-            
-            // به‌روزرسانی در چت سرور
-            try {
-                const chatServer = await getChatServer();
-                const serverUserIndex = chatServer.users.findIndex(u => u.id === userToManage.id);
-                if (serverUserIndex !== -1) {
-                    chatServer.users[serverUserIndex].name = newName;
-                    await saveChatServer(chatServer);
-                    chatServerCache = chatServer;
-                }
-            } catch (error) {
-                console.error('خطا در به‌روزرسانی نام کاربر:', error);
-            }
-            
-            // به‌روزرسانی کاربر جاری اگر خودش است
-            if (currentUser && currentUser.id === userToManage.id) {
-                currentUser.name = newName;
-                saveCurrentUserToStorage(currentUser);
-                document.getElementById('header-username').textContent = newName;
-            }
-            
-            showNotification('نام کاربری با موفقیت تغییر کرد', 'موفقیت');
-            closeUserManagementModal();
-            loadUsersList();
-        }
-        
-        async function banUser() {
-            if (!userToManage) return;
-            
-            if (userToManage.bannedUntil && new Date(userToManage.bannedUntil) > new Date()) {
-                // رفع بن
-                const users = getUsersFromStorage();
-                const userIndex = users.findIndex(u => u.id === userToManage.id);
-                if (userIndex !== -1) {
-                    users[userIndex].bannedUntil = null;
-                    saveUsersToStorage(users);
+            // اضافه کردن دکمه‌های مدیریت فقط برای سازنده و ادمین‌ها
+            if (currentUser && (currentUser.isCreator || currentUser.isAdmin) && !user.isCreator) {
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'user-actions';
+                
+                // بررسی مسدودیت دائمی
+                const blockedUsers = getBlockedUsers();
+                const isPermanentlyBlocked = blockedUsers.includes(user.phone);
+                
+                let blockBtnText = 'مسدود دائمی';
+                let blockBtnClass = 'block';
+                let blockBtnOnClick = `permanentBlockUser('${user.phone}')`;
+                
+                if (isPermanentlyBlocked) {
+                    blockBtnText = 'رفع مسدودیت';
+                    blockBtnClass = 'unblock';
+                    blockBtnOnClick = `unblockUser('${user.phone}')`;
                 }
                 
-                showNotification('بن کاربر برداشته شد', 'موفقیت');
-            } else {
-                // بن کردن
-                const duration = document.getElementById('ban-duration').value;
-                
-                if (duration === 'permanent') {
-                    // مسدودیت دائمی
-                    permanentBlockUser(userToManage.phone);
-                } else {
-                    // بن موقت
-                    const minutes = parseInt(duration);
-                    const bannedUntil = new Date(Date.now() + minutes * 60 * 1000).toISOString();
-                    
-                    const users = getUsersFromStorage();
-                    const userIndex = users.findIndex(u => u.id === userToManage.id);
-                    if (userIndex !== -1) {
-                        users[userIndex].bannedUntil = bannedUntil;
-                        saveUsersToStorage(users);
-                    }
-                    
-                    // نمایش پیام بن در چت
-                    try {
-                        const banMessage = {
-                            id: Date.now(),
-                            type: 'system',
-                            text: `⚠️ ${userToManage.name} برای ${duration} دقیقه بن شد`,
-                            time: new Date().toISOString(),
-                            userId: 'system'
-                        };
-                        
-                        const chatServer = await getChatServer();
-                        chatServer.messages.push(banMessage);
-                        await saveChatServer(chatServer);
-                        chatServerCache = chatServer;
-                        
-                        showNotification(`کاربر برای ${duration} دقیقه بن شد`, 'موفقیت');
-                    } catch (error) {
-                        console.error('خطا در ذخیره پیام بن:', error);
-                    }
-                }
-            }
-            
-            closeUserManagementModal();
-            loadUsersList();
-            loadChatMessages();
-            loadBlockedUsersList();
-        }
-        
-        async function permanentBlockUser(phone) {
-            const blockedUsers = getBlockedUsers();
-            if (!blockedUsers.includes(phone)) {
-                blockedUsers.push(phone);
-                saveBlockedUsers(blockedUsers);
-                
-                // پیدا کردن نام کاربر
-                const users = getUsersFromStorage();
-                const user = users.find(u => u.phone === phone);
-                const userName = user ? user.name : 'کاربر';
-                
-                try {
-                    // نمایش پیام مسدودیت در چت
-                    const blockMessage = {
-                        id: Date.now(),
-                        type: 'system',
-                        text: `🚫 ${userName} توسط سازنده (متین) مسدود دائمی شد`,
-                        time: new Date().toISOString(),
-                        userId: 'system'
-                    };
-                    
-                    const chatServer = await getChatServer();
-                    chatServer.messages.push(blockMessage);
-                    
-                    // حذف کاربر از لیست کاربران آنلاین
-                    const chatServerIndex = chatServer.users.findIndex(u => u.phone === phone);
-                    if (chatServerIndex !== -1) {
-                        chatServer.users.splice(chatServerIndex, 1);
-                    }
-                    
-                    await saveChatServer(chatServer);
-                    chatServerCache = chatServer;
-                    
-                } catch (error) {
-                    console.error('خطا در ذخیره پیام مسدودیت:', error);
-                }
-            }
-            
-            showNotification('کاربر مسدود دائمی شد', 'موفقیت');
-        }
-        
-        async function toggleAdminStatus() {
-            if (!userToManage) return;
-            
-            const users = getUsersFromStorage();
-            const userIndex = users.findIndex(u => u.id === userToManage.id);
-            if (userIndex !== -1) {
-                users[userIndex].isAdmin = !users[userIndex].isAdmin;
-                saveUsersToStorage(users);
-                
-                try {
-                    const chatServer = await getChatServer();
-                    const serverUserIndex = chatServer.users.findIndex(u => u.id === userToManage.id);
-                    if (serverUserIndex !== -1) {
-                        chatServer.users[serverUserIndex].isAdmin = users[userIndex].isAdmin;
-                        await saveChatServer(chatServer);
-                        chatServerCache = chatServer;
-                    }
-                } catch (error) {
-                    console.error('خطا در به‌روزرسانی وضعیت ادمین:', error);
-                }
-                
-                const status = users[userIndex].isAdmin ? 'ادمین شد' : 'از ادمینی حذف شد';
-                showNotification(`کاربر ${status}`, 'موفقیت');
-                
-                closeUserManagementModal();
-                loadUsersList();
-            }
-        }
-        
-        function checkBannedUsers() {
-            const users = getUsersFromStorage();
-            const now = new Date();
-            
-            users.forEach(user => {
-                if (user.bannedUntil && new Date(user.bannedUntil) <= now) {
-                    user.bannedUntil = null;
-                }
-            });
-            
-            saveUsersToStorage(users);
-        }
-        
-        function checkUserBanned() {
-            if (!currentUser) return;
-            
-            if (currentUser.bannedUntil && new Date(currentUser.bannedUntil) > new Date()) {
-                const remainingTime = Math.ceil((new Date(currentUser.bannedUntil) - new Date()) / 1000 / 60);
-                showNotification(`شما بن شده‌اید! زمان باقی‌مانده: ${remainingTime} دقیقه`, 'بن شده');
-                
-                // غیرفعال کردن دکمه ارسال
-                document.getElementById('send-button').disabled = true;
-                document.getElementById('message-input').disabled = true;
-                document.getElementById('send-button').style.opacity = '0.5';
-                document.getElementById('message-input').style.opacity = '0.5';
-            } else {
-                // فعال کردن دکمه ارسال
-                document.getElementById('send-button').disabled = false;
-                document.getElementById('message-input').disabled = false;
-                document.getElementById('send-button').style.opacity = '1';
-                document.getElementById('message-input').style.opacity = '1';
-            }
-        }
-        
-        // ==================== توابع پنل سازنده ====================
-        
-        function loadBlockedUsersList() {
-            const blockedUsersList = document.getElementById('blocked-users-list');
-            const blockedUsers = getBlockedUsers();
-            
-            blockedUsersList.innerHTML = '';
-            
-            if (blockedUsers.length === 0) {
-                blockedUsersList.innerHTML = '<p style="color: white; text-align: center; opacity: 0.7; padding: 10px;">هیچ کاربری مسدود دائمی نشده است</p>';
-                return;
-            }
-            
-            blockedUsers.forEach(phone => {
-                const userDiv = document.createElement('div');
-                userDiv.className = 'blocked-user-item';
-                
-                const users = getUsersFromStorage();
-                const user = users.find(u => u.phone === phone);
-                const userName = user ? user.name : 'کاربر ناشناس';
-                
-                userDiv.innerHTML = `
-                    <div>
-                        <span style="font-weight: bold; color: white;">${userName}</span>
-                        <span style="font-size: 12px; color: rgba(255,255,255,0.7); margin-right: 10px;">${phone}</span>
-                    </div>
-                    <button onclick="unblockUser('${phone}')" style="background: #2ed573; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px;">
-                        رفع مسدودیت
+                actionsDiv.innerHTML = `
+                    <button class="action-btn edit" onclick="openUserManagement('${user.phone}')">
+                        <i class="fas fa-edit"></i> مدیریت
+                    </button>
+                    <button class="action-btn ${blockBtnClass}" onclick="${blockBtnOnClick}">
+                        <i class="fas ${blockBtnClass === 'block' ? 'fa-ban' : 'fa-unlock'}"></i> ${blockBtnText}
                     </button>
                 `;
                 
-                blockedUsersList.appendChild(userDiv);
-            });
-        }
-        
-        function loadReportsList() {
-            const reportsList = document.getElementById('reports-list');
-            const reports = getReportsFromStorage();
-            
-            reportsList.innerHTML = '';
-            
-            if (reports.length === 0) {
-                reportsList.innerHTML = '<p style="color: white; text-align: center; opacity: 0.7; padding: 10px;">هیچ گزارشی دریافت نشده است</p>';
-                return;
+                userElement.appendChild(actionsDiv);
             }
             
-            reports.forEach(report => {
-                const reportDiv = document.createElement('div');
-                reportDiv.className = 'blocked-user-item';
-                
-                const reportTime = new Date(report.reportedAt).toLocaleString('fa-IR');
-                
-                reportDiv.innerHTML = `
-                    <div>
-                        <span style="font-weight: bold; color: white;">${report.messageSender}</span>
-                        <span style="font-size: 10px; color: rgba(255,255,255,0.7); margin-right: 10px; display: block; margin-top: 5px;">
-                            گزارش شده توسط: ${report.reporterName}
-                        </span>
-                        <span style="font-size: 10px; color: rgba(255,255,255,0.7); display: block; margin-top: 2px;">
-                            پیام: ${report.messageText.substring(0, 50)}${report.messageText.length > 50 ? '...' : ''}
-                        </span>
-                        <span style="font-size: 9px; color: rgba(255,255,255,0.5); display: block; margin-top: 2px;">
-                            ${reportTime}
-                        </span>
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 5px;">
-                        <button onclick="deleteReportedMessage(${report.messageId})" style="background: #ff6b6b; color: white; border: none; padding: 3px 8px; border-radius: 3px; cursor: pointer; font-size: 10px;">
-                            حذف پیام
-                        </button>
-                        <button onclick="ignoreReport(${report.id})" style="background: #6c757d; color: white; border: none; padding: 3px 8px; border-radius: 3px; cursor: pointer; font-size: 10px;">
-                            نادیده گرفتن
-                        </button>
-                    </div>
-                `;
-                
-                reportsList.appendChild(reportDiv);
-            });
+            usersList.appendChild(userElement);
+        });
+    } catch (error) {
+        console.error('خطا در بارگذاری لیست کاربران:', error);
+        usersList.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #ff6b6b;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 60px; margin-bottom: 20px;"></i>
+                <h3>خطا در بارگذاری کاربران</h3>
+                <p>لطفا دوباره تلاش کنید</p>
+            </div>
+        `;
+    }
+}
+
+// ==================== توابع مدیریت کاربران ====================
+
+function openUserManagement(phone) {
+    const users = getUsersFromStorage();
+    userToManage = users.find(u => u.phone === phone);
+    
+    if (!userToManage) {
+        showNotification('کاربر پیدا نشد', 'خطا');
+        return;
+    }
+    
+    document.getElementById('user-management-info').innerHTML = `
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+            <div class="user-avatar" style="font-size: 40px;">${userToManage.avatar}</div>
+            <div>
+                <h4>${userToManage.name}</h4>
+                <p style="color: #666; font-size: 14px;">${userToManage.phone}</p>
+                <p style="font-size: 12px;">
+                    ${userToManage.isCreator ? '<span class="user-tick tick-creator"><i class="fas fa-check"></i> سازنده</span>' : ''}
+                    ${userToManage.isAdmin ? '<span class="user-tick tick-admin"><i class="fas fa-check"></i> ادمین</span>' : ''}
+                    ${userToManage.bannedUntil && new Date(userToManage.bannedUntil) > new Date() ? 
+                        `<span style="color: #ff6b6b;"><i class="fas fa-ban"></i> بن شده</span>` : ''}
+                </p>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('edit-user-name').value = userToManage.name;
+    
+    // تنظیم متن دکمه‌ها
+    if (userToManage.isAdmin) {
+        document.getElementById('admin-toggle-button').innerHTML = '<i class="fas fa-user-minus"></i> حذف ادمین';
+        document.getElementById('admin-toggle-button').className = 'btn btn-warning';
+    } else {
+        document.getElementById('admin-toggle-button').innerHTML = '<i class="fas fa-user-shield"></i> ادمین کردن';
+        document.getElementById('admin-toggle-button').className = 'btn btn-success';
+    }
+    
+    if (userToManage.bannedUntil && new Date(userToManage.bannedUntil) > new Date()) {
+        document.getElementById('ban-button').innerHTML = '<i class="fas fa-unlock"></i> رفع بن';
+        document.getElementById('ban-button').className = 'btn btn-success';
+    } else {
+        document.getElementById('ban-button').innerHTML = '<i class="fas fa-ban"></i> بن/مسدود کردن';
+        document.getElementById('ban-button').className = 'btn btn-danger';
+    }
+    
+    document.getElementById('user-management-modal').classList.add('active');
+}
+
+function closeUserManagementModal() {
+    document.getElementById('user-management-modal').classList.remove('active');
+    userToManage = null;
+}
+
+async function saveUserName() {
+    if (!userToManage) return;
+    
+    const newName = document.getElementById('edit-user-name').value.trim();
+    if (!newName) {
+        showNotification('لطفا نام جدید را وارد کنید', 'خطا');
+        return;
+    }
+    
+    // به‌روزرسانی در localStorage
+    const users = getUsersFromStorage();
+    const userIndex = users.findIndex(u => u.id === userToManage.id);
+    if (userIndex !== -1) {
+        users[userIndex].name = newName;
+        saveUsersToStorage(users);
+    }
+    
+    // به‌روزرسانی در چت سرور
+    try {
+        const chatServer = await getChatServer();
+        const serverUserIndex = chatServer.users.findIndex(u => u.id === userToManage.id);
+        if (serverUserIndex !== -1) {
+            chatServer.users[serverUserIndex].name = newName;
+            await saveChatServer(chatServer);
+        }
+    } catch (error) {
+        console.error('خطا در به‌روزرسانی نام کاربر:', error);
+    }
+    
+    // به‌روزرسانی کاربر جاری اگر خودش است
+    if (currentUser && currentUser.id === userToManage.id) {
+        currentUser.name = newName;
+        saveCurrentUserToStorage(currentUser);
+        document.getElementById('header-username').textContent = newName;
+    }
+    
+    showNotification('نام کاربری با موفقیت تغییر کرد', 'موفقیت');
+    closeUserManagementModal();
+    loadUsersList();
+}
+
+async function deleteUser() {
+    if (!userToManage) return;
+    
+    if (!confirm(`آیا مطمئن هستید که می‌خواهید کاربر "${userToManage.name}" را حذف کنید؟ این عمل غیرقابل بازگشت است.`)) {
+        return;
+    }
+    
+    // حذف کاربر از localStorage
+    const users = getUsersFromStorage();
+    const filteredUsers = users.filter(u => u.id !== userToManage.id);
+    saveUsersToStorage(filteredUsers);
+    
+    // حذف کاربر از چت سرور
+    try {
+        const chatServer = await getChatServer();
+        const serverUserIndex = chatServer.users.findIndex(u => u.id === userToManage.id);
+        if (serverUserIndex !== -1) {
+            chatServer.users.splice(serverUserIndex, 1);
+            await saveChatServer(chatServer);
+        }
+    } catch (error) {
+        console.error('خطا در حذف کاربر از سرور:', error);
+    }
+    
+    // اگر کاربر جاری خودش را حذف کرد، از سیستم خارج شود
+    if (currentUser && currentUser.id === userToManage.id) {
+        logout();
+    }
+    
+    showNotification('کاربر با موفقیت حذف شد', 'موفقیت');
+    closeUserManagementModal();
+    loadUsersList();
+}
+
+async function banUser() {
+    if (!userToManage) return;
+    
+    if (userToManage.bannedUntil && new Date(userToManage.bannedUntil) > new Date()) {
+        // رفع بن
+        const users = getUsersFromStorage();
+        const userIndex = users.findIndex(u => u.id === userToManage.id);
+        if (userIndex !== -1) {
+            users[userIndex].bannedUntil = null;
+            saveUsersToStorage(users);
         }
         
-        async function deleteReportedMessage(messageId) {
+        showNotification('بن کاربر برداشته شد', 'موفقیت');
+    } else {
+        // بن کردن
+        const duration = document.getElementById('ban-duration').value;
+        
+        if (duration === 'permanent') {
+            // مسدودیت دائمی
+            permanentBlockUser(userToManage.phone);
+        } else {
+            // بن موقت
+            const minutes = parseInt(duration);
+            const bannedUntil = new Date(Date.now() + minutes * 60 * 1000).toISOString();
+            
+            const users = getUsersFromStorage();
+            const userIndex = users.findIndex(u => u.id === userToManage.id);
+            if (userIndex !== -1) {
+                users[userIndex].bannedUntil = bannedUntil;
+                saveUsersToStorage(users);
+            }
+            
+            // نمایش پیام بن در چت
             try {
-                const chatServer = await getChatServer();
-                const messageIndex = chatServer.messages.findIndex(m => m.id === messageId);
-                
-                if (messageIndex !== -1) {
-                    chatServer.messages.splice(messageIndex, 1);
-                    await saveChatServer(chatServer);
-                    chatServerCache = chatServer;
-                    
-                    // حذف گزارش‌های مربوط به این پیام
-                    const reports = getReportsFromStorage();
-                    const filteredReports = reports.filter(r => r.messageId !== messageId);
-                    saveReportsToStorage(filteredReports);
-                    
-                    showNotification('پیام گزارش شده حذف شد', 'موفقیت');
-                    loadChatMessages();
-                    loadReportsList();
-                }
-            } catch (error) {
-                console.error('خطا در حذف پیام گزارش شده:', error);
-                showNotification('خطا در حذف پیام', 'خطا');
-            }
-        }
-        
-        function ignoreReport(reportId) {
-            const reports = getReportsFromStorage();
-            const filteredReports = reports.filter(r => r.id !== reportId);
-            saveReportsToStorage(filteredReports);
-            
-            showNotification('گزارش نادیده گرفته شد', 'موفقیت');
-            loadReportsList();
-        }
-        
-        function clearAllReports() {
-            if (confirm('آیا مطمئن هستید که می‌خواهید همه گزارش‌ها را پاک کنید؟')) {
-                saveReportsToStorage([]);
-                showNotification('همه گزارش‌ها پاک شدند', 'موفقیت');
-                loadReportsList();
-            }
-        }
-        
-        function unblockUser(phone) {
-            const blockedUsers = getBlockedUsers();
-            const index = blockedUsers.indexOf(phone);
-            
-            if (index !== -1) {
-                blockedUsers.splice(index, 1);
-                saveBlockedUsers(blockedUsers);
-                
-                showNotification('مسدودیت کاربر برداشته شد', 'موفقیت');
-                loadBlockedUsersList();
-                loadUsersList();
-            }
-        }
-        
-        function updateChatPassword() {
-            if (!currentUser || currentUser.phone !== CREATOR_PHONE) {
-                showNotification('فقط سازنده می‌تواند رمز چت روم را تغییر دهد', 'خطا');
-                return;
-            }
-            
-            const newPassword = document.getElementById('new-chat-password').value.trim();
-            if (!newPassword) {
-                showNotification('لطفا رمز عبور جدید را وارد کنید', 'خطا');
-                return;
-            }
-            
-            currentChatPassword = newPassword;
-            localStorage.setItem('chatRoomPassword', newPassword);
-            document.getElementById('current-chat-password').textContent = newPassword;
-            document.getElementById('new-chat-password').value = '';
-            
-            showNotification('رمز عبور چت روم با موفقیت تغییر کرد', 'موفقیت');
-        }
-        
-        async function sendAnnouncement() {
-            if (!currentUser || currentUser.phone !== CREATOR_PHONE) {
-                showNotification('فقط سازنده می‌تواند اعلان ارسال کند', 'خطا');
-                return;
-            }
-            
-            const announcementText = document.getElementById('announcement-text').value.trim();
-            if (!announcementText) {
-                showNotification('لطفا متن اعلان را وارد کنید', 'خطا');
-                return;
-            }
-            
-            try {
-                const announcementMessage = {
+                const banMessage = {
                     id: Date.now(),
                     type: 'system',
-                    text: `📢 اعلان سازنده: ${announcementText}`,
+                    text: `⚠️ ${userToManage.name} برای ${duration} دقیقه بن شد`,
                     time: new Date().toISOString(),
                     userId: 'system'
                 };
                 
                 const chatServer = await getChatServer();
-                chatServer.messages.push(announcementMessage);
+                chatServer.messages.push(banMessage);
                 await saveChatServer(chatServer);
-                chatServerCache = chatServer;
                 
-                document.getElementById('announcement-text').value = '';
-                
-                showNotification('اعلان با موفقیت ارسال شد', 'موفقیت');
-                loadChatMessages();
+                showNotification(`کاربر برای ${duration} دقیقه بن شد`, 'موفقیت');
             } catch (error) {
-                console.error('خطا در ارسال اعلان:', error);
-                showNotification('خطا در ارسال اعلان', 'خطا');
+                console.error('خطا در ذخیره پیام بن:', error);
             }
         }
+    }
+    
+    closeUserManagementModal();
+    loadUsersList();
+    loadChatMessages();
+    loadBlockedUsersList();
+}
+
+async function permanentBlockUser(phone) {
+    const blockedUsers = getBlockedUsers();
+    if (!blockedUsers.includes(phone)) {
+        blockedUsers.push(phone);
+        saveBlockedUsers(blockedUsers);
         
-        async function clearAllMessages() {
-            if (!currentUser || currentUser.phone !== CREATOR_PHONE) {
-                showNotification('فقط سازنده می‌تواند همه پیام‌ها را پاک کند', 'خطا');
-                return;
+        // پیدا کردن نام کاربر
+        const users = getUsersFromStorage();
+        const user = users.find(u => u.phone === phone);
+        const userName = user ? user.name : 'کاربر';
+        
+        try {
+            // نمایش پیام مسدودیت در چت
+            const blockMessage = {
+                id: Date.now(),
+                type: 'system',
+                text: `🚫 ${userName} توسط سازنده (متین) مسدود دائمی شد`,
+                time: new Date().toISOString(),
+                userId: 'system'
+            };
+            
+            const chatServer = await getChatServer();
+            chatServer.messages.push(blockMessage);
+            
+            // حذف کاربر از لیست کاربران آنلاین
+            const chatServerIndex = chatServer.users.findIndex(u => u.phone === phone);
+            if (chatServerIndex !== -1) {
+                chatServer.users.splice(chatServerIndex, 1);
             }
             
-            if (confirm('آیا مطمئن هستید که می‌خواهید همه پیام‌ها را پاک کنید؟')) {
-                try {
-                    const chatServer = await getChatServer();
-                    chatServer.messages = [{
-                        id: Date.now(),
-                        type: 'system',
-                        text: '💬 چت روم توسط سازنده پاکسازی شد',
-                        time: new Date().toISOString(),
-                        userId: 'system'
-                    }];
-                    await saveChatServer(chatServer);
-                    chatServerCache = chatServer;
-                    
-                    loadChatMessages();
-                    showNotification('همه پیام‌ها پاک شدند', 'موفقیت');
-                } catch (error) {
-                    console.error('خطا در پاک کردن پیام‌ها:', error);
-                    showNotification('خطا در پاک کردن پیام‌ها', 'خطا');
-                }
-            }
-        }
-        
-        // ==================== توابع تنظیمات ====================
-        
-        function showSettingsModal() {
-            if (!currentUser) {
-                showNotification('لطفا ابتدا وارد شوید', 'خطا');
-                return;
-            }
-            document.getElementById('settings-modal').classList.add('active');
-            document.getElementById('settings-username').value = currentUser.name;
-        }
-        
-        function closeSettingsModal() {
-            document.getElementById('settings-modal').classList.remove('active');
-        }
-        
-        function selectAvatarInModal(element, avatar) {
-            document.querySelectorAll('#settings-modal .avatar-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            element.classList.add('selected');
-            selectedAvatarInModal = avatar;
-        }
-        
-        async function updateUsername() {
-            const newName = document.getElementById('settings-username').value.trim();
-            if (!newName) {
-                showNotification('لطفا نام جدید را وارد کنید', 'خطا');
-                return;
-            }
+            await saveChatServer(chatServer);
             
+        } catch (error) {
+            console.error('خطا در ذخیره پیام مسدودیت:', error);
+        }
+    }
+    
+    showNotification('کاربر مسدود دائمی شد', 'موفقیت');
+}
+
+async function toggleAdminStatus() {
+    if (!userToManage) return;
+    
+    const users = getUsersFromStorage();
+    const userIndex = users.findIndex(u => u.id === userToManage.id);
+    if (userIndex !== -1) {
+        users[userIndex].isAdmin = !users[userIndex].isAdmin;
+        saveUsersToStorage(users);
+        
+        try {
+            const chatServer = await getChatServer();
+            const serverUserIndex = chatServer.users.findIndex(u => u.id === userToManage.id);
+            if (serverUserIndex !== -1) {
+                chatServer.users[serverUserIndex].isAdmin = users[userIndex].isAdmin;
+                await saveChatServer(chatServer);
+            }
+        } catch (error) {
+            console.error('خطا در به‌روزرسانی وضعیت ادمین:', error);
+        }
+        
+        const status = users[userIndex].isAdmin ? 'ادمین شد' : 'از ادمینی حذف شد';
+        showNotification(`کاربر ${status}`, 'موفقیت');
+        
+        closeUserManagementModal();
+        loadUsersList();
+    }
+}
+
+function checkBannedUsers() {
+    const users = getUsersFromStorage();
+    const now = new Date();
+    
+    users.forEach(user => {
+        if (user.bannedUntil && new Date(user.bannedUntil) <= now) {
+            user.bannedUntil = null;
+        }
+    });
+    
+    saveUsersToStorage(users);
+}
+
+function checkUserBanned() {
+    if (!currentUser) return;
+    
+    if (currentUser.bannedUntil && new Date(currentUser.bannedUntil) > new Date()) {
+        const remainingTime = Math.ceil((new Date(currentUser.bannedUntil) - new Date()) / 1000 / 60);
+        showNotification(`شما بن شده‌اید! زمان باقی‌مانده: ${remainingTime} دقیقه`, 'بن شده');
+        
+        // غیرفعال کردن دکمه ارسال
+        document.getElementById('send-button').disabled = true;
+        document.getElementById('message-input').disabled = true;
+        document.getElementById('send-button').style.opacity = '0.5';
+        document.getElementById('message-input').style.opacity = '0.5';
+    } else {
+        // فعال کردن دکمه ارسال
+        document.getElementById('send-button').disabled = false;
+        document.getElementById('message-input').disabled = false;
+        document.getElementById('send-button').style.opacity = '1';
+        document.getElementById('message-input').style.opacity = '1';
+    }
+}
+
+// ==================== توابع پنل سازنده ====================
+
+function loadBlockedUsersList() {
+    const blockedUsersList = document.getElementById('blocked-users-list');
+    const blockedUsers = getBlockedUsers();
+    
+    blockedUsersList.innerHTML = '';
+    
+    if (blockedUsers.length === 0) {
+        blockedUsersList.innerHTML = '<p style="color: white; text-align: center; opacity: 0.7; padding: 10px;">هیچ کاربری مسدود دائمی نشده است</p>';
+        return;
+    }
+    
+    blockedUsers.forEach(phone => {
+        const userDiv = document.createElement('div');
+        userDiv.className = 'blocked-user-item';
+        
+        const users = getUsersFromStorage();
+        const user = users.find(u => u.phone === phone);
+        const userName = user ? user.name : 'کاربر ناشناس';
+        
+        userDiv.innerHTML = `
+            <div>
+                <span style="font-weight: bold; color: white;">${userName}</span>
+                <span style="font-size: 12px; color: rgba(255,255,255,0.7); margin-right: 10px;">${phone}</span>
+            </div>
+            <button onclick="unblockUser('${phone}')" style="background: #2ed573; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px;">
+                رفع مسدودیت
+            </button>
+        `;
+        
+        blockedUsersList.appendChild(userDiv);
+    });
+}
+
+function loadReportsList() {
+    const reportsList = document.getElementById('reports-list');
+    const reports = getReportsFromStorage();
+    
+    reportsList.innerHTML = '';
+    
+    if (reports.length === 0) {
+        reportsList.innerHTML = '<p style="color: white; text-align: center; opacity: 0.7; padding: 10px;">هیچ گزارشی دریافت نشده است</p>';
+        return;
+    }
+    
+    reports.forEach(report => {
+        const reportDiv = document.createElement('div');
+        reportDiv.className = 'blocked-user-item';
+        
+        const reportTime = new Date(report.reportedAt).toLocaleString('fa-IR');
+        
+        reportDiv.innerHTML = `
+            <div>
+                <span style="font-weight: bold; color: white;">${report.messageSender}</span>
+                <span style="font-size: 10px; color: rgba(255,255,255,0.7); margin-right: 10px; display: block; margin-top: 5px;">
+                    گزارش شده توسط: ${report.reporterName}
+                </span>
+                <span style="font-size: 10px; color: rgba(255,255,255,0.7); display: block; margin-top: 2px;">
+                    پیام: ${report.messageText.substring(0, 50)}${report.messageText.length > 50 ? '...' : ''}
+                </span>
+                <span style="font-size: 9px; color: rgba(255,255,255,0.5); display: block; margin-top: 2px;">
+                    ${reportTime}
+                </span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <button onclick="deleteReportedMessage(${report.messageId})" style="background: #ff6b6b; color: white; border: none; padding: 3px 8px; border-radius: 3px; cursor: pointer; font-size: 10px;">
+                    حذف پیام
+                </button>
+                <button onclick="ignoreReport(${report.id})" style="background: #6c757d; color: white; border: none; padding: 3px 8px; border-radius: 3px; cursor: pointer; font-size: 10px;">
+                    نادیده گرفتن
+                </button>
+            </div>
+        `;
+        
+        reportsList.appendChild(reportDiv);
+    });
+}
+
+async function deleteReportedMessage(messageId) {
+    try {
+        const chatServer = await getChatServer();
+        const messageIndex = chatServer.messages.findIndex(m => m.id === messageId);
+        
+        if (messageIndex !== -1) {
+            chatServer.messages.splice(messageIndex, 1);
+            await saveChatServer(chatServer);
+            
+            // حذف گزارش‌های مربوط به این پیام
+            const reports = getReportsFromStorage();
+            const filteredReports = reports.filter(r => r.messageId !== messageId);
+            saveReportsToStorage(filteredReports);
+            
+            showNotification('پیام گزارش شده حذف شد', 'موفقیت');
+            loadChatMessages();
+            loadReportsList();
+        }
+    } catch (error) {
+        console.error('خطا در حذف پیام گزارش شده:', error);
+        showNotification('خطا در حذف پیام', 'خطا');
+    }
+}
+
+function ignoreReport(reportId) {
+    const reports = getReportsFromStorage();
+    const filteredReports = reports.filter(r => r.id !== reportId);
+    saveReportsToStorage(filteredReports);
+    
+    showNotification('گزارش نادیده گرفته شد', 'موفقیت');
+    loadReportsList();
+}
+
+function clearAllReports() {
+    if (confirm('آیا مطمئن هستید که می‌خواهید همه گزارش‌ها را پاک کنید؟')) {
+        saveReportsToStorage([]);
+        showNotification('همه گزارش‌ها پاک شدند', 'موفقیت');
+        loadReportsList();
+    }
+}
+
+function unblockUser(phone) {
+    const blockedUsers = getBlockedUsers();
+    const index = blockedUsers.indexOf(phone);
+    
+    if (index !== -1) {
+        blockedUsers.splice(index, 1);
+        saveBlockedUsers(blockedUsers);
+        
+        showNotification('مسدودیت کاربر برداشته شد', 'موفقیت');
+        loadBlockedUsersList();
+        loadUsersList();
+    }
+}
+
+function updateChatPassword() {
+    if (!currentUser || currentUser.phone !== CREATOR_PHONE) {
+        showNotification('فقط سازنده می‌تواند رمز چت روم را تغییر دهد', 'خطا');
+        return;
+    }
+    
+    const newPassword = document.getElementById('new-chat-password').value.trim();
+    if (!newPassword) {
+        showNotification('لطفا رمز عبور جدید را وارد کنید', 'خطا');
+        return;
+    }
+    
+    currentChatPassword = newPassword;
+    localStorage.setItem('chatRoomPassword', newPassword);
+    document.getElementById('current-chat-password').textContent = newPassword;
+    document.getElementById('new-chat-password').value = '';
+    
+    showNotification('رمز عبور چت روم با موفقیت تغییر کرد', 'موفقیت');
+}
+
+async function sendAnnouncement() {
+    if (!currentUser || currentUser.phone !== CREATOR_PHONE) {
+        showNotification('فقط سازنده می‌تواند اعلان ارسال کند', 'خطا');
+        return;
+    }
+    
+    const announcementText = document.getElementById('announcement-text').value.trim();
+    if (!announcementText) {
+        showNotification('لطفا متن اعلان را وارد کنید', 'خطا');
+        return;
+    }
+    
+    try {
+        const announcementMessage = {
+            id: Date.now(),
+            type: 'system',
+            text: `📢 اعلان سازنده: ${announcementText}`,
+            time: new Date().toISOString(),
+            userId: 'system'
+        };
+        
+        const chatServer = await getChatServer();
+        chatServer.messages.push(announcementMessage);
+        await saveChatServer(chatServer);
+        
+        document.getElementById('announcement-text').value = '';
+        
+        showNotification('اعلان با موفقیت ارسال شد', 'موفقیت');
+        loadChatMessages();
+    } catch (error) {
+        console.error('خطا در ارسال اعلان:', error);
+        showNotification('خطا در ارسال اعلان', 'خطا');
+    }
+}
+
+async function clearAllMessages() {
+    if (!currentUser || currentUser.phone !== CREATOR_PHONE) {
+        showNotification('فقط سازنده می‌تواند همه پیام‌ها را پاک کند', 'خطا');
+        return;
+    }
+    
+    if (confirm('آیا مطمئن هستید که می‌خواهید همه پیام‌ها را پاک کنید؟')) {
+        try {
+            const chatServer = await getChatServer();
+            chatServer.messages = [{
+                id: Date.now(),
+                type: 'system',
+                text: '💬 چت روم توسط سازنده پاکسازی شد',
+                time: new Date().toISOString(),
+                userId: 'system'
+            }];
+            await saveChatServer(chatServer);
+            
+            loadChatMessages();
+            showNotification('همه پیام‌ها پاک شدند', 'موفقیت');
+        } catch (error) {
+            console.error('خطا در پاک کردن پیام‌ها:', error);
+            showNotification('خطا در پاک کردن پیام‌ها', 'خطا');
+        }
+    }
+}
+
+// ==================== توابع تنظیمات ====================
+
+function showSettingsModal() {
+    if (!currentUser) {
+        showNotification('لطفا ابتدا وارد شوید', 'خطا');
+        return;
+    }
+    document.getElementById('settings-modal').classList.add('active');
+    document.getElementById('settings-username').value = currentUser.name;
+}
+
+function closeSettingsModal() {
+    document.getElementById('settings-modal').classList.remove('active');
+}
+
+function selectAvatarInModal(element, avatar) {
+    document.querySelectorAll('#settings-modal .avatar-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+    element.classList.add('selected');
+    selectedAvatarInModal = avatar;
+}
+
+async function updateUsername() {
+    const newName = document.getElementById('settings-username').value.trim();
+    if (!newName) {
+        showNotification('لطفا نام جدید را وارد کنید', 'خطا');
+        return;
+    }
+    
+    const users = getUsersFromStorage();
+    const userIndex = users.findIndex(u => u.id === currentUser.id);
+    if (userIndex !== -1) {
+        users[userIndex].name = newName;
+        saveUsersToStorage(users);
+    }
+    
+    try {
+        const chatServer = await getChatServer();
+        const serverUserIndex = chatServer.users.findIndex(u => u.id === currentUser.id);
+        if (serverUserIndex !== -1) {
+            chatServer.users[serverUserIndex].name = newName;
+            await saveChatServer(chatServer);
+        }
+    } catch (error) {
+        console.error('خطا در به‌روزرسانی نام:', error);
+    }
+    
+    currentUser.name = newName;
+    saveCurrentUserToStorage(currentUser);
+    document.getElementById('header-username').textContent = newName;
+    showNotification('نام کاربری با موفقیت تغییر کرد', 'موفقیت');
+}
+
+async function updateAvatar() {
+    if (!selectedAvatarInModal) {
+        showNotification('لطفا یک آواتار انتخاب کنید', 'خطا');
+        return;
+    }
+    
+    // بررسی آواتار انحصاری
+    if (selectedAvatarInModal === '🤴' && currentUser.phone !== CREATOR_PHONE) {
+        showNotification('این آواتار فقط برای سازنده است', 'خطا');
+        return;
+    }
+    
+    const users = getUsersFromStorage();
+    const userIndex = users.findIndex(u => u.id === currentUser.id);
+    if (userIndex !== -1) {
+        users[userIndex].avatar = selectedAvatarInModal;
+        saveUsersToStorage(users);
+    }
+    
+    try {
+        const chatServer = await getChatServer();
+        const serverUserIndex = chatServer.users.findIndex(u => u.id === currentUser.id);
+        if (serverUserIndex !== -1) {
+            chatServer.users[serverUserIndex].avatar = selectedAvatarInModal;
+            await saveChatServer(chatServer);
+        }
+    } catch (error) {
+        console.error('خطا در به‌روزرسانی آواتار:', error);
+    }
+    
+    currentUser.avatar = selectedAvatarInModal;
+    saveCurrentUserToStorage(currentUser);
+    document.getElementById('header-avatar').textContent = selectedAvatarInModal;
+    showNotification('آواتار با موفقیت تغییر کرد', 'موفقیت');
+}
+
+function updatePassword() {
+    const currentPassword = document.getElementById('settings-current-password').value.trim();
+    const newPassword = document.getElementById('settings-new-password').value.trim();
+    const confirmPassword = document.getElementById('settings-confirm-password').value.trim();
+    
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        showNotification('لطفا تمام فیلدها را پر کنید', 'خطا');
+        return;
+    }
+    
+    if (currentPassword !== currentUser.password) {
+        showNotification('رمز عبور فعلی اشتباه است', 'خطا');
+        return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+        showNotification('رمز عبور جدید و تکرار آن مطابقت ندارند', 'خطا');
+        return;
+    }
+    
+    const users = getUsersFromStorage();
+    const userIndex = users.findIndex(u => u.id === currentUser.id);
+    if (userIndex !== -1) {
+        users[userIndex].password = newPassword;
+        saveUsersToStorage(users);
+    }
+    
+    currentUser.password = newPassword;
+    saveCurrentUserToStorage(currentUser);
+    
+    document.getElementById('settings-current-password').value = '';
+    document.getElementById('settings-new-password').value = '';
+    document.getElementById('settings-confirm-password').value = '';
+    
+    showNotification('رمز عبور با موفقیت تغییر کرد', 'موفقیت');
+}
+
+async function logout() {
+    if (confirm('آیا از حساب خود خارج می‌شوید؟')) {
+        if (currentUser) {
             const users = getUsersFromStorage();
             const userIndex = users.findIndex(u => u.id === currentUser.id);
             if (userIndex !== -1) {
-                users[userIndex].name = newName;
+                users[userIndex].online = false;
                 saveUsersToStorage(users);
             }
             
@@ -2871,245 +3052,143 @@
                 const chatServer = await getChatServer();
                 const serverUserIndex = chatServer.users.findIndex(u => u.id === currentUser.id);
                 if (serverUserIndex !== -1) {
-                    chatServer.users[serverUserIndex].name = newName;
+                    chatServer.users[serverUserIndex].online = false;
                     await saveChatServer(chatServer);
-                    chatServerCache = chatServer;
                 }
             } catch (error) {
-                console.error('خطا در به‌روزرسانی نام:', error);
+                console.error('خطا در به‌روزرسانی وضعیت خروج:', error);
             }
-            
-            currentUser.name = newName;
-            saveCurrentUserToStorage(currentUser);
-            document.getElementById('header-username').textContent = newName;
-            showNotification('نام کاربری با موفقیت تغییر کرد', 'موفقیت');
         }
         
-        async function updateAvatar() {
-            if (!selectedAvatarInModal) {
-                showNotification('لطفا یک آواتار انتخاب کنید', 'خطا');
-                return;
-            }
-            
-            // بررسی آواتار انحصاری
-            if (selectedAvatarInModal === '🤴' && currentUser.phone !== CREATOR_PHONE) {
-                showNotification('این آواتار فقط برای سازنده است', 'خطا');
-                return;
-            }
-            
-            const users = getUsersFromStorage();
-            const userIndex = users.findIndex(u => u.id === currentUser.id);
-            if (userIndex !== -1) {
-                users[userIndex].avatar = selectedAvatarInModal;
-                saveUsersToStorage(users);
-            }
-            
-            try {
-                const chatServer = await getChatServer();
-                const serverUserIndex = chatServer.users.findIndex(u => u.id === currentUser.id);
-                if (serverUserIndex !== -1) {
-                    chatServer.users[serverUserIndex].avatar = selectedAvatarInModal;
-                    await saveChatServer(chatServer);
-                    chatServerCache = chatServer;
-                }
-            } catch (error) {
-                console.error('خطا در به‌روزرسانی آواتار:', error);
-            }
-            
-            currentUser.avatar = selectedAvatarInModal;
-            saveCurrentUserToStorage(currentUser);
-            document.getElementById('header-avatar').textContent = selectedAvatarInModal;
-            showNotification('آواتار با موفقیت تغییر کرد', 'موفقیت');
+        localStorage.removeItem('currentChatUser');
+        currentUser = null;
+        
+        if (chatUpdateInterval) {
+            clearInterval(chatUpdateInterval);
+            chatUpdateInterval = null;
         }
         
-        function updatePassword() {
-            const currentPassword = document.getElementById('settings-current-password').value.trim();
-            const newPassword = document.getElementById('settings-new-password').value.trim();
-            const confirmPassword = document.getElementById('settings-confirm-password').value.trim();
+        closeSettingsModal();
+        showPage('login-page');
+        showNotification('با موفقیت خارج شدید', 'خروج');
+    }
+}
+
+// ==================== توابع ذخیره‌سازی ====================
+
+function getUsersFromStorage() {
+    const users = localStorage.getItem('chatUsers');
+    return users ? JSON.parse(users) : [];
+}
+
+function saveUsersToStorage(users) {
+    localStorage.setItem('chatUsers', JSON.stringify(users));
+}
+
+function getCurrentUserFromStorage() {
+    const user = localStorage.getItem('currentChatUser');
+    return user ? JSON.parse(user) : null;
+}
+
+function saveCurrentUserToStorage(user) {
+    localStorage.setItem('currentChatUser', JSON.stringify(user));
+}
+
+function getBlockedUsers() {
+    const blocked = localStorage.getItem('blockedUsers');
+    return blocked ? JSON.parse(blocked) : [];
+}
+
+function saveBlockedUsers(users) {
+    localStorage.setItem('blockedUsers', JSON.stringify(users));
+}
+
+function getReportsFromStorage() {
+    const reports = localStorage.getItem('chatReports');
+    return reports ? JSON.parse(reports) : [];
+}
+
+function saveReportsToStorage(reports) {
+    localStorage.setItem('chatReports', JSON.stringify(reports));
+}
+
+// ==================== توابع کمکی ====================
+
+function showNotification(message, title = 'اعلان') {
+    const notification = document.getElementById('notification');
+    document.getElementById('notification-title').textContent = title;
+    document.getElementById('notification-message').textContent = message;
+    
+    notification.classList.add('show');
+    
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 3000);
+}
+
+function resetRegistrationForm() {
+    currentStep = 1;
+    selectedAvatar = '👤';
+    document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+    document.getElementById('step1').classList.add('active');
+    document.getElementById('user-name').value = '';
+    document.getElementById('user-phone').value = '';
+    document.getElementById('user-password').value = '';
+    document.getElementById('chat-room-password').value = '';
+    document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
+}
+
+// ==================== رویدادها ====================
+
+// رویداد فرم چت
+document.getElementById('chat-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    sendMessage();
+});
+
+// رویداد کلید Enter
+document.getElementById('message-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+});
+
+// رویداد بارگذاری صفحه
+window.addEventListener('load', function() {
+    // بارگذاری رمز چت روم
+    const savedPassword = localStorage.getItem('chatRoomPassword');
+    if (savedPassword) {
+        currentChatPassword = savedPassword;
+        document.getElementById('current-chat-password').textContent = savedPassword;
+    }
+    
+    setTimeout(() => {
+        document.getElementById('loading-screen').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('loading-screen').style.display = 'none';
             
-            if (!currentPassword || !newPassword || !confirmPassword) {
-                showNotification('لطفا تمام فیلدها را پر کنید', 'خطا');
-                return;
-            }
-            
-            if (currentPassword !== currentUser.password) {
-                showNotification('رمز عبور فعلی اشتباه است', 'خطا');
-                return;
-            }
-            
-            if (newPassword !== confirmPassword) {
-                showNotification('رمز عبور جدید و تکرار آن مطابقت ندارند', 'خطا');
-                return;
-            }
-            
-            const users = getUsersFromStorage();
-            const userIndex = users.findIndex(u => u.id === currentUser.id);
-            if (userIndex !== -1) {
-                users[userIndex].password = newPassword;
-                saveUsersToStorage(users);
-            }
-            
-            currentUser.password = newPassword;
-            saveCurrentUserToStorage(currentUser);
-            
-            document.getElementById('settings-current-password').value = '';
-            document.getElementById('settings-new-password').value = '';
-            document.getElementById('settings-confirm-password').value = '';
-            
-            showNotification('رمز عبور با موفقیت تغییر کرد', 'موفقیت');
-        }
-        
-        async function logout() {
-            if (confirm('آیا از حساب خود خارج می‌شوید؟')) {
-                if (currentUser) {
-                    const users = getUsersFromStorage();
-                    const userIndex = users.findIndex(u => u.id === currentUser.id);
-                    if (userIndex !== -1) {
-                        users[userIndex].online = false;
-                        saveUsersToStorage(users);
-                    }
-                    
-                    try {
-                        const chatServer = await getChatServer();
-                        const serverUserIndex = chatServer.users.findIndex(u => u.id === currentUser.id);
-                        if (serverUserIndex !== -1) {
-                            chatServer.users[serverUserIndex].online = false;
-                            await saveChatServer(chatServer);
-                        }
-                    } catch (error) {
-                        console.error('خطا در به‌روزرسانی وضعیت خروج:', error);
-                    }
+            const savedUser = getCurrentUserFromStorage();
+            if (savedUser) {
+                currentUser = savedUser;
+                
+                // بررسی مسدودیت دائمی
+                const blockedUsers = getBlockedUsers();
+                if (blockedUsers.includes(currentUser.phone)) {
+                    showNotification(`سلام دوست گرامی شما توسط متین مسدود دائمی شدید پس منتظر رفع دائمی از طرف سازنده وب باشید ممنون از شما شکیبا.`, 'مسدودیت دائمی');
+                    localStorage.removeItem('currentChatUser');
+                    currentUser = null;
+                    showPage('login-page');
+                    return;
                 }
                 
-                localStorage.removeItem('currentChatUser');
-                currentUser = null;
-                
-                if (chatUpdateInterval) {
-                    clearInterval(chatUpdateInterval);
-                    chatUpdateInterval = null;
-                }
-                
-                closeSettingsModal();
-                showPage('login-page');
-                showNotification('با موفقیت خارج شدید', 'خروج');
+                showPage('main-chat-page');
+            } else {
+                showPage('register-page');
             }
-        }
-        
-        // ==================== توابع ذخیره‌سازی ====================
-        
-        function getUsersFromStorage() {
-            const users = localStorage.getItem('chatUsers');
-            return users ? JSON.parse(users) : [];
-        }
-        
-        function saveUsersToStorage(users) {
-            localStorage.setItem('chatUsers', JSON.stringify(users));
-        }
-        
-        function getCurrentUserFromStorage() {
-            const user = localStorage.getItem('currentChatUser');
-            return user ? JSON.parse(user) : null;
-        }
-        
-        function saveCurrentUserToStorage(user) {
-            localStorage.setItem('currentChatUser', JSON.stringify(user));
-        }
-        
-        function getBlockedUsers() {
-            const blocked = localStorage.getItem('blockedUsers');
-            return blocked ? JSON.parse(blocked) : [];
-        }
-        
-        function saveBlockedUsers(users) {
-            localStorage.setItem('blockedUsers', JSON.stringify(users));
-        }
-        
-        function getReportsFromStorage() {
-            const reports = localStorage.getItem('chatReports');
-            return reports ? JSON.parse(reports) : [];
-        }
-        
-        function saveReportsToStorage(reports) {
-            localStorage.setItem('chatReports', JSON.stringify(reports));
-        }
-        
-        // ==================== توابع کمکی ====================
-        
-        function showNotification(message, title = 'اعلان') {
-            const notification = document.getElementById('notification');
-            document.getElementById('notification-title').textContent = title;
-            document.getElementById('notification-message').textContent = message;
-            
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
-        }
-        
-        function resetRegistrationForm() {
-            currentStep = 1;
-            selectedAvatar = '👤';
-            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
-            document.getElementById('step1').classList.add('active');
-            document.getElementById('user-name').value = '';
-            document.getElementById('user-phone').value = '';
-            document.getElementById('user-password').value = '';
-            document.getElementById('chat-room-password').value = '';
-            document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
-        }
-        
-        // ==================== رویدادها ====================
-        
-        // رویداد فرم چت
-        document.getElementById('chat-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            sendMessage();
-        });
-        
-        // رویداد کلید Enter
-        document.getElementById('message-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-        
-        // رویداد بارگذاری صفحه
-        window.addEventListener('load', function() {
-            // بارگذاری رمز چت روم
-            const savedPassword = localStorage.getItem('chatRoomPassword');
-            if (savedPassword) {
-                currentChatPassword = savedPassword;
-                document.getElementById('current-chat-password').textContent = savedPassword;
-            }
-            
-            setTimeout(() => {
-                document.getElementById('loading-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('loading-screen').style.display = 'none';
-                    
-                    const savedUser = getCurrentUserFromStorage();
-                    if (savedUser) {
-                        currentUser = savedUser;
-                        
-                        // بررسی مسدودیت دائمی
-                        const blockedUsers = getBlockedUsers();
-                        if (blockedUsers.includes(currentUser.phone)) {
-                            showNotification(`سلام دوست گرامی شما توسط متین مسدود دائمی شدید پس منتظر رفع دائمی از طرف سازنده وب باشید ممنون از شما شکیبا.`, 'مسدودیت دائمی');
-                            localStorage.removeItem('currentChatUser');
-                            currentUser = null;
-                            showPage('login-page');
-                            return;
-                        }
-                        
-                        showPage('main-chat-page');
-                    } else {
-                        showPage('register-page');
-                    }
-                }, 500);
-            }, 2500);
-        });
-    </script>
+        }, 500);
+    }, 2500);
+});
+</script>
 </body>
 </html>
