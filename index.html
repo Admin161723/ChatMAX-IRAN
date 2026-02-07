@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -6,1248 +6,2124 @@
     <title>CHATMAX-IRAN - پیام‌رسان ایرانی</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Vazirmatn', sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        #loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            text-align: center;
-            transition: opacity 0.5s ease;
-        }
-
-        .logo {
-            font-size: 80px;
-            margin-bottom: 30px;
-            background: linear-gradient(45deg, #3b82f6, #8b5cf6, #10b981);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: glow 2s infinite;
-        }
-
-        @keyframes glow {
-            0%, 100% { filter: drop-shadow(0 0 10px #3b82f6); }
-            50% { filter: drop-shadow(0 0 20px #8b5cf6); }
-        }
-
-        .app-title {
-            font-size: 42px;
-            font-weight: 800;
-            margin-bottom: 15px;
-            background: linear-gradient(to right, #10b981, #3b82f6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .loading-text {
-            font-size: 18px;
-            opacity: 0.8;
-            margin-bottom: 30px;
-        }
-
-        .progress-bar {
-            width: 200px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 2px;
-            margin-top: 20px;
-            overflow: hidden;
-        }
-
-        .progress {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(to right, #3b82f6, #8b5cf6);
-            animation: load 2s linear forwards;
-        }
-
-        @keyframes load {
-            0% { width: 0%; }
-            100% { width: 100%; }
-        }
-
-        .page {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: none;
-            flex-direction: column;
-            background: #f8fafc;
-        }
-
-        .page.active {
-            display: flex;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .register-container {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-        }
-
-        .register-header {
-            background: linear-gradient(to right, #0f172a, #1e293b);
-            color: white;
-            padding: 40px 20px 30px;
-            text-align: center;
-            border-bottom-left-radius: 40px;
-            border-bottom-right-radius: 40px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            position: relative;
-        }
-
-        .return-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            transition: all 0.3s ease;
-        }
-
-        .return-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
-        }
-
-        .register-form {
-            flex: 1;
-            padding: 30px 20px;
-            overflow-y: auto;
-        }
-
-        .step {
-            display: none;
-        }
-
-        .step.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #1e293b;
-            font-weight: 600;
-            font-size: 15px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 15px 18px;
-            border: 2px solid #cbd5e1;
-            border-radius: 12px;
-            font-size: 15px;
-            background: white;
-            transition: all 0.2s ease;
-            color: #1e293b;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .avatars-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin: 20px 0 25px;
-        }
-
-        .avatar-option {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: 3px solid transparent;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            margin: 0 auto;
-            overflow: hidden;
-        }
-
-        .avatar-option img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-
-        .avatar-option:hover {
-            transform: scale(1.05);
-        }
-
-        .avatar-option.selected {
-            border-color: #3b82f6;
-            background: #dbeafe;
-            transform: scale(1.08);
-        }
-
-        .avatar-option.creator-only {
-            border-color: #f59e0b;
-            background: linear-gradient(45deg, #f59e0b, #d97706);
-            position: relative;
-        }
-
-        .avatar-option.creator-only::after {
-            content: '👑';
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            font-size: 16px;
-            background: white;
-            border-radius: 50%;
-            width: 22px;
-            height: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(to right, #3b82f6, #2563eb);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-top: 8px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(to right, #64748b, #475569);
-        }
-
-        .btn-danger {
-            background: linear-gradient(to right, #ef4444, #dc2626);
-        }
-
-        .btn-warning {
-            background: linear-gradient(to right, #f59e0b, #d97706);
-        }
-
-        .btn-success {
-            background: linear-gradient(to right, #10b981, #059669);
-        }
-
-        .password-note {
-            background: #dbeafe;
-            padding: 12px 15px;
-            border-radius: 10px;
-            margin-top: 15px;
-            border-right: 3px solid #3b82f6;
-            font-size: 13px;
-            color: #1e293b;
-            line-height: 1.5;
-        }
-
-        .chat-container {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            background: #f8fafc;
-        }
-
-        .chat-header {
-            background: linear-gradient(to right, #0f172a, #1e293b);
-            color: white;
-            padding: 12px 15px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .back-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 22px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            transition: all 0.2s ease;
-        }
-
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .chat-info {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .chat-avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .chat-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .chat-details {
-            flex: 1;
-        }
-
-        .chat-name {
-            font-weight: 700;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .user-tick {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            font-size: 9px;
-        }
-
-        .tick-creator {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .tick-admin {
-            background: #f59e0b;
-            color: white;
-        }
-
-        .tick-gold {
-            background: linear-gradient(45deg, #fbbf24, #f59e0b);
-            color: white;
-        }
-
-        .chat-status {
-            font-size: 12px;
-            opacity: 0.8;
-            margin-top: 2px;
-        }
-
-        .chat-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .chat-action-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            transition: all 0.2s ease;
-        }
-
-        .chat-action-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.05);
-        }
-
-        .chats-list-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: white;
-        }
-
-        .chats-header {
-            padding: 18px 15px;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .chats-header h2 {
-            font-size: 20px;
-            color: #0f172a;
-        }
-
-        .new-chat-btn {
-            background: linear-gradient(to right, #3b82f6, #2563eb);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-        }
-
-        .new-chat-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
-        }
-
-        .chats-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 8px;
-        }
-
-        .chat-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-bottom: 8px;
-            background: #f8fafc;
-        }
-
-        .chat-item:hover {
-            background: #e2e8f0;
-            transform: translateX(-3px);
-        }
-
-        .chat-item.active {
-            background: #dbeafe;
-            border-right: 3px solid #3b82f6;
-        }
-
-        .chat-item-avatar {
-            width: 46px;
-            height: 46px;
-            border-radius: 50%;
-            overflow: hidden;
-            flex-shrink: 0;
-            border: 2px solid #e2e8f0;
-        }
-
-        .chat-item-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .chat-item-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .chat-item-name {
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 15px;
-        }
-
-        .chat-item-last-message {
-            font-size: 13px;
-            color: #64748b;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .chat-item-time {
-            font-size: 11px;
-            color: #94a3b8;
-            flex-shrink: 0;
-        }
-
-        .chat-item-unread {
-            background: #ef4444;
-            color: white;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #f8fafc;
-        }
-
-        .chat-messages {
-            flex: 1;
-            padding: 15px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .chat-messages::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .chat-messages::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 2px;
-        }
-
-        .chat-messages::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 2px;
-        }
-
-        .message {
-            max-width: 85%;
-            padding: 12px 15px;
-            border-radius: 18px;
-            position: relative;
-            animation: messageAppear 0.2s ease forwards;
-            opacity: 0;
-            transform: translateY(8px);
-        }
-
-        @keyframes messageAppear {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .message.sent {
-            align-self: flex-end;
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: white;
-            border-bottom-right-radius: 5px;
-        }
-
-        .message.received {
-            align-self: flex-start;
-            background: white;
-            color: #1e293b;
-            border-bottom-left-radius: 5px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        }
-
-        .message-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 6px;
-        }
-
-        .message-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            overflow: hidden;
-            flex-shrink: 0;
-            border: 2px solid #e2e8f0;
-        }
-
-        .message-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .message-sender {
-            font-weight: 700;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .message-content {
-            font-size: 14px;
-            line-height: 1.4;
-            margin-bottom: 8px;
-            word-break: break-word;
-        }
-
-        .message-time {
-            font-size: 10px;
-            opacity: 0.8;
-            text-align: left;
-        }
-
-        .chat-input-container {
-            padding: 12px 15px;
-            background: white;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .chat-form {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        #message-input {
-            flex: 1;
-            padding: 12px 16px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 14px;
-            background: #f8fafc;
-            transition: all 0.2s ease;
-        }
-
-        #message-input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        #send-button {
-            min-width: 70px;
-            height: 48px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 16px;
-            font-weight: 600;
-            box-shadow: 0 3px 12px rgba(59, 130, 246, 0.25);
-        }
-
-        #send-button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 15px rgba(59, 130, 246, 0.35);
-            background: linear-gradient(135deg, #2563eb, #3b82f6);
-        }
-
-        #send-button:active {
-            transform: translateY(0);
-        }
-
-        .creator-panel-container {
-            flex: 1;
-            padding: 15px;
-            overflow-y: auto;
-            background: #f8fafc;
-        }
-
-        .creator-panel {
-            background: linear-gradient(135deg, #0f172a, #1e293b);
-            border-radius: 18px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-            border: 2px solid #f59e0b;
-        }
-
-        .creator-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: white;
-            margin-bottom: 15px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #f59e0b;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .creator-title i {
-            color: #f59e0b;
-        }
-
-        .creator-controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .creator-control {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 15px;
-        }
-
-        .creator-control label {
-            font-size: 13px;
-            font-weight: 600;
-            color: white;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .creator-control input {
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 12px;
-        }
-
-        .creator-control input:focus {
-            background: rgba(255, 255, 255, 0.18);
-            border-color: #f59e0b;
-        }
-
-        .creator-control input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .users-list-panel {
-            background: white;
-            border-radius: 12px;
-            padding: 15px;
-            margin-top: 15px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .users-list-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .users-list-header h3 {
-            font-size: 16px;
-            color: #1e293b;
-        }
-
-        .users-stats {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-
-        .stat-item {
-            flex: 1;
-            background: #f8fafc;
-            border-radius: 8px;
-            padding: 12px;
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 24px;
-            font-weight: 800;
-            color: #3b82f6;
-            margin-bottom: 3px;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: #64748b;
-        }
-
-        .users-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 12px;
-            margin-top: 15px;
-        }
-
-        .user-card {
-            background: white;
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            transition: all 0.2s ease;
-        }
-
-        .user-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
-        }
-
-        .user-card-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .user-card-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 2px solid #e2e8f0;
-        }
-
-        .user-card-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .user-card-info {
-            flex: 1;
-        }
-
-        .user-card-name {
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 3px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 14px;
-        }
-
-        .user-card-id {
-            font-size: 12px;
-            color: #64748b;
-            background: #f1f5f9;
-            padding: 2px 8px;
-            border-radius: 8px;
-            display: inline-block;
-        }
-
-        .user-card-phone {
-            font-size: 12px;
-            color: #64748b;
-            margin-top: 3px;
-        }
-
-        .user-card-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-            flex-wrap: wrap;
-        }
-
-        .user-action-btn {
-            flex: 1;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            transition: all 0.2s ease;
-            min-width: 100px;
-        }
-
-        .user-action-btn.admin {
-            background: #f59e0b;
-            color: white;
-        }
-
-        .user-action-btn.admin:hover {
-            background: #d97706;
-            transform: scale(1.03);
-        }
-
-        .user-action-btn.ban {
-            background: #ef4444;
-            color: white;
-        }
-
-        .user-action-btn.ban:hover {
-            background: #dc2626;
-            transform: scale(1.03);
-        }
-
-        .user-action-btn.chat {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .user-action-btn.chat:hover {
-            background: #2563eb;
-            transform: scale(1.03);
-        }
-
-        .tab-bar {
-            display: flex;
-            background: white;
-            border-top: 1px solid #e2e8f0;
-            padding: 8px 0;
-        }
-
-        .tab-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: #64748b;
-        }
-
-        .tab-item.active {
-            color: #3b82f6;
-        }
-
-        .tab-item i {
-            font-size: 18px;
-            margin-bottom: 4px;
-        }
-
-        .tab-item span {
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .tab-item:hover {
-            color: #3b82f6;
-        }
-
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1001;
-            padding: 15px;
-        }
-
-        .modal.active {
-            display: flex;
-            animation: fadeIn 0.2s ease;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 18px;
-            width: 100%;
-            max-width: 400px;
-            max-height: 80vh;
-            overflow-y: auto;
-            animation: slideUp 0.2s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(40px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .modal-header {
-            background: linear-gradient(to right, #0f172a, #1e293b);
-            color: white;
-            padding: 18px;
-            border-top-left-radius: 18px;
-            border-top-right-radius: 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h3 {
-            font-size: 18px;
-        }
-
-        .close-modal {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 22px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .close-modal:hover {
-            transform: scale(1.05);
-        }
-
-        .modal-body {
-            padding: 18px;
-        }
-
-        .modal-footer {
-            padding: 18px;
-            display: flex;
-            gap: 8px;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .notification {
-            position: fixed;
-            top: 15px;
-            right: 15px;
-            background: white;
-            padding: 12px 16px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transform: translateX(150%);
-            transition: transform 0.2s ease;
-            z-index: 1001;
-            max-width: 280px;
-            border-right: 4px solid #3b82f6;
-        }
-
-        .notification.show {
-            transform: translateX(0);
-        }
-
-        .notification-icon {
-            color: #3b82f6;
-            font-size: 18px;
-        }
-
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: #94a3b8;
-            text-align: center;
-            padding: 30px;
-        }
-
-        .empty-state i {
-            font-size: 50px;
-            margin-bottom: 15px;
-            opacity: 0.5;
-        }
-
-        .input-error {
-            border-color: #ef4444 !important;
-            animation: shake 0.4s ease;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-4px); }
-            75% { transform: translateX(4px); }
-        }
-
-        .network-status {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            z-index: 999;
-        }
-
-        .network-status.online {
-            background: #10b981;
-        }
-
-        .network-status.offline {
-            background: #ef4444;
-        }
-
-        .login-timer {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            z-index: 999;
-        }
-
-        @media (max-width: 768px) {
-            .register-header {
-                padding: 30px 15px 25px;
-            }
-            
-            .register-header h1 {
-                font-size: 22px;
-            }
-            
-            .avatars-container {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 12px;
-            }
-            
-            .avatar-option {
-                width: 65px;
-                height: 65px;
-            }
-            
-            .message {
-                max-width: 90%;
-            }
-            
-            #send-button {
-                min-width: 65px;
-                height: 45px;
-                padding: 0 14px;
-                font-size: 13px;
-            }
-            
-            .creator-controls {
-                grid-template-columns: 1fr;
-            }
-            
-            .users-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .user-card-actions {
-                flex-direction: column;
-            }
-            
-            .user-action-btn {
-                min-width: 100%;
-            }
-            
-            .tab-item i {
-                font-size: 16px;
-            }
-            
-            .tab-item span {
-                font-size: 10px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .chat-header {
-                padding: 10px 12px;
-            }
-            
-            .chat-avatar {
-                width: 38px;
-                height: 38px;
-            }
-            
-            .chat-name {
-                font-size: 15px;
-            }
-            
-            .tab-item i {
-                font-size: 15px;
-            }
-            
-            .tab-item span {
-                font-size: 9px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Vazirmatn', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    height: 100vh;
+    overflow: hidden;
+}
+
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    text-align: center;
+    transition: opacity 0.5s ease;
+}
+
+.logo {
+    font-size: 80px;
+    margin-bottom: 30px;
+    background: linear-gradient(45deg, #3b82f6, #8b5cf6, #10b981);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: glow 2s infinite;
+}
+
+@keyframes glow {
+    0%, 100% { filter: drop-shadow(0 0 10px #3b82f6); }
+    50% { filter: drop-shadow(0 0 20px #8b5cf6); }
+}
+
+.app-title {
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 15px;
+    background: linear-gradient(to right, #10b981, #3b82f6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.loading-text {
+    font-size: 18px;
+    opacity: 0.8;
+    margin-bottom: 30px;
+}
+
+.progress-bar {
+    width: 200px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    margin-top: 20px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to right, #3b82f6, #8b5cf6);
+    animation: load 2s linear forwards;
+}
+
+@keyframes load {
+    0% { width: 0%; }
+    100% { width: 100%; }
+}
+
+.page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    background: #f8fafc;
+}
+
+.page.active {
+    display: flex;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.register-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+.register-header {
+    background: linear-gradient(to right, #0f172a, #1e293b);
+    color: white;
+    padding: 40px 20px 30px;
+    text-align: center;
+    border-bottom-left-radius: 40px;
+    border-bottom-right-radius: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.return-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.3s ease;
+}
+
+.return-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.register-form {
+    flex: 1;
+    padding: 30px 20px;
+    overflow-y: auto;
+}
+
+.step {
+    display: none;
+}
+
+.step.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 15px 18px;
+    border: 2px solid #cbd5e1;
+    border-radius: 12px;
+    font-size: 15px;
+    background: white;
+    transition: all 0.2s ease;
+    color: #1e293b;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.avatars-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin: 20px 0 25px;
+}
+
+.avatar-option {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 3px solid transparent;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.avatar-option img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.avatar-option:hover {
+    transform: scale(1.05);
+}
+
+.avatar-option.selected {
+    border-color: #3b82f6;
+    background: #dbeafe;
+    transform: scale(1.08);
+}
+
+.avatar-option.creator-only {
+    border-color: #f59e0b;
+    background: linear-gradient(45deg, #f59e0b, #d97706);
+    position: relative;
+}
+
+.avatar-option.creator-only::after {
+    content: '👑';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    font-size: 16px;
+    background: white;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(to right, #3b82f6, #2563eb);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: linear-gradient(to right, #64748b, #475569);
+}
+
+.btn-danger {
+    background: linear-gradient(to right, #ef4444, #dc2626);
+}
+
+.btn-warning {
+    background: linear-gradient(to right, #f59e0b, #d97706);
+}
+
+.btn-success {
+    background: linear-gradient(to right, #10b981, #059669);
+}
+
+.password-note {
+    background: #dbeafe;
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+    border-right: 3px solid #3b82f6;
+    font-size: 13px;
+    color: #1e293b;
+    line-height: 1.5;
+}
+
+.chat-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #f8fafc;
+}
+
+.chat-header {
+    background: linear-gradient(to right, #0f172a, #1e293b);
+    color: white;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    position: relative;
+    z-index: 10;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.chat-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.chat-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.chat-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.chat-details {
+    flex: 1;
+}
+
+.chat-name {
+    font-weight: 700;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.user-tick {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    font-size: 9px;
+}
+
+.tick-creator {
+    background: #3b82f6;
+    color: white;
+}
+
+.tick-admin {
+    background: #f59e0b;
+    color: white;
+}
+
+.tick-gold {
+    background: linear-gradient(45deg, #fbbf24, #f59e0b);
+    color: white;
+}
+
+.chat-status {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.chat-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.chat-action-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.chat-action-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.chats-list-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: white;
+}
+
+.chats-header {
+    padding: 18px 15px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+}
+
+.chats-header h2 {
+    font-size: 20px;
+    color: #0f172a;
+}
+
+.new-chat-btn {
+    background: linear-gradient(to right, #3b82f6, #2563eb);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.new-chat-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+}
+
+.chats-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+    background: #f8fafc;
+}
+
+.chat-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 8px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid transparent;
+}
+
+.chat-item:hover {
+    background: #f1f5f9;
+    transform: translateX(-3px);
+    border-color: #e2e8f0;
+}
+
+.chat-item.active {
+    background: #dbeafe;
+    border-right: 3px solid #3b82f6;
+    border-color: #3b82f6;
+}
+
+.chat-item-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid #e2e8f0;
+}
+
+.chat-item-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.chat-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.chat-item-name {
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 15px;
+}
+
+.chat-item-last-message {
+    font-size: 13px;
+    color: #64748b;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.chat-item-time {
+    font-size: 11px;
+    color: #94a3b8;
+    flex-shrink: 0;
+}
+
+.chat-item-unread {
+    background: #ef4444;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #f8fafc;
+    position: relative;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    position: relative;
+}
+
+.chat-messages::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(248, 250, 252, 0.85);
+    backdrop-filter: blur(2px);
+}
+
+.chat-messages > * {
+    position: relative;
+    z-index: 1;
+}
+
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: rgba(241, 245, 249, 0.5);
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: rgba(59, 130, 246, 0.5);
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: rgba(59, 130, 246, 0.7);
+}
+
+.message {
+    max-width: 75%;
+    padding: 12px 15px;
+    border-radius: 18px;
+    position: relative;
+    animation: messageAppear 0.3s ease forwards;
+    opacity: 0;
+    transform: translateY(8px);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    word-break: break-word;
+}
+
+@keyframes messageAppear {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message.sent {
+    align-self: flex-end;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.95), rgba(37, 99, 235, 0.95));
+    color: white;
+    border-bottom-right-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.message.received {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.95);
+    color: #1e293b;
+    border-bottom-left-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.message-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.message-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.message-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.message-sender {
+    font-weight: 700;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.message-content {
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.message-time {
+    font-size: 10px;
+    opacity: 0.8;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.message-status {
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.chat-input-container {
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.95);
+    border-top: 1px solid #e2e8f0;
+    backdrop-filter: blur(20px);
+    position: relative;
+    z-index: 2;
+}
+
+.chat-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+#message-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 14px;
+    background: rgba(248, 250, 252, 0.9);
+    transition: all 0.2s ease;
+    min-height: 48px;
+    resize: none;
+}
+
+#message-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+#send-button {
+    min-width: 70px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    font-weight: 600;
+    box-shadow: 0 3px 12px rgba(59, 130, 246, 0.25);
+}
+
+#send-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(59, 130, 246, 0.35);
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+}
+
+#send-button:active {
+    transform: translateY(0);
+}
+
+.creator-panel-container {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background: #f8fafc;
+}
+
+.creator-panel {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    border: 2px solid #f59e0b;
+}
+
+.creator-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 15px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f59e0b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.creator-title i {
+    color: #f59e0b;
+}
+
+.creator-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.creator-control {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 15px;
+}
+
+.creator-control label {
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.creator-control input, .creator-control select {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 12px;
+}
+
+.creator-control input:focus, .creator-control select:focus {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: #f59e0b;
+}
+
+.creator-control input::placeholder, .creator-control select::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.users-list-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 15px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+.users-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.users-list-header h3 {
+    font-size: 16px;
+    color: #1e293b;
+}
+
+.users-stats {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.stat-item {
+    flex: 1;
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.stat-number {
+    font-size: 24px;
+    font-weight: 800;
+    color: #3b82f6;
+    margin-bottom: 3px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.users-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.user-card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.user-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+    border-color: #cbd5e1;
+}
+
+.user-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.user-card-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #e2e8f0;
+}
+
+.user-card-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-card-info {
+    flex: 1;
+}
+
+.user-card-name {
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+}
+
+.user-card-id {
+    font-size: 12px;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 2px 8px;
+    border-radius: 8px;
+    display: inline-block;
+}
+
+.user-card-phone {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.user-card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.user-action-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+    min-width: 100px;
+}
+
+.user-action-btn.admin {
+    background: #f59e0b;
+    color: white;
+}
+
+.user-action-btn.admin:hover {
+    background: #d97706;
+    transform: scale(1.03);
+}
+
+.user-action-btn.ban {
+    background: #ef4444;
+    color: white;
+}
+
+.user-action-btn.ban:hover {
+    background: #dc2626;
+    transform: scale(1.03);
+}
+
+.user-action-btn.chat {
+    background: #3b82f6;
+    color: white;
+}
+
+.user-action-btn.chat:hover {
+    background: #2563eb;
+    transform: scale(1.03);
+}
+
+.tab-bar {
+    display: flex;
+    background: rgba(255, 255, 255, 0.98);
+    border-top: 1px solid #e2e8f0;
+    padding: 8px 0;
+    backdrop-filter: blur(20px);
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #64748b;
+    position: relative;
+}
+
+.tab-item.active {
+    color: #3b82f6;
+}
+
+.tab-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    background: #3b82f6;
+    border-radius: 2px;
+}
+
+.tab-item i {
+    font-size: 18px;
+    margin-bottom: 4px;
+}
+
+.tab-item span {
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.tab-item:hover {
+    color: #3b82f6;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+    padding: 15px;
+    backdrop-filter: blur(5px);
+}
+
+.modal.active {
+    display: flex;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 18px;
+    width: 100%;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: slideUp 0.2s ease;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    background: linear-gradient(to right, #0f172a, #1e293b);
+    color: white;
+    padding: 18px;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    font-size: 18px;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.close-modal:hover {
+    transform: scale(1.05);
+}
+
+.modal-body {
+    padding: 18px;
+}
+
+.modal-footer {
+    padding: 18px;
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.notification {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    background: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transform: translateX(150%);
+    transition: transform 0.2s ease;
+    z-index: 1001;
+    max-width: 280px;
+    border-right: 4px solid #3b82f6;
+    backdrop-filter: blur(10px);
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification-icon {
+    color: #3b82f6;
+    font-size: 18px;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #94a3b8;
+    text-align: center;
+    padding: 30px;
+    backdrop-filter: blur(5px);
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 12px;
+    margin: 10px;
+}
+
+.empty-state i {
+    font-size: 50px;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.input-error {
+    border-color: #ef4444 !important;
+    animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+.network-status {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 999;
+    backdrop-filter: blur(10px);
+}
+
+.network-status.online {
+    background: rgba(16, 185, 129, 0.8);
+}
+
+.network-status.offline {
+    background: rgba(239, 68, 68, 0.8);
+}
+
+.login-timer {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    z-index: 999;
+    backdrop-filter: blur(10px);
+}
+
+.chat-header-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.header-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.header-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.creator-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.creator-panel-header h2 {
+    color: #1e293b;
+    font-size: 20px;
+}
+
+.panel-back-btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.panel-back-btn:hover {
+    background: #2563eb;
+    transform: scale(1.05);
+}
+
+.message-status {
+    font-size: 9px;
+    margin-right: 5px;
+    opacity: 0.7;
+}
+
+.message-status.delivered {
+    color: #10b981;
+}
+
+.message-status.seen {
+    color: #3b82f6;
+}
+
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    width: fit-content;
+    margin: 5px 15px;
+    backdrop-filter: blur(10px);
+}
+
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    background: #3b82f6;
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+    0%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-6px); }
+}
+
+.online-dot {
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+}
+
+.chat-search-container {
+    padding: 10px 15px;
+    border-bottom: 1px solid #e2e8f0;
+    background: white;
+}
+
+.chat-search-input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f8fafc;
+    font-size: 14px;
+}
+
+.chat-search-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.status-online {
+    color: #10b981;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.status-offline {
+    color: #64748b;
+    font-size: 11px;
+}
+
+.report-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+.report-item {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+.report-item:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.report-title {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.report-status {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.report-status.pending {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.report-status.resolved {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.report-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.report-action-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.report-action-btn.resolve {
+    background: #10b981;
+    color: white;
+}
+
+.report-action-btn.resolve:hover {
+    background: #059669;
+    transform: scale(1.03);
+}
+
+.report-action-btn.reject {
+    background: #ef4444;
+    color: white;
+}
+
+.report-action-btn.reject:hover {
+    background: #dc2626;
+    transform: scale(1.03);
+}
+
+.report-action-btn.view {
+    background: #3b82f6;
+    color: white;
+}
+
+.report-action-btn.view:hover {
+    background: #2563eb;
+    transform: scale(1.03);
+}
+
+.group-search-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 15px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+.group-search-header {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.group-search-input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f8fafc;
+}
+
+.group-search-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.group-item {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+.group-item:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+}
+
+.group-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.group-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.group-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.group-info {
+    flex: 1;
+}
+
+.group-name {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 14px;
+}
+
+.group-id {
+    font-size: 11px;
+    color: #64748b;
+}
+
+.group-stats {
+    display: flex;
+    gap: 12px;
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 5px;
+}
+
+.group-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.group-action-btn {
+    flex: 1;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.group-action-btn.ban {
+    background: #ef4444;
+    color: white;
+}
+
+.group-action-btn.ban:hover {
+    background: #dc2626;
+    transform: scale(1.03);
+}
+
+.group-action-btn.tick {
+    background: #3b82f6;
+    color: white;
+}
+
+.group-action-btn.tick:hover {
+    background: #2563eb;
+    transform: scale(1.03);
+}
+
+.group-action-btn.report {
+    background: #f59e0b;
+    color: white;
+}
+
+.group-action-btn.report:hover {
+    background: #d97706;
+    transform: scale(1.03);
+}
+
+.search-user-result {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-bottom: 1px solid #e2e8f0;
+    cursor: pointer;
+    transition: background 0.2s;
+    background: white;
+}
+
+.search-user-result:hover {
+    background: #f1f5f9;
+}
+
+.search-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.search-user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.search-user-info {
+    flex: 1;
+}
+
+.search-user-name {
+    font-weight: bold;
+    color: #1e293b;
+    font-size: 14px;
+}
+
+.search-user-id {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.search-user-status {
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.message-reactions {
+    display: flex;
+    gap: 4px;
+    margin-top: 5px;
+    flex-wrap: wrap;
+}
+
+.reaction-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.reaction-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.message-menu {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    display: none;
+    flex-direction: column;
+    min-width: 120px;
+    z-index: 100;
+    overflow: hidden;
+}
+
+.message-menu-item {
+    padding: 8px 12px;
+    border: none;
+    background: white;
+    text-align: right;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 13px;
+    color: #1e293b;
+}
+
+.message-menu-item:hover {
+    background: #f1f5f9;
+}
+
+.message-menu-item.delete {
+    color: #ef4444;
+}
+
+.message-menu-item.delete:hover {
+    background: #fee2e2;
+}
+
+.message:hover .message-menu {
+    display: flex;
+}
+
+.blocked-user {
+    opacity: 0.6;
+    background: #fef2f2 !important;
+    border-color: #fca5a5 !important;
+}
+
+.blocked-user::before {
+    content: "⛔ مسدود";
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: #ef4444;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    z-index: 2;
+}
+
+.group-invite-link {
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.group-invite-link input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.group-invite-link button {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+.group-settings-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 15px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+.group-settings-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.group-settings-item:last-child {
+    border-bottom: none;
+}
+
+.group-settings-label {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.group-settings-value {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.leave-group-btn {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.leave-group-btn:hover {
+    background: #dc2626;
+    transform: scale(1.03);
+}
+
+.delete-message-btn {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    border: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 10px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.message:hover .delete-message-btn {
+    opacity: 1;
+}
+
+.user-presence {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+}
+
+.user-presence.online {
+    color: #10b981;
+}
+
+.user-presence.offline {
+    color: #64748b;
+}
+
+.user-presence-idle {
+    color: #f59e0b;
+}
+
+.block-btn {
+    background: #ef4444;
+    color: white;
+}
+
+.unblock-btn {
+    background: #10b981;
+    color: white;
+}
+
+.group-edit-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 15px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+.group-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.group-avatar-edit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.group-avatar-preview {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #e2e8f0;
+}
+
+.group-avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.group-link-section {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+.group-link-display {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.group-link-display input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: white;
+    font-size: 12px;
+}
+
+.group-link-display button {
+    padding: 10px 15px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.personal-storage-info {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 15px;
+    font-size: 13px;
+}
+
+.personal-storage-info h4 {
+    color: #0369a1;
+    margin-bottom: 8px;
+}
+
+.storage-stats {
+    display: flex;
+    gap: 15px;
+    font-size: 12px;
+}
+
+.storage-stat {
+    flex: 1;
+    text-align: center;
+    padding: 8px;
+    background: white;
+    border-radius: 6px;
+}
+
+.storage-number {
+    font-weight: bold;
+    color: #3b82f6;
+    font-size: 16px;
+}
+
+.tabs-container {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.tab-btn:hover:not(.active) {
+    background: #e2e8f0;
+}
+
+@media (max-width: 768px) {
+    .register-header {
+        padding: 30px 15px 25px;
+    }
+    
+    .register-header h1 {
+        font-size: 22px;
+    }
+    
+    .avatars-container {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+    
+    .avatar-option {
+        width: 65px;
+        height: 65px;
+    }
+    
+    .message {
+        max-width: 85%;
+    }
+    
+    #send-button {
+        min-width: 65px;
+        height: 45px;
+        padding: 0 14px;
+        font-size: 13px;
+    }
+    
+    .creator-controls {
+        grid-template-columns: 1fr;
+    }
+    
+    .users-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .user-card-actions {
+        flex-direction: column;
+    }
+    
+    .user-action-btn {
+        min-width: 100%;
+    }
+    
+    .tab-item i {
+        font-size: 16px;
+    }
+    
+    .tab-item span {
+        font-size: 10px;
+    }
+    
+    .chat-messages {
+        background-attachment: scroll;
+    }
+    
+    .group-actions {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .chat-header {
+        padding: 10px 12px;
+    }
+    
+    .chat-avatar {
+        width: 38px;
+        height: 38px;
+    }
+    
+    .chat-name {
+        font-size: 15px;
+    }
+    
+    .tab-item i {
+        font-size: 15px;
+    }
+    
+    .tab-item span {
+        font-size: 9px;
+    }
+    
+    .chat-messages {
+        padding: 10px;
+    }
+    
+    .message {
+        max-width: 90%;
+    }
+}
+</style>
 <body>
     <!-- وضعیت اینترنت -->
     <div id="network-status" class="network-status online" style="display: none;">
@@ -1415,13 +2291,22 @@
                             <i class="fas fa-check"></i>
                         </span>
                     </div>
-                    <div class="chat-status" id="current-chat-status">آنلاین</div>
+                    <div class="chat-status" id="current-chat-status">آنلاین <span class="online-dot"></span></div>
                 </div>
             </div>
             
             <div class="chat-actions">
-                <button class="chat-action-btn" onclick="showChatInfo()">
+                <button class="chat-action-btn" onclick="showChatInfo()" id="info-button">
                     <i class="fas fa-info-circle"></i>
+                </button>
+                <button class="chat-action-btn" onclick="reportUser()" id="report-button">
+                    <i class="fas fa-flag"></i>
+                </button>
+                <button class="chat-action-btn" onclick="blockPrivateUser()" id="block-button" style="display: none;">
+                    <i class="fas fa-ban"></i>
+                </button>
+                <button class="chat-action-btn" onclick="unblockPrivateUser()" id="unblock-button" style="display: none;">
+                    <i class="fas fa-unlock"></i>
                 </button>
             </div>
         </div>
@@ -1429,10 +2314,20 @@
         <div class="chats-list-container" id="chats-list-container">
             <div class="chats-header">
                 <h2>چت‌ها</h2>
-                <button class="new-chat-btn" onclick="showNewChatModal()">
-                    <i class="fas fa-plus"></i>
-                    چت جدید
-                </button>
+                <div style="display: flex; gap: 8px;">
+                    <button class="new-chat-btn" onclick="showNewChatModal()">
+                        <i class="fas fa-plus"></i>
+                        چت جدید
+                    </button>
+                    <button class="new-chat-btn" onclick="showCreateGroupModal()" style="background: linear-gradient(to right, #10b981, #059669);">
+                        <i class="fas fa-users"></i>
+                        گروه جدید
+                    </button>
+                </div>
+            </div>
+            
+            <div class="chat-search-container">
+                <input type="text" class="chat-search-input" placeholder="جستجو در چت‌ها..." id="chat-search-input" oninput="searchChats()">
             </div>
             
             <div class="chats-list" id="chats-list">
@@ -1445,7 +2340,7 @@
             
             <div class="chat-input-container">
                 <form class="chat-form" id="chat-form">
-                    <input type="text" id="message-input" placeholder="پیام خود را بنویسید..." autocomplete="off">
+                    <textarea id="message-input" placeholder="پیام خود را بنویسید..." autocomplete="off" rows="1"></textarea>
                     <button type="button" id="send-button" onclick="sendMessage()">
                         <i class="fas fa-paper-plane"></i> ارسال
                     </button>
@@ -1474,7 +2369,7 @@
         </div>
         
         <div class="tab-bar">
-            <div class="tab-item" onclick="showChatsList()">
+            <div class="tab-item" onclick="returnToChatFromPanel()">
                 <i class="fas fa-comments"></i>
                 <span>چت‌ها</span>
             </div>
@@ -1485,6 +2380,62 @@
             <div class="tab-item" onclick="showSettingsModal()">
                 <i class="fas fa-cog"></i>
                 <span>تنظیمات</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- مدال‌ها -->
+    <div class="modal" id="group-settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>تنظیمات گروه/کانال</h3>
+                <button class="close-modal" onclick="closeGroupSettingsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="group-settings-body">
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="create-group-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>ایجاد گروه/کانال جدید</h3>
+                <button class="close-modal" onclick="closeCreateGroupModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>نام گروه/کانال</label>
+                    <input type="text" id="group-name" placeholder="نام گروه را وارد کنید">
+                </div>
+                
+                <div class="form-group">
+                    <label>نوع</label>
+                    <select id="group-type" style="width: 100%; padding: 12px;">
+                        <option value="group">گروه</option>
+                        <option value="channel">کانال</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>توضیحات</label>
+                    <textarea id="group-description" placeholder="توضیحات گروه" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>لینک دعوت (اختیاری)</label>
+                    <input type="text" id="group-invite-link" placeholder="لینک دلخواه برای دعوت">
+                    <div class="password-note">
+                        اگر خالی بگذارید، لینک تصادفی ساخته می‌شود
+                    </div>
+                </div>
+                
+                <button class="btn btn-success" onclick="createGroup()">
+                    <i class="fas fa-plus"></i> ایجاد گروه
+                </button>
             </div>
         </div>
     </div>
@@ -1539,6 +2490,23 @@
                     <button class="btn" onclick="updatePassword()" style="margin-top: 8px; padding: 12px;">تغییر رمز عبور</button>
                 </div>
                 
+                <div class="personal-storage-info">
+                    <h4>📊 ذخیره‌سازی پیام‌های شخصی</h4>
+                    <div class="storage-stats">
+                        <div class="storage-stat">
+                            <div class="storage-number" id="personal-messages-count">0</div>
+                            <div>پیام ذخیره شده</div>
+                        </div>
+                        <div class="storage-stat">
+                            <div class="storage-number" id="personal-chats-count">0</div>
+                            <div>چت ذخیره شده</div>
+                        </div>
+                    </div>
+                    <p style="margin-top: 10px; font-size: 12px; color: #64748b;">
+                        پیام‌های شما به صورت شخصی در مرورگر ذخیره می‌شوند و برای شما قابل دسترسی هستند.
+                    </p>
+                </div>
+                
                 <div class="form-group" id="creator-settings" style="display: none;">
                     <h4 style="color: #f59e0b; margin-bottom: 12px; border-bottom: 2px solid #f59e0b; padding-bottom: 4px;">
                         <i class="fas fa-crown"></i> تنظیمات سازنده
@@ -1570,20 +2538,31 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label>جستجو بر اساس آیدی یا نام</label>
-                    <input type="text" id="search-user-input" placeholder="آیدی یا نام کاربر را وارد کنید" autocomplete="off" oninput="searchUsers()">
+                <div class="tabs-container" style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button class="tab-btn active" onclick="switchSearchTab('users')">جستجوی کاربر</button>
+                    <button class="tab-btn" onclick="switchSearchTab('groups')">جستجوی گروه/کانال</button>
                 </div>
                 
-                <div class="search-results" id="search-results" style="max-height: 180px; overflow-y: auto; margin: 12px 0; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px;">
+                <div id="search-users-tab" style="display: block;">
+                    <div class="form-group">
+                        <label>جستجو بر اساس آیدی</label>
+                        <input type="text" id="search-user-input" placeholder="آیدی کاربر را وارد کنید" autocomplete="off" oninput="searchUsers()">
+                    </div>
+                    
+                    <div class="search-results" id="search-results" style="max-height: 250px; overflow-y: auto; margin: 12px 0; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px;">
+                        <div style="text-align: center; color: #64748b; padding: 20px;">برای جستجو، آیدی کاربر را وارد کنید</div>
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label>یا مستقیماً با آیدی شروع کنید</label>
-                    <input type="text" id="direct-user-id" placeholder="آیدی کاربر مورد نظر" autocomplete="off">
-                    <button class="btn" onclick="startChatByID()" style="margin-top: 8px; padding: 12px;">
-                        <i class="fas fa-search"></i> جستجو و شروع چت
-                    </button>
+                <div id="search-groups-tab" style="display: none;">
+                    <div class="form-group">
+                        <label>جستجو بر اساس نام یا لینک</label>
+                        <input type="text" id="search-group-input" placeholder="نام یا لینک گروه/کانال را وارد کنید" autocomplete="off" oninput="searchJoinableGroups()">
+                    </div>
+                    
+                    <div class="search-results" id="search-group-results" style="max-height: 250px; overflow-y: auto; margin: 12px 0; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px;">
+                        <div style="text-align: center; color: #64748b; padding: 20px;">برای جستجو، نام یا لینک گروه/کانال را وارد کنید</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1645,6 +2624,38 @@
         </div>
     </div>
 
+    <div class="modal" id="report-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>گزارش تخلف</h3>
+                <button class="close-modal" onclick="closeReportModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>نوع تخلف</label>
+                    <select id="report-type" style="width: 100%; padding: 12px;">
+                        <option value="spam">اسپم</option>
+                        <option value="harassment">آزار و اذیت</option>
+                        <option value="inappropriate">محتوا نامناسب</option>
+                        <option value="fake">حساب جعلی</option>
+                        <option value="other">سایر</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>توضیحات</label>
+                    <textarea id="report-description" placeholder="توضیحات خود را بنویسید..." rows="4" style="width: 100%; padding: 12px;"></textarea>
+                </div>
+                
+                <button class="btn btn-danger" onclick="submitReport()" style="margin-top: 8px; width: 100%; padding: 12px;">
+                    <i class="fas fa-flag"></i> ارسال گزارش
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="notification" id="notification">
         <div class="notification-icon">
             <i class="fas fa-bell"></i>
@@ -1681,6 +2692,8 @@ let chatUpdateInterval = null;
 let serverDataCache = null;
 let isOnline = navigator.onLine;
 let loginTimeout = null;
+let personalStorage = {};
+let searchActiveTab = 'users';
 
 // آواتارها
 const avatars = {
@@ -1758,6 +2771,7 @@ function showPage(pageId) {
         
         loadChatsList();
         startChatUpdates();
+        loadPersonalStorageInfo();
     } else if (pageId === 'creator-panel-page') {
         if (currentUser && (currentUser.phone === CREATOR_PHONE || currentUser.phone === ADMIN_PHONE)) {
             loadCreatorPanel();
@@ -1786,6 +2800,17 @@ function showChatsList() {
 
 function showCreatorPanel() {
     showPage('creator-panel-page');
+}
+
+function returnToChatFromPanel() {
+    if (currentChat) {
+        showPage('main-chat-page');
+        setTimeout(() => {
+            openChat(currentChat);
+        }, 100);
+    } else {
+        showPage('main-chat-page');
+    }
 }
 
 // ==================== تایمر صفحه لاگین ====================
@@ -1820,6 +2845,7 @@ function stopLoginCountdown() {
     document.getElementById('login-timer').style.display = 'none';
 }
 
+// ==================== ثبت نام و لاگین ====================
 function nextStep(step) {
     if (!validateStep(currentStep)) return;
     document.getElementById(`step${currentStep}`).classList.remove('active');
@@ -2004,7 +3030,10 @@ function createInitialData() {
         updatedAt: new Date().toISOString(),
         isGroup: true,
         hasTick: true,
-        description: 'گروه عمومی همه کاربران'
+        description: 'گروه عمومی همه کاربران',
+        isActive: true,
+        inviteLink: 'takht-jamshid',
+        creatorId: CREATOR_ID
     };
     
     const initialData = {
@@ -2013,11 +3042,72 @@ function createInitialData() {
         users: [creatorUser, adminUser],
         chats: [groupChat],
         settings: { chatRoomPassword: currentChatPassword },
-        version: '2.0'
+        reports: [],
+        blocks: [],
+        version: '3.0'
     };
     
     saveDataToLocal(initialData);
     return initialData;
+}
+
+// ==================== ذخیره‌سازی شخصی ====================
+function loadPersonalStorage() {
+    const storage = localStorage.getItem(`chatmax_personal_${currentUser?.userId}`);
+    if (storage) {
+        personalStorage = JSON.parse(storage);
+    } else {
+        personalStorage = {
+            messages: [],
+            savedChats: [],
+            lastUpdated: new Date().toISOString()
+        };
+        savePersonalStorage();
+    }
+    return personalStorage;
+}
+
+function savePersonalStorage() {
+    if (currentUser) {
+        localStorage.setItem(`chatmax_personal_${currentUser.userId}`, JSON.stringify(personalStorage));
+    }
+}
+
+function addToPersonalStorage(message, chatId) {
+    if (!currentUser) return;
+    
+    loadPersonalStorage();
+    
+    personalStorage.messages.push({
+        id: message.id,
+        text: message.text,
+        senderId: message.senderId,
+        time: message.time,
+        chatId: chatId
+    });
+    
+    if (personalStorage.messages.length > 1000) {
+        personalStorage.messages = personalStorage.messages.slice(-1000);
+    }
+    
+    if (!personalStorage.savedChats.includes(chatId)) {
+        personalStorage.savedChats.push(chatId);
+    }
+    
+    personalStorage.lastUpdated = new Date().toISOString();
+    savePersonalStorage();
+}
+
+function loadPersonalStorageInfo() {
+    if (!currentUser) return;
+    
+    loadPersonalStorage();
+    
+    const messagesCount = personalStorage.messages.length;
+    const chatsCount = personalStorage.savedChats.length;
+    
+    document.getElementById('personal-messages-count').textContent = messagesCount;
+    document.getElementById('personal-chats-count').textContent = chatsCount;
 }
 
 // ==================== ثبت نام کاربر ====================
@@ -2076,7 +3166,6 @@ async function registerUser() {
     
     users.push(newUser);
     
-    // ایجاد چت پشتیبانی با ادمین
     const supportChatId = `support_${userId}`;
     const supportChat = {
         id: supportChatId,
@@ -2104,7 +3193,6 @@ async function registerUser() {
     const chats = serverData?.chats || [];
     const groupChat = chats.find(chat => chat.id === GROUP_CHAT_ID);
     
-    // اضافه کردن به گروه
     if (groupChat && !groupChat.participants.includes(userId)) {
         groupChat.participants.push(userId);
         
@@ -2120,22 +3208,23 @@ async function registerUser() {
         groupChat.updatedAt = new Date().toISOString();
     }
     
-    // اضافه کردن چت پشتیبانی
     chats.push(supportChat);
     
-    // ذخیره
     const updatedData = {
         initialized: true,
         users: users,
         chats: chats,
-        settings: serverData?.settings || { chatRoomPassword: currentChatPassword }
+        settings: serverData?.settings || { chatRoomPassword: currentChatPassword },
+        reports: serverData?.reports || [],
+        blocks: serverData?.blocks || []
     };
     
     saveDataToLocal(updatedData);
     
-    // ورود خودکار
     currentUser = newUser;
     localStorage.setItem('currentChatmaxUser', JSON.stringify(currentUser));
+    
+    loadPersonalStorage();
     
     showNotification('🎉 حساب کاربری ایجاد شد!', 'موفقیت', 'success');
     
@@ -2191,7 +3280,9 @@ async function loginUser() {
             initialized: true,
             users: users,
             chats: serverData?.chats || [],
-            settings: serverData?.settings || {}
+            settings: serverData?.settings || {},
+            reports: serverData?.reports || [],
+            blocks: serverData?.blocks || []
         };
         
         saveDataToLocal(updatedData);
@@ -2200,12 +3291,141 @@ async function loginUser() {
     currentUser = user;
     localStorage.setItem('currentChatmaxUser', JSON.stringify(currentUser));
     
+    loadPersonalStorage();
+    
     showNotification(`🎉 خوش آمدید ${user.name}!`, 'ورود موفق', 'success');
     
     setTimeout(() => {
         showPage('main-chat-page');
         syncWithServer();
     }, 800);
+}
+
+// ==================== سیستم مسدودیت شخصی ====================
+function isUserBlockedInChat(blockerId, blockedId, chatId) {
+    if (!serverDataCache?.blocks) return false;
+    
+    return serverDataCache.blocks.some(block => 
+        block.blockerId === blockerId && 
+        block.blockedId === blockedId &&
+        block.chatId === chatId
+    );
+}
+
+async function blockUserPrivate(blockedUserId) {
+    if (!currentUser || !currentChat) return;
+    
+    const serverData = await loadFromServer();
+    const blocks = serverData?.blocks || [];
+    
+    const existingBlock = blocks.find(block => 
+        block.blockerId === currentUser.userId && 
+        block.blockedId === blockedUserId &&
+        block.chatId === currentChat.id
+    );
+    
+    if (existingBlock) {
+        showNotification('این کاربر قبلاً مسدود شده است.', 'توجه', 'warning');
+        return;
+    }
+    
+    const newBlock = {
+        id: Date.now(),
+        blockerId: currentUser.userId,
+        blockedId: blockedUserId,
+        chatId: currentChat.id,
+        createdAt: new Date().toISOString()
+    };
+    
+    blocks.push(newBlock);
+    
+    const updatedData = {
+        initialized: true,
+        users: serverData?.users || [],
+        chats: serverData?.chats || [],
+        settings: serverData?.settings || {},
+        reports: serverData?.reports || [],
+        blocks: blocks
+    };
+    
+    saveDataToLocal(updatedData);
+    
+    showNotification('کاربر مسدود شد. دیگر نمی‌توانید با هم پیام رد و بدل کنید.', 'موفقیت', 'success');
+    
+    updateBlockButtons();
+    syncWithServer();
+}
+
+async function unblockUserPrivate(blockedUserId) {
+    if (!currentUser || !currentChat) return;
+    
+    const serverData = await loadFromServer();
+    let blocks = serverData?.blocks || [];
+    
+    blocks = blocks.filter(block => 
+        !(block.blockerId === currentUser.userId && 
+          block.blockedId === blockedUserId &&
+          block.chatId === currentChat.id)
+    );
+    
+    const updatedData = {
+        initialized: true,
+        users: serverData?.users || [],
+        chats: serverData?.chats || [],
+        settings: serverData?.settings || {},
+        reports: serverData?.reports || [],
+        blocks: blocks
+    };
+    
+    saveDataToLocal(updatedData);
+    
+    showNotification('مسدودیت کاربر برداشته شد.', 'موفقیت', 'success');
+    
+    updateBlockButtons();
+    syncWithServer();
+}
+
+async function updateBlockButtons() {
+    if (!currentUser || !currentChat || currentChat.type !== 'private' || currentChat.isSupport) {
+        document.getElementById('block-button').style.display = 'none';
+        document.getElementById('unblock-button').style.display = 'none';
+        return;
+    }
+    
+    const opponentId = currentChat.participants.find(id => id !== currentUser.userId);
+    if (!opponentId) return;
+    
+    const isBlocked = isUserBlockedInChat(currentUser.userId, opponentId, currentChat.id);
+    
+    if (isBlocked) {
+        document.getElementById('block-button').style.display = 'none';
+        document.getElementById('unblock-button').style.display = 'flex';
+    } else {
+        document.getElementById('block-button').style.display = 'flex';
+        document.getElementById('unblock-button').style.display = 'none';
+    }
+}
+
+function blockPrivateUser() {
+    if (!currentUser || !currentChat || currentChat.type !== 'private' || currentChat.isSupport) return;
+    
+    const opponentId = currentChat.participants.find(id => id !== currentUser.userId);
+    if (!opponentId) return;
+    
+    if (confirm(`آیا مطمئن هستید که می‌خواهید ${opponentId} را در این چت مسدود کنید؟`)) {
+        blockUserPrivate(opponentId);
+    }
+}
+
+function unblockPrivateUser() {
+    if (!currentUser || !currentChat || currentChat.type !== 'private' || currentChat.isSupport) return;
+    
+    const opponentId = currentChat.participants.find(id => id !== currentUser.userId);
+    if (!opponentId) return;
+    
+    if (confirm(`آیا مطمئن هستید که می‌خواهید مسدودیت ${opponentId} را بردارید؟`)) {
+        unblockUserPrivate(opponentId);
+    }
 }
 
 // ==================== چت و پیام‌رسانی ====================
@@ -2228,6 +3448,14 @@ async function loadChatsList() {
         }
         
         if (chat.type === 'private' && chat.participants.includes(currentUser.userId) && !chat.isSupport) {
+            const opponentId = chat.participants.find(id => id !== currentUser.userId);
+            if (opponentId && isUserBlockedInChat(currentUser.userId, opponentId, chat.id)) {
+                return false;
+            }
+            return true;
+        }
+        
+        if (chat.isGroup && chat.participants.includes(currentUser.userId)) {
             return true;
         }
         
@@ -2251,6 +3479,13 @@ async function loadChatsList() {
         const chatElement = document.createElement('div');
         chatElement.className = `chat-item ${currentChat && currentChat.id === chat.id ? 'active' : ''}`;
         chatElement.onclick = () => openChat(chat);
+        
+        if (chat.type === 'private' && !chat.isSupport) {
+            const opponentId = chat.participants.find(id => id !== currentUser.userId);
+            if (opponentId && isUserBlockedInChat(currentUser.userId, opponentId, chat.id)) {
+                chatElement.classList.add('blocked-user');
+            }
+        }
         
         const lastMessage = chat.messages.length > 0 ? 
             chat.messages[chat.messages.length - 1] : null;
@@ -2294,6 +3529,7 @@ async function loadChatsList() {
                 <div class="chat-item-name">
                     ${chat.name}
                     ${chat.isSupport || chat.hasTick ? '<span class="user-tick tick-creator"><i class="fas fa-check"></i></span>' : ''}
+                    ${chat.isGroup ? '<span style="font-size: 10px; color: #64748b;">(گروه)</span>' : ''}
                 </div>
                 <div class="chat-item-last-message">${lastMessageText}</div>
             </div>
@@ -2302,6 +3538,22 @@ async function loadChatsList() {
         `;
         
         chatsList.appendChild(chatElement);
+    });
+}
+
+function searchChats() {
+    const searchInput = document.getElementById('chat-search-input').value.toLowerCase();
+    const chatItems = document.querySelectorAll('.chat-item');
+    
+    chatItems.forEach(item => {
+        const chatName = item.querySelector('.chat-item-name').textContent.toLowerCase();
+        const lastMessage = item.querySelector('.chat-item-last-message').textContent.toLowerCase();
+        
+        if (chatName.includes(searchInput) || lastMessage.includes(searchInput)) {
+            item.style.display = 'flex';
+        } else {
+            item.style.display = 'none';
+        }
     });
 }
 
@@ -2320,16 +3572,74 @@ async function openChat(chat) {
         ${chat.isSupport || chat.hasTick ? '<span class="user-tick tick-creator"><i class="fas fa-check"></i></span>' : ''}
     `;
     
-    if (chat.id === GROUP_CHAT_ID) {
-        document.getElementById('current-chat-status').textContent = 'گروه عمومی';
-    } else if (chat.isSupport) {
-        document.getElementById('current-chat-status').textContent = 'پشتیبانی خصوصی';
+    const reportButton = document.getElementById('report-button');
+    const infoButton = document.getElementById('info-button');
+    
+    if (chat.isSupport) {
+        reportButton.style.display = 'none';
+        infoButton.style.display = 'flex';
     } else {
-        document.getElementById('current-chat-status').textContent = 'آنلاین';
+        reportButton.style.display = 'flex';
+        infoButton.style.display = 'flex';
+    }
+    
+    updateBlockButtons();
+    
+    if (chat.id === GROUP_CHAT_ID) {
+        document.getElementById('current-chat-status').innerHTML = 'گروه عمومی <span class="online-dot"></span>';
+    } else if (chat.isSupport) {
+        document.getElementById('current-chat-status').innerHTML = 'پشتیبانی خصوصی <span class="online-dot"></span>';
+    } else if (chat.isGroup) {
+        const onlineCount = await getGroupOnlineCount(chat);
+        document.getElementById('current-chat-status').innerHTML = 
+            `گروه | ${chat.participants.length} عضو | ${onlineCount} آنلاین`;
+    } else {
+        const serverData = await loadFromServer();
+        const users = serverData?.users || [];
+        const opponentId = chat.participants.find(id => id !== currentUser.userId);
+        const opponent = users.find(u => u.userId === opponentId);
+        
+        if (opponent) {
+            const lastSeen = getLastSeenText(opponent.lastActivity);
+            document.getElementById('current-chat-status').innerHTML = opponent.online ? 
+                'آنلاین <span class="online-dot"></span>' : 
+                `آخرین بازدید: ${lastSeen}`;
+        } else {
+            document.getElementById('current-chat-status').innerHTML = 'آنلاین <span class="online-dot"></span>';
+        }
     }
     
     await loadChatMessages();
     await markMessagesAsRead();
+}
+
+async function getGroupOnlineCount(chat) {
+    const serverData = await loadFromServer();
+    const users = serverData?.users || [];
+    
+    let onlineCount = 0;
+    chat.participants.forEach(participantId => {
+        const user = users.find(u => u.userId === participantId);
+        if (user && user.online) {
+            onlineCount++;
+        }
+    });
+    
+    return onlineCount;
+}
+
+function getLastSeenText(lastActivity) {
+    if (!lastActivity) return 'نا مشخص';
+    
+    const lastSeen = new Date(lastActivity);
+    const now = new Date();
+    const diffInMinutes = Math.floor((now - lastSeen) / 1000 / 60);
+    
+    if (diffInMinutes < 1) return 'همین الان';
+    if (diffInMinutes < 60) return `${diffInMinutes} دقیقه پیش`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} ساعت پیش`;
+    
+    return lastSeen.toLocaleDateString('fa-IR');
 }
 
 async function loadChatMessages() {
@@ -2351,7 +3661,6 @@ async function loadChatMessages() {
         return;
     }
     
-    // در چت پشتیبانی، فقط پیام‌های مربوط به این کاربر نمایش داده می‌شود
     let messagesToShow = [...chat.messages];
     
     if (chat.type === 'support' && !currentUser.isCreator && !currentUser.isAdmin) {
@@ -2404,26 +3713,33 @@ function displayMessage(message, chat) {
         minute: '2-digit'
     });
     
+    messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+    
+    let messageContent = '';
+    
     if (isSystem) {
-        messageDiv.className = 'message received';
         messageDiv.style.maxWidth = '100%';
-        messageDiv.style.background = '#e6f7f5';
+        messageDiv.style.background = 'rgba(230, 247, 245, 0.9)';
         messageDiv.style.textAlign = 'center';
-        messageDiv.style.border = '1px solid #3b82f6';
+        messageDiv.style.border = '1px solid rgba(59, 130, 246, 0.3)';
         
-        messageDiv.innerHTML = `
+        messageContent = `
             <div class="message-content" style="color: #1e293b;">${message.text}</div>
             <div class="message-time">${time}</div>
         `;
     } else if (isSent) {
-        messageDiv.className = 'message sent';
-        messageDiv.innerHTML = `
+        messageContent = `
             <div class="message-content">${message.text}</div>
-            <div class="message-time">${time}</div>
+            <div class="message-time">
+                ${time}
+                <div class="message-status">
+                    ${isSent ? '<i class="fas fa-check-double"></i>' : ''}
+                </div>
+            </div>
+            ${isSent ? `<button class="delete-message-btn" onclick="deleteMessage(${message.id})"><i class="fas fa-trash"></i></button>` : ''}
         `;
     } else {
-        messageDiv.className = 'message received';
-        messageDiv.innerHTML = `
+        messageContent = `
             <div class="message-header">
                 <div class="message-avatar">
                     <img src="${senderAvatar}" alt="آواتار">
@@ -2438,6 +3754,7 @@ function displayMessage(message, chat) {
         `;
     }
     
+    messageDiv.innerHTML = messageContent;
     chatMessages.appendChild(messageDiv);
 }
 
@@ -2462,6 +3779,21 @@ async function sendMessage() {
         return;
     }
     
+    if (currentChat.type === 'private' && !currentChat.isSupport) {
+        const opponentId = currentChat.participants.find(id => id !== currentUser.userId);
+        if (opponentId) {
+            if (isUserBlockedInChat(currentUser.userId, opponentId, currentChat.id)) {
+                showNotification('شما این کاربر را مسدود کرده‌اید. ابتدا مسدودیت را بردارید.', 'خطا', 'error');
+                return;
+            }
+            
+            if (isUserBlockedInChat(opponentId, currentUser.userId, currentChat.id)) {
+                showNotification('کاربر مقابل شما را مسدود کرده است.', 'خطا', 'error');
+                return;
+            }
+        }
+    }
+    
     const newMessage = {
         id: Date.now(),
         text: text,
@@ -2478,18 +3810,22 @@ async function sendMessage() {
         chats[chatIndex].messages.push(newMessage);
         chats[chatIndex].updatedAt = new Date().toISOString();
         
-        // ذخیره
+        addToPersonalStorage(newMessage, currentChat.id);
+        
         const updatedData = {
             initialized: true,
             users: serverData?.users || [],
             chats: chats,
-            settings: serverData?.settings || {}
+            settings: serverData?.settings || {},
+            reports: serverData?.reports || [],
+            blocks: serverData?.blocks || []
         };
         
         saveDataToLocal(updatedData);
         displayMessage(newMessage, currentChat);
         
         input.value = '';
+        input.style.height = 'auto';
         input.focus();
         
         setTimeout(() => {
@@ -2501,6 +3837,46 @@ async function sendMessage() {
         syncWithServer();
         
         showNotification('پیام شما ارسال شد.', 'موفقیت', 'success');
+    }
+}
+
+async function deleteMessage(messageId) {
+    if (!confirm('آیا مطمئن هستید که می‌خواهید این پیام را حذف کنید؟')) {
+        return;
+    }
+    
+    if (!currentChat) return;
+    
+    const serverData = await loadFromServer();
+    const chats = serverData?.chats || [];
+    const chatIndex = chats.findIndex(c => c.id === currentChat.id);
+    
+    if (chatIndex !== -1) {
+        chats[chatIndex].messages = chats[chatIndex].messages.filter(msg => msg.id !== messageId);
+        chats[chatIndex].updatedAt = new Date().toISOString();
+        
+        if (personalStorage.messages) {
+            personalStorage.messages = personalStorage.messages.filter(msg => msg.id !== messageId);
+            savePersonalStorage();
+            loadPersonalStorageInfo();
+        }
+        
+        const updatedData = {
+            initialized: true,
+            users: serverData?.users || [],
+            chats: chats,
+            settings: serverData?.settings || {},
+            reports: serverData?.reports || [],
+            blocks: serverData?.blocks || []
+        };
+        
+        saveDataToLocal(updatedData);
+        
+        await loadChatMessages();
+        loadChatsList();
+        syncWithServer();
+        
+        showNotification('پیام با موفقیت حذف شد.', 'موفقیت', 'success');
     }
 }
 
@@ -2525,7 +3901,9 @@ async function markMessagesAsRead() {
                 initialized: true,
                 users: serverData?.users || [],
                 chats: chats,
-                settings: serverData?.settings || {}
+                settings: serverData?.settings || {},
+                reports: serverData?.reports || [],
+                blocks: serverData?.blocks || []
             };
             
             saveDataToLocal(updatedData);
@@ -2534,107 +3912,47 @@ async function markMessagesAsRead() {
     }
 }
 
-// ==================== مدیریت چت جدید ====================
-function showNewChatModal() {
-    document.getElementById('new-chat-modal').classList.add('active');
-    document.getElementById('search-results').innerHTML = '<div style="text-align: center; color: #64748b; padding: 20px;">برای جستجو، متن مورد نظر را وارد کنید</div>';
-    document.getElementById('search-user-input').value = '';
-    document.getElementById('direct-user-id').value = '';
+// ==================== مدیریت گروه‌ها ====================
+function showCreateGroupModal() {
+    document.getElementById('create-group-modal').classList.add('active');
 }
 
-function closeNewChatModal() {
-    document.getElementById('new-chat-modal').classList.remove('active');
+function closeCreateGroupModal() {
+    document.getElementById('create-group-modal').classList.remove('active');
 }
 
-async function searchUsers() {
-    const searchInput = document.getElementById('search-user-input').value.trim();
-    const resultsContainer = document.getElementById('search-results');
+async function createGroup() {
+    const groupName = document.getElementById('group-name').value.trim();
+    const groupType = document.getElementById('group-type').value;
+    const description = document.getElementById('group-description').value.trim();
+    const inviteLink = document.getElementById('group-invite-link').value.trim() || 
+                      `group_${Math.random().toString(36).substring(7)}`;
     
-    if (!searchInput) {
-        resultsContainer.innerHTML = '<div style="text-align: center; color: #64748b; padding: 20px;">برای جستجو، متن مورد نظر را وارد کنید</div>';
+    if (!groupName) {
+        showNotification('لطفا نام گروه را وارد کنید.', 'خطا', 'error');
         return;
     }
-    
-    const serverData = await loadFromServer();
-    const users = serverData?.users || [];
-    
-    const filteredUsers = users.filter(user => 
-        user.userId !== currentUser.userId &&
-        !user.isCreator && // سازنده در لیست نمایش داده نمی‌شود
-        !user.isAdmin && // ادمین‌ها در لیست نمایش داده نمی‌شوند
-        (
-            user.name.toLowerCase().includes(searchInput.toLowerCase()) ||
-            user.userId.toLowerCase().includes(searchInput.toLowerCase())
-        )
-    );
-    
-    resultsContainer.innerHTML = '';
-    
-    if (filteredUsers.length === 0) {
-        resultsContainer.innerHTML = '<div style="text-align: center; color: #64748b; padding: 20px;">کاربری یافت نشد</div>';
-        return;
-    }
-    
-    filteredUsers.forEach(user => {
-        const userDiv = document.createElement('div');
-        userDiv.style.cssText = `
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            border-bottom: 1px solid #e2e8f0;
-            cursor: pointer;
-            transition: background 0.2s;
-        `;
-        userDiv.onmouseenter = () => userDiv.style.background = '#f1f5f9';
-        userDiv.onmouseleave = () => userDiv.style.background = 'transparent';
-        userDiv.onclick = () => startChatWithUser(user);
-        
-        userDiv.innerHTML = `
-            <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden;">
-                <img src="${user.avatarUrl || avatars[user.avatar]}" alt="آواتار" style="width: 100%; height: 100%; object-fit: cover;">
-            </div>
-            <div>
-                <div style="font-weight: bold; color: #1e293b;">${user.name}</div>
-                <div style="font-size: 12px; color: #64748b;">@${user.userId}</div>
-            </div>
-        `;
-        
-        resultsContainer.appendChild(userDiv);
-    });
-}
-
-async function startChatWithUser(targetUser) {
-    if (!currentUser || !targetUser) return;
-    
-    const chatId = `private_${[currentUser.userId, targetUser.userId].sort().join('_')}`;
     
     const serverData = await loadFromServer();
     const chats = serverData?.chats || [];
     
-    let existingChat = chats.find(chat => 
-        chat.id === chatId && 
-        chat.type === 'private' &&
-        !chat.isSupport
-    );
-    
-    if (existingChat) {
-        closeNewChatModal();
-        openChat(existingChat);
+    const existingLink = chats.find(chat => chat.inviteLink === inviteLink);
+    if (existingLink) {
+        showNotification('این لینک قبلاً استفاده شده است.', 'خطا', 'error');
         return;
     }
     
-    const newChat = {
-        id: chatId,
-        type: 'private',
-        name: targetUser.name,
-        avatar: targetUser.avatar,
-        avatarUrl: targetUser.avatarUrl || avatars[targetUser.avatar],
-        participants: [currentUser.userId, targetUser.userId],
+    const newGroup = {
+        id: `group_${Date.now()}`,
+        type: groupType,
+        name: groupName,
+        avatar: 'group-takht-jamshid',
+        avatarUrl: avatars['group-takht-jamshid'],
+        participants: [currentUser.userId],
         messages: [
             {
                 id: Date.now(),
-                text: `👋 سلام! چت خصوصی شروع شد.`,
+                text: `👋 گروه ${groupName} ایجاد شد! خوش آمدید.`,
                 senderId: 'system',
                 time: new Date().toISOString(),
                 read: false
@@ -2642,57 +3960,337 @@ async function startChatWithUser(targetUser) {
         ],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        isPrivate: true,
-        hasTick: targetUser.hasBlueTick || targetUser.hasGoldTick
+        isGroup: true,
+        hasTick: false,
+        description: description || 'گروه جدید',
+        isActive: true,
+        inviteLink: inviteLink,
+        creatorId: currentUser.userId
     };
     
-    chats.push(newChat);
+    chats.push(newGroup);
     
     const updatedData = {
         initialized: true,
         users: serverData?.users || [],
         chats: chats,
-        settings: serverData?.settings || {}
+        settings: serverData?.settings || {},
+        reports: serverData?.reports || [],
+        blocks: serverData?.blocks || []
     };
     
     saveDataToLocal(updatedData);
     
-    closeNewChatModal();
-    openChat(newChat);
+    closeCreateGroupModal();
+    showNotification(`گروه ${groupName} با موفقیت ایجاد شد.`, 'موفقیت', 'success');
     syncWithServer();
     
-    showNotification(`چت با ${targetUser.name} شروع شد`, 'موفقیت', 'success');
+    setTimeout(() => {
+        openChat(newGroup);
+    }, 500);
 }
 
-async function startChatByID() {
-    const userId = document.getElementById('direct-user-id').value.trim();
+function showGroupSettingsModal() {
+    if (!currentChat || !currentChat.isGroup) return;
     
-    if (!userId) {
-        showNotification('لطفا آیدی کاربر را وارد کنید', 'خطا', 'error');
-        return;
-    }
+    const modal = document.getElementById('group-settings-modal');
+    const body = document.getElementById('group-settings-body');
     
-    if (userId === currentUser.userId) {
-        showNotification('نمی‌توانید با خودتان چت کنید', 'خطا', 'error');
+    let html = `
+        <div class="group-edit-panel">
+            <div class="group-avatar-edit">
+                <div class="group-avatar-preview">
+                    <img src="${currentChat.avatarUrl || avatars[currentChat.avatar] || avatars['avatar1']}" alt="آواتار گروه">
+                </div>
+                <button class="btn" onclick="changeGroupAvatar()" style="padding: 10px; font-size: 13px;">
+                    <i class="fas fa-camera"></i> تغییر آواتار
+                </button>
+            </div>
+            
+            <div class="form-group">
+                <label>نام گروه</label>
+                <input type="text" id="edit-group-name" value="${currentChat.name}" placeholder="نام گروه">
+                <button class="btn" onclick="updateGroupName()" style="margin-top: 8px; padding: 10px; font-size: 13px;">
+                    <i class="fas fa-save"></i> ذخیره نام
+                </button>
+            </div>
+            
+            <div class="form-group">
+                <label>توضیحات</label>
+                <textarea id="edit-group-description" rows="3" placeholder="توضیحات گروه">${currentChat.description || ''}</textarea>
+                <button class="btn" onclick="updateGroupDescription()" style="margin-top: 8px; padding: 10px; font-size: 13px;">
+                    <i class="fas fa-save"></i> ذخیره توضیحات
+                </button>
+            </div>
+            
+            <div class="group-link-section">
+                <h4 style="color: #3b82f6; margin-bottom: 10px;">لینک دعوت به گروه</h4>
+                <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">
+                    این لینک را با دوستان خود به اشتراک بگذارید تا به گروه بپیوندند.
+                </p>
+                <div class="group-link-display">
+                    <input type="text" id="group-invite-link-display" value="${window.location.origin}?join=${currentChat.inviteLink}" readonly>
+                    <button onclick="copyGroupLink()">
+                        <i class="fas fa-copy"></i> کپی
+                    </button>
+                </div>
+                <button class="btn" onclick="generateNewGroupLink()" style="margin-top: 10px; padding: 10px; font-size: 13px; width: 100%;">
+                    <i class="fas fa-sync-alt"></i> ایجاد لینک جدید
+                </button>
+            </div>
+            
+            <div class="form-group" style="margin-top: 20px;">
+                <h4 style="color: #ef4444; margin-bottom: 10px;">خروج از گروه</h4>
+                <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">
+                    با خروج از گروه، تمام پیام‌های گروه از دسترسی شما خارج می‌شوند.
+                </p>
+                <button class="leave-group-btn" onclick="leaveGroup()" style="width: 100%;">
+                    <i class="fas fa-sign-out-alt"></i> خروج از گروه
+                </button>
+            </div>
+        </div>
+    `;
+    
+    body.innerHTML = html;
+    modal.classList.add('active');
+}
+
+function closeGroupSettingsModal() {
+    document.getElementById('group-settings-modal').classList.remove('active');
+}
+
+async function updateGroupName() {
+    const newName = document.getElementById('edit-group-name').value.trim();
+    if (!newName) {
+        showNotification('لطفا نام گروه را وارد کنید.', 'خطا', 'error');
         return;
     }
     
     const serverData = await loadFromServer();
-    const users = serverData?.users || [];
+    const chats = serverData?.chats || [];
+    const chatIndex = chats.findIndex(c => c.id === currentChat.id);
     
-    const targetUser = users.find(user => user.userId === userId);
+    if (chatIndex !== -1) {
+        chats[chatIndex].name = newName;
+        chats[chatIndex].updatedAt = new Date().toISOString();
+        
+        const updatedData = {
+            initialized: true,
+            users: serverData?.users || [],
+            chats: chats,
+            settings: serverData?.settings || {},
+            reports: serverData?.reports || [],
+            blocks: serverData?.blocks || []
+        };
+        
+        saveDataToLocal(updatedData);
+        currentChat.name = newName;
+        
+        document.getElementById('current-chat-name').innerHTML = `
+            ${newName}
+            ${currentChat.hasTick ? '<span class="user-tick tick-creator"><i class="fas fa-check"></i></span>' : ''}
+        `;
+        
+        showNotification('نام گروه بروزرسانی شد.', 'موفقیت', 'success');
+        syncWithServer();
+        loadChatsList();
+    }
+}
+
+async function updateGroupDescription() {
+    const newDescription = document.getElementById('edit-group-description').value.trim();
     
-    if (!targetUser) {
-        showNotification('کاربری با این آیدی یافت نشد', 'خطا', 'error');
+    const serverData = await loadFromServer();
+    const chats = serverData?.chats || [];
+    const chatIndex = chats.findIndex(c => c.id === currentChat.id);
+    
+    if (chatIndex !== -1) {
+        chats[chatIndex].description = newDescription;
+        chats[chatIndex].updatedAt = new Date().toISOString();
+        
+        const updatedData = {
+            initialized: true,
+            users: serverData?.users || [],
+            chats: chats,
+            settings: serverData?.settings || {},
+            reports: serverData?.reports || [],
+            blocks: serverData?.blocks || []
+        };
+        
+        saveDataToLocal(updatedData);
+        currentChat.description = newDescription;
+        
+        showNotification('توضیحات گروه بروزرسانی شد.', 'موفقیت', 'success');
+        syncWithServer();
+    }
+}
+
+function copyGroupLink() {
+    const linkInput = document.getElementById('group-invite-link-display');
+    linkInput.select();
+    document.execCommand('copy');
+    showNotification('لینک گروه کپی شد.', 'موفقیت', 'success');
+}
+
+async function generateNewGroupLink() {
+    const newLink = `group_${Math.random().toString(36).substring(7)}`;
+    
+    const serverData = await loadFromServer();
+    const chats = serverData?.chats || [];
+    const chatIndex = chats.findIndex(c => c.id === currentChat.id);
+    
+    if (chatIndex !== -1) {
+        chats[chatIndex].inviteLink = newLink;
+        chats[chatIndex].updatedAt = new Date().toISOString();
+        
+        const updatedData = {
+            initialized: true,
+            users: serverData?.users || [],
+            chats: chats,
+            settings: serverData?.settings || {},
+            reports: serverData?.reports || [],
+            blocks: serverData?.blocks || []
+        };
+        
+        saveDataToLocal(updatedData);
+        currentChat.inviteLink = newLink;
+        
+        document.getElementById('group-invite-link-display').value = `${window.location.origin}?join=${newLink}`;
+        
+        showNotification('لینک جدید ایجاد شد.', 'موفقیت', 'success');
+        syncWithServer();
+    }
+}
+
+async function leaveGroup() {
+    if (!currentChat || !currentChat.isGroup) return;
+    
+    if (!confirm('آیا مطمئن هستید که می‌خواهید از گروه خارج شوید؟')) {
         return;
     }
     
-    if (targetUser.isCreator || targetUser.isAdmin) {
-        showNotification('برای چت با سازنده یا ادمین از پشتیبانی استفاده کنید', 'توجه', 'warning');
+    const serverData = await loadFromServer();
+    const chats = serverData?.chats || [];
+    const chatIndex = chats.findIndex(c => c.id === currentChat.id);
+    
+    if (chatIndex !== -1) {
+        chats[chatIndex].participants = chats[chatIndex].participants.filter(
+            participant => participant !== currentUser.userId
+        );
+        
+        const leaveMessage = {
+            id: Date.now(),
+            text: `👋 کاربر ${currentUser.name} از گروه خارج شد.`,
+            senderId: 'system',
+            time: new Date().toISOString(),
+            read: false
+        };
+        
+        chats[chatIndex].messages.push(leaveMessage);
+        chats[chatIndex].updatedAt = new Date().toISOString();
+        
+        const updatedData = {
+            initialized: true,
+            users: serverData?.users || [],
+            chats: chats,
+            settings: serverData?.settings || {},
+            reports: serverData?.reports || [],
+            blocks: serverData?.blocks || []
+        };
+        
+        saveDataToLocal(updatedData);
+        
+        closeGroupSettingsModal();
+        showNotification('از گروه خارج شدید.', 'موفقیت', 'success');
+        syncWithServer();
+        
+        showChatsList();
+    }
+}
+
+// ==================== سیستم گزارش‌گیری ====================
+function reportUser() {
+    if (!currentChat || currentChat.isSupport) {
+        showNotification('امکان گزارش این چت وجود ندارد.', 'خطا', 'error');
         return;
     }
     
-    startChatWithUser(targetUser);
+    let reportedId = '';
+    if (currentChat.type === 'private' && !currentChat.isSupport) {
+        reportedId = currentChat.participants.find(id => id !== currentUser.userId);
+    } else if (currentChat.isGroup) {
+        reportedId = currentChat.id;
+    }
+    
+    if (!reportedId) return;
+    
+    document.getElementById('report-modal').classList.add('active');
+}
+
+function closeReportModal() {
+    document.getElementById('report-modal').classList.remove('active');
+    document.getElementById('report-type').value = 'spam';
+    document.getElementById('report-description').value = '';
+}
+
+async function submitReport() {
+    const reportType = document.getElementById('report-type').value;
+    const description = document.getElementById('report-description').value.trim();
+    
+    if (!description) {
+        showNotification('لطفا توضیحات را وارد کنید.', 'خطا', 'error');
+        return;
+    }
+    
+    if (!currentChat) {
+        showNotification('خطا در ارسال گزارش.', 'خطا', 'error');
+        return;
+    }
+    
+    let reportedId = '';
+    let reportTitle = '';
+    
+    if (currentChat.type === 'private' && !currentChat.isSupport) {
+        reportedId = currentChat.participants.find(id => id !== currentUser.userId);
+        reportTitle = `گزارش کاربر: ${reportedId}`;
+    } else if (currentChat.isGroup) {
+        reportedId = currentChat.id;
+        reportTitle = `گزارش گروه: ${currentChat.name}`;
+    }
+    
+    if (!reportedId) return;
+    
+    const serverData = await loadFromServer();
+    const reports = serverData?.reports || [];
+    
+    const newReport = {
+        id: Date.now(),
+        reporterId: currentUser.userId,
+        reportedId: reportedId,
+        chatId: currentChat.id,
+        reportType: reportType,
+        description: description,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        resolvedAt: null
+    };
+    
+    reports.push(newReport);
+    
+    const updatedData = {
+        initialized: true,
+        users: serverData?.users || [],
+        chats: serverData?.chats || [],
+        settings: serverData?.settings || {},
+        reports: reports,
+        blocks: serverData?.blocks || []
+    };
+    
+    saveDataToLocal(updatedData);
+    closeReportModal();
+    syncWithServer();
+    
+    showNotification('گزارش شما با موفقیت ثبت شد.', 'موفقیت', 'success');
 }
 
 // ==================== پنل مدیریت ====================
@@ -2707,18 +4305,28 @@ async function loadCreatorPanel() {
     const serverData = await loadFromServer();
     const users = serverData?.users || [];
     const chats = serverData?.chats || [];
+    const reports = serverData?.reports || [];
+    const blocks = serverData?.blocks || [];
     
     const normalUsers = users.filter(u => !u.isCreator && !u.isAdmin);
     const onlineUsers = normalUsers.filter(u => u.online).length;
     const totalUsers = normalUsers.length;
     const bannedUsers = normalUsers.filter(u => u.bannedUntil && new Date(u.bannedUntil) > new Date()).length;
-    const adminUsers = users.filter(u => u.isAdmin).length - 1; // منهای سازنده
+    const adminUsers = users.filter(u => u.isAdmin).length - 1;
+    const pendingReports = reports.filter(r => r.status === 'pending').length;
+    const totalBlocks = blocks.length;
     
-    let html = '';
+    let html = `
+        <div class="creator-panel-header">
+            <button class="panel-back-btn" onclick="returnToChatFromPanel()">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+            <h2>پنل مدیریت</h2>
+        </div>
+    `;
     
     if (currentUser.phone === CREATOR_PHONE) {
-        // پنل کامل برای سازنده
-        html = `
+        html += `
             <div class="creator-panel">
                 <div class="creator-title">
                     <i class="fas fa-crown"></i>
@@ -2760,12 +4368,15 @@ async function loadCreatorPanel() {
                         <div class="stat-number">${bannedUsers}</div>
                         <div class="stat-label">بن شده</div>
                     </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${totalBlocks}</div>
+                        <div class="stat-label">مسدودیت شخصی</div>
+                    </div>
                 </div>
             </div>
         `;
     } else if (currentUser.phone === ADMIN_PHONE) {
-        // پنل محدود برای ادمین پشتیبانی
-        html = `
+        html += `
             <div class="creator-panel">
                 <div class="creator-title">
                     <i class="fas fa-user-shield"></i>
@@ -2786,8 +4397,8 @@ async function loadCreatorPanel() {
                         <div class="stat-label">بن شده</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number">0</div>
-                        <div class="stat-label">ادمین دیگر</div>
+                        <div class="stat-number">${pendingReports}</div>
+                        <div class="stat-label">گزارش انتظار</div>
                     </div>
                 </div>
             </div>
@@ -2795,6 +4406,96 @@ async function loadCreatorPanel() {
     }
     
     html += `
+        <div class="report-panel">
+            <div class="users-list-header">
+                <h3>گزارش‌های در انتظار (${pendingReports} گزارش)</h3>
+                <button class="new-chat-btn" onclick="refreshReports()">
+                    <i class="fas fa-sync-alt"></i>
+                    بروزرسانی
+                </button>
+            </div>
+            
+            <div id="reports-list">
+    `;
+    
+    const pendingReportsList = reports.filter(r => r.status === 'pending');
+    if (pendingReportsList.length === 0) {
+        html += `
+            <div class="empty-state">
+                <i class="fas fa-check-circle"></i>
+                <h3>هیچ گزارشی در انتظار نیست</h3>
+                <p>همه گزارش‌ها بررسی شده‌اند</p>
+            </div>
+        `;
+    } else {
+        pendingReportsList.forEach(report => {
+            const reporter = users.find(u => u.userId === report.reporterId);
+            const reported = users.find(u => u.userId === report.reportedId);
+            const chat = chats.find(c => c.id === report.chatId);
+            const reportTypes = {
+                'spam': 'اسپم',
+                'harassment': 'آزار و اذیت',
+                'inappropriate': 'محتوا نامناسب',
+                'fake': 'حساب جعلی',
+                'other': 'سایر'
+            };
+            
+            html += `
+                <div class="report-item">
+                    <div class="report-header">
+                        <div class="report-title">${reportTypes[report.reportType] || 'گزارش'}</div>
+                        <div class="report-status pending">در انتظار</div>
+                    </div>
+                    <div style="font-size: 12px; color: #64748b; margin-bottom: 5px;">
+                        گزارش‌دهنده: ${reporter?.name || report.reporterId}
+                        <br>
+                        گزارش‌شونده: ${reported?.name || report.reportedId} ${chat ? `(در ${chat.name})` : ''}
+                    </div>
+                    <div style="font-size: 13px; color: #1e293b; margin-bottom: 8px;">
+                        ${report.description}
+                    </div>
+                    <div class="report-actions">
+                        <button class="report-action-btn resolve" onclick="resolveReport(${report.id}, 'accepted')">
+                            <i class="fas fa-check"></i> تایید گزارش
+                        </button>
+                        <button class="report-action-btn reject" onclick="resolveReport(${report.id}, 'rejected')">
+                            <i class="fas fa-times"></i> رد گزارش
+                        </button>
+                        <button class="report-action-btn view" onclick="viewReportedChat('${report.chatId}')">
+                            <i class="fas fa-eye"></i> مشاهده چت
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    html += `
+            </div>
+        </div>
+        
+        <div class="group-search-panel">
+            <div class="users-list-header">
+                <h3>جستجوی گروه/کانال</h3>
+            </div>
+            
+            <div class="group-search-header">
+                <input type="text" class="group-search-input" id="group-search-input" placeholder="جستجوی گروه بر اساس نام یا آیدی..." oninput="searchGroups()">
+                <button class="new-chat-btn" onclick="searchGroups()">
+                    <i class="fas fa-search"></i>
+                    جستجو
+                </button>
+            </div>
+            
+            <div id="groups-list">
+                <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <h3>برای جستجو، متن مورد نظر را وارد کنید</h3>
+                    <p>گروه‌ها و کانال‌ها در اینجا نمایش داده می‌شوند</p>
+                </div>
+            </div>
+        </div>
+        
         <div class="users-list-panel">
             <div class="users-list-header">
                 <h3>لیست کاربران (${totalUsers} کاربر)</h3>
@@ -2808,7 +4509,8 @@ async function loadCreatorPanel() {
     `;
     
     normalUsers.forEach(user => {
-        const isOnline = user.online ? 'آنلاین' : 'آفلاین';
+        const isOnline = user.online;
+        const lastSeen = getLastSeenText(user.lastActivity);
         const isBanned = user.bannedUntil && new Date(user.bannedUntil) > new Date();
         const banStatus = isBanned ? `<span style="color: #ef4444; font-size: 11px;">⛔ بن شده</span>` : '';
         
@@ -2825,7 +4527,12 @@ async function loadCreatorPanel() {
                             ${user.hasBlueTick && !user.hasGoldTick ? '<span class="user-tick tick-creator"><i class="fas fa-check"></i></span>' : ''}
                         </div>
                         <div class="user-card-id">@${user.userId}</div>
-                        <div class="user-card-phone">${isOnline} ${banStatus}</div>
+                        <div class="user-card-phone">
+                            <div class="user-presence ${isOnline ? 'online' : 'offline'}">
+                                ${isOnline ? '<i class="fas fa-circle"></i> آنلاین' : `<i class="far fa-circle"></i> آفلاین (${lastSeen})`}
+                            </div>
+                            ${banStatus}
+                        </div>
                     </div>
                 </div>
                 
@@ -2849,367 +4556,473 @@ async function loadCreatorPanel() {
     container.innerHTML = html;
 }
 
-async function openChatWithUser(userId) {
-    const serverData = await loadFromServer();
-    const users = serverData?.users || [];
-    const targetUser = users.find(u => u.userId === userId);
+// ==================== اطلاعات چت ====================
+function showChatInfo() {
+    if (!currentChat) return;
     
-    if (targetUser) {
-        await startChatWithUser(targetUser);
-    }
-}
-
-function refreshUsersList() {
-    loadCreatorPanel();
-}
-
-// ==================== مدیریت کاربر ====================
-async function manageUser(userId) {
-    const serverData = await loadFromServer();
-    const users = serverData?.users || [];
-    const user = users.find(u => u.userId === userId);
+    let infoText = '';
     
-    if (!user) {
-        showNotification('کاربر یافت نشد', 'خطا', 'error');
+    if (currentChat.isGroup) {
+        showGroupSettingsModal();
         return;
     }
     
-    userToManage = user;
+    if (currentChat.isSupport) {
+        infoText = `🔹 نام: ${currentChat.name}\n`;
+        infoText += `🔹 نوع: پشتیبانی خصوصی\n`;
+        infoText += `🔹 تعداد پیام‌ها: ${currentChat.messages.length}\n`;
+        infoText += `🔹 تاریخ ایجاد: ${new Date(currentChat.createdAt).toLocaleDateString('fa-IR')}\n`;
+        infoText += `🔹 وضعیت: آنلاین\n`;
+    } else if (currentChat.type === 'private') {
+        const opponentId = currentChat.participants.find(id => id !== currentUser.userId);
+        const serverData = serverDataCache;
+        const opponent = serverData?.users?.find(u => u.userId === opponentId);
+        
+        infoText = `🔹 نام: ${opponent?.name || opponentId}\n`;
+        infoText += `🔹 آیدی: @${opponentId}\n`;
+        infoText += `🔹 نوع: چت خصوصی\n`;
+        infoText += `🔹 تعداد پیام‌ها: ${currentChat.messages.length}\n`;
+        infoText += `🔹 تاریخ ایجاد: ${new Date(currentChat.createdAt).toLocaleDateString('fa-IR')}\n`;
+        
+        if (opponent) {
+            const lastSeen = getLastSeenText(opponent.lastActivity);
+            infoText += `🔹 وضعیت: ${opponent.online ? 'آنلاین' : `آفلاین (آخرین بازدید: ${lastSeen})`}\n`;
+        }
+    }
     
-    const modal = document.getElementById('user-management-modal');
-    const infoDiv = document.getElementById('user-management-info');
+    alert(infoText);
+}
+
+// ==================== سایر توابع ====================
+function startChatUpdates() {
+    if (chatUpdateInterval) clearInterval(chatUpdateInterval);
     
-    const isBanned = user.bannedUntil && new Date(user.bannedUntil) > new Date();
-    const banText = isBanned ? `⛔ بن شده تا: ${new Date(user.bannedUntil).toLocaleString('fa-IR')}` : '✅ فعال';
+    chatUpdateInterval = setInterval(async () => {
+        await updateOnlineStatus();
+        await loadChatsList();
+        
+        if (currentChat) {
+            const serverData = await loadFromServer();
+            const chats = serverData?.chats || [];
+            const chat = chats.find(c => c.id === currentChat.id);
+            
+            if (chat && chat.messages.length !== currentChat.messages.length) {
+                await loadChatMessages();
+            }
+        }
+    }, 2000);
+}
+
+async function updateOnlineStatus() {
+    if (!currentUser) return;
     
-    infoDiv.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
-            <div style="width: 60px; height: 60px; border-radius: 50%; overflow: hidden;">
-                <img src="${user.avatarUrl || avatars[user.avatar]}" alt="آواتار" style="width: 100%; height: 100%; object-fit: cover;">
+    const serverData = await loadFromServer();
+    const users = serverData?.users || [];
+    const userIndex = users.findIndex(u => u.id === currentUser.id);
+    
+    if (userIndex !== -1) {
+        users[userIndex].lastActivity = new Date().toISOString();
+        users[userIndex].online = true;
+        
+        const updatedData = {
+            initialized: true,
+            users: users,
+            chats: serverData?.chats || [],
+            settings: serverData?.settings || {},
+            reports: serverData?.reports || [],
+            blocks: serverData?.blocks || []
+        };
+        
+        saveDataToLocal(updatedData);
+        currentUser.lastActivity = new Date().toISOString();
+        localStorage.setItem('currentChatmaxUser', JSON.stringify(currentUser));
+        
+        if (checkInternet()) {
+            syncWithServer();
+        }
+    }
+}
+
+// ==================== جستجوی گروه‌ها ====================
+async function searchGroups() {
+    const searchInput = document.getElementById('group-search-input')?.value.toLowerCase() || '';
+    const groupsList = document.getElementById('groups-list');
+    
+    if (!searchInput) {
+        groupsList.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <h3>برای جستجو، متن مورد نظر را وارد کنید</h3>
+                <p>گروه‌ها و کانال‌ها در اینجا نمایش داده می‌شوند</p>
             </div>
-            <div>
-                <h4 style="margin: 0 0 5px 0;">${user.name}</h4>
-                <div style="font-size: 12px; color: #64748b;">@${user.userId}</div>
-                <div style="font-size: 12px; color: ${isBanned ? '#ef4444' : '#10b981'};">${banText}</div>
-                <div style="font-size: 12px; color: #64748b;">${user.online ? 'آنلاین' : 'آفلاین'}</div>
-            </div>
-        </div>
-    `;
-    
-    // مخفی کردن گزینه‌هایی که ادمین پشتیبانی نباید ببیند
-    const adminBtn = document.getElementById('admin-toggle-button');
-    const banBtn = document.getElementById('ban-button');
-    
-    if (currentUser.phone === ADMIN_PHONE) {
-        // برای ادمین پشتیبانی
-        adminBtn.style.display = 'none';
-        document.querySelector('label[for="ban-duration"]').textContent = 'مدت زمان بن کاربر';
-        banBtn.innerHTML = isBanned ? 
-            '<i class="fas fa-unlock"></i> رفع بن کاربر' : 
-            '<i class="fas fa-ban"></i> بن کردن کاربر';
-    } else if (currentUser.phone === CREATOR_PHONE) {
-        // برای سازنده
-        adminBtn.style.display = 'block';
-        adminBtn.innerHTML = user.isAdmin ? 
-            '<i class="fas fa-user-shield"></i> حذف عنوان ادمین' : 
-            '<i class="fas fa-user-shield"></i> اعطای عنوان ادمین';
-        banBtn.innerHTML = isBanned ? 
-            '<i class="fas fa-unlock"></i> رفع بن کاربر' : 
-            '<i class="fas fa-ban"></i> بن کردن کاربر';
-    }
-    
-    modal.classList.add('active');
-}
-
-function closeUserManagementModal() {
-    document.getElementById('user-management-modal').classList.remove('active');
-    userToManage = null;
-}
-
-async function toggleAdminStatus() {
-    if (!userToManage || currentUser.phone !== CREATOR_PHONE) {
-        showNotification('شما مجاز به تغییر وضعیت ادمین نیستید.', 'خطا', 'error');
+        `;
         return;
     }
-    
-    const serverData = await loadFromServer();
-    const users = serverData?.users || [];
-    const userIndex = users.findIndex(u => u.userId === userToManage.userId);
-    
-    if (userIndex !== -1) {
-        users[userIndex].isAdmin = !users[userIndex].isAdmin;
-        
-        const updatedData = {
-            initialized: true,
-            users: users,
-            chats: serverData?.chats || [],
-            settings: serverData?.settings || {}
-        };
-        
-        saveDataToLocal(updatedData);
-        
-        showNotification(
-            users[userIndex].isAdmin ? 
-            `کاربر ${userToManage.name} ادمین شد` : 
-            `ادمینی کاربر ${userToManage.name} حذف شد`,
-            'موفقیت',
-            'success'
-        );
-        
-        userToManage.isAdmin = users[userIndex].isAdmin;
-        
-        const adminBtn = document.getElementById('admin-toggle-button');
-        adminBtn.innerHTML = userToManage.isAdmin ? 
-            '<i class="fas fa-user-shield"></i> حذف عنوان ادمین' : 
-            '<i class="fas fa-user-shield"></i> اعطای عنوان ادمین';
-        
-        syncWithServer();
-    }
-}
-
-async function banUser() {
-    if (!userToManage) return;
-    
-    const durationSelect = document.getElementById('ban-duration');
-    const duration = durationSelect.value;
-    
-    let banUntil = null;
-    
-    if (duration === 'permanent') {
-        banUntil = new Date('2030-01-01').toISOString();
-    } else {
-        const minutes = parseInt(duration);
-        banUntil = new Date(Date.now() + minutes * 60000).toISOString();
-    }
-    
-    const serverData = await loadFromServer();
-    const users = serverData?.users || [];
-    const userIndex = users.findIndex(u => u.userId === userToManage.userId);
-    
-    if (userIndex !== -1) {
-        // اگر کاربر قبلاً بن شده بود، بن را بردار
-        const isCurrentlyBanned = users[userIndex].bannedUntil && new Date(users[userIndex].bannedUntil) > new Date();
-        
-        if (isCurrentlyBanned) {
-            users[userIndex].bannedUntil = null;
-        } else {
-            users[userIndex].bannedUntil = banUntil;
-        }
-        
-        const updatedData = {
-            initialized: true,
-            users: users,
-            chats: serverData?.chats || [],
-            settings: serverData?.settings || {}
-        };
-        
-        saveDataToLocal(updatedData);
-        
-        if (isCurrentlyBanned) {
-            showNotification(`بن کاربر ${userToManage.name} برداشته شد`, 'موفقیت', 'success');
-        } else {
-            showNotification(`کاربر ${userToManage.name} بن شد`, 'موفقیت', 'success');
-        }
-        
-        closeUserManagementModal();
-        loadCreatorPanel();
-        syncWithServer();
-    }
-}
-
-async function giveTick(type) {
-    if (!userToManage || currentUser.phone !== CREATOR_PHONE) {
-        showNotification('شما مجاز به اعطای تیک نیستید.', 'خطا', 'error');
-        return;
-    }
-    
-    const serverData = await loadFromServer();
-    const users = serverData?.users || [];
-    const userIndex = users.findIndex(u => u.userId === userToManage.userId);
-    
-    if (userIndex !== -1) {
-        if (type === 'blue') {
-            users[userIndex].hasBlueTick = !users[userIndex].hasBlueTick;
-            users[userIndex].hasGoldTick = false;
-        } else if (type === 'gold') {
-            users[userIndex].hasGoldTick = !users[userIndex].hasGoldTick;
-            users[userIndex].hasBlueTick = false;
-        }
-        
-        const updatedData = {
-            initialized: true,
-            users: users,
-            chats: serverData?.chats || [],
-            settings: serverData?.settings || {}
-        };
-        
-        saveDataToLocal(updatedData);
-        
-        const tickType = type === 'blue' ? 'آبی' : 'طلایی';
-        const action = type === 'blue' ? 
-            (users[userIndex].hasBlueTick ? 'اعطا' : 'حذف') :
-            (users[userIndex].hasGoldTick ? 'اعطا' : 'حذف');
-        
-        showNotification(
-            `تیک ${tickType} ${action} شد`,
-            'موفقیت',
-            'success'
-        );
-        
-        closeUserManagementModal();
-        syncWithServer();
-    }
-}
-
-async function sendDirectMessage() {
-    if (!userToManage) return;
-    
-    const messageText = document.getElementById('direct-message-text').value.trim();
-    
-    if (!messageText) {
-        showNotification('لطفا پیام را وارد کنید', 'خطا', 'error');
-        return;
-    }
-    
-    const chatId = `private_${[currentUser.userId, userToManage.userId].sort().join('_')}`;
     
     const serverData = await loadFromServer();
     const chats = serverData?.chats || [];
     
-    let existingChat = chats.find(chat => 
-        chat.id === chatId && 
-        chat.type === 'private' &&
-        !chat.isSupport
+    const filteredGroups = chats.filter(chat => 
+        chat.isGroup && 
+        (chat.name.toLowerCase().includes(searchInput) || 
+         chat.id.toLowerCase().includes(searchInput) ||
+         chat.inviteLink.toLowerCase().includes(searchInput))
     );
     
-    if (!existingChat) {
-        existingChat = {
-            id: chatId,
-            type: 'private',
-            name: userToManage.name,
-            avatar: userToManage.avatar,
-            avatarUrl: userToManage.avatarUrl || avatars[userToManage.avatar],
-            participants: [currentUser.userId, userToManage.userId],
-            messages: [],
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            isPrivate: true,
-            hasTick: userToManage.hasBlueTick || userToManage.hasGoldTick
-        };
-        
-        chats.push(existingChat);
-    }
-    
-    const senderTitle = currentUser.phone === CREATOR_PHONE ? 'سازنده' : 'ادمین پشتیبانی';
-    const newMessage = {
-        id: Date.now(),
-        text: `پیام از ${senderTitle}: ${messageText}`,
-        senderId: currentUser.userId,
-        time: new Date().toISOString(),
-        read: false
-    };
-    
-    existingChat.messages.push(newMessage);
-    existingChat.updatedAt = new Date().toISOString();
-    
-    const updatedData = {
-        initialized: true,
-        users: serverData?.users || [],
-        chats: chats,
-        settings: serverData?.settings || {}
-    };
-    
-    saveDataToLocal(updatedData);
-    
-    document.getElementById('direct-message-text').value = '';
-    
-    showNotification('پیام ارسال شد', 'موفقیت', 'success');
-    closeUserManagementModal();
-    openChat(existingChat);
-    syncWithServer();
-}
-
-// ==================== تنظیمات سازنده ====================
-async function updateChatPassword() {
-    if (currentUser.phone !== CREATOR_PHONE) {
-        showNotification('فقط سازنده می‌تواند رمز پیام‌رسان را تغییر دهد.', 'خطا', 'error');
+    if (filteredGroups.length === 0) {
+        groupsList.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-search"></i>
+                <h3>گروهی یافت نشد</h3>
+                <p>با عبارت دیگری جستجو کنید</p>
+            </div>
+        `;
         return;
     }
     
-    const newPassword = document.getElementById('new-chat-password').value.trim();
+    let html = '';
+    filteredGroups.forEach(group => {
+        const participantsCount = group.participants?.length || 0;
+        const messagesCount = group.messages?.length || 0;
+        
+        html += `
+            <div class="group-item">
+                <div class="group-header">
+                    <div class="group-avatar">
+                        <img src="${group.avatarUrl || avatars[group.avatar] || avatars['avatar1']}" alt="گروه">
+                    </div>
+                    <div class="group-info">
+                        <div class="group-name">${group.name}</div>
+                        <div class="group-id">${group.inviteLink}</div>
+                    </div>
+                </div>
+                <div class="group-stats">
+                    <span><i class="fas fa-users"></i> ${participantsCount} عضو</span>
+                    <span><i class="fas fa-comment"></i> ${messagesCount} پیام</span>
+                    <span><i class="fas fa-calendar"></i> ${new Date(group.createdAt).toLocaleDateString('fa-IR')}</span>
+                </div>
+                <div class="group-actions">
+                    <button class="group-action-btn ban" onclick="manageGroup('${group.id}', 'ban')">
+                        <i class="fas fa-ban"></i> مسدود کردن
+                    </button>
+                    <button class="group-action-btn tick" onclick="manageGroup('${group.id}', 'tick')">
+                        <i class="fas fa-check-circle"></i> اعطای تیک
+                    </button>
+                    <button class="group-action-btn report" onclick="manageGroup('${group.id}', 'report')">
+                        <i class="fas fa-flag"></i> ثبت گزارش
+                    </button>
+                </div>
+            </div>
+        `;
+    });
     
-    if (!newPassword) {
-        showNotification('لطفا رمز جدید را وارد کنید', 'خطا', 'error');
+    groupsList.innerHTML = html;
+}
+
+// ==================== جستجوی کاربران ====================
+async function searchUsers() {
+    const searchInput = document.getElementById('search-user-input').value.toLowerCase();
+    const resultsContainer = document.getElementById('search-results');
+    
+    if (!searchInput) {
+        resultsContainer.innerHTML = `
+            <div style="text-align: center; color: #64748b; padding: 20px;">
+                برای جستجو، آیدی کاربر را وارد کنید
+            </div>
+        `;
         return;
     }
     
     const serverData = await loadFromServer();
+    const users = serverData?.users || [];
     
-    const updatedData = {
-        initialized: true,
-        users: serverData?.users || [],
-        chats: serverData?.chats || [],
-        settings: { 
-            chatRoomPassword: newPassword 
-        }
-    };
+    const filteredUsers = users.filter(user => 
+        user.userId.toLowerCase().includes(searchInput) && 
+        user.userId !== currentUser.userId &&
+        !user.isCreator
+    );
     
-    saveDataToLocal(updatedData);
-    currentChatPassword = newPassword;
-    
-    document.getElementById('current-chat-password').textContent = newPassword;
-    document.getElementById('new-chat-password').value = '';
-    
-    showNotification('رمز پیام‌رسان بروزرسانی شد', 'موفقیت', 'success');
-    syncWithServer();
-}
-
-async function sendBroadcastMessage() {
-    if (currentUser.phone !== CREATOR_PHONE) {
-        showNotification('فقط سازنده می‌تواند پیام همگانی ارسال کند.', 'خطا', 'error');
+    if (filteredUsers.length === 0) {
+        resultsContainer.innerHTML = `
+            <div style="text-align: center; color: #64748b; padding: 20px;">
+                کاربری با این آیدی یافت نشد
+            </div>
+        `;
         return;
     }
     
-    const message = document.getElementById('broadcast-message').value.trim();
+    let html = '';
+    filteredUsers.forEach(user => {
+        const isOnline = user.online;
+        
+        html += `
+            <div class="search-user-result" onclick="startChatWithUser('${user.userId}')">
+                <div class="search-user-avatar">
+                    <img src="${user.avatarUrl || avatars[user.avatar]}" alt="آواتار">
+                </div>
+                <div class="search-user-info">
+                    <div class="search-user-name">
+                        ${user.name}
+                        ${user.hasBlueTick ? '<span class="user-tick tick-creator"><i class="fas fa-check"></i></span>' : ''}
+                    </div>
+                    <div class="search-user-id">@${user.userId}</div>
+                    <div class="search-user-status">
+                        ${isOnline ? 
+                            '<span class="online-dot"></span> آنلاین' : 
+                            '<i class="far fa-circle"></i> آفلاین'}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
     
-    if (!message) {
-        showNotification('لطفا پیام را وارد کنید', 'خطا', 'error');
+    resultsContainer.innerHTML = html;
+}
+
+// ==================== جستجوی گروه برای پیوستن ====================
+async function searchJoinableGroups() {
+    const searchInput = document.getElementById('search-group-input').value.toLowerCase();
+    const resultsContainer = document.getElementById('search-group-results');
+    
+    if (!searchInput) {
+        resultsContainer.innerHTML = `
+            <div style="text-align: center; color: #64748b; padding: 20px;">
+                برای جستجو، نام یا لینک گروه/کانال را وارد کنید
+            </div>
+        `;
         return;
     }
     
     const serverData = await loadFromServer();
     const chats = serverData?.chats || [];
-    const groupChat = chats.find(chat => chat.id === GROUP_CHAT_ID);
     
-    if (groupChat) {
-        const broadcastMessage = {
+    const filteredGroups = chats.filter(chat => 
+        chat.isGroup && 
+        (chat.name.toLowerCase().includes(searchInput) || 
+         chat.inviteLink.toLowerCase().includes(searchInput) ||
+         chat.id.toLowerCase().includes(searchInput)) &&
+        !chat.participants.includes(currentUser.userId)
+    );
+    
+    if (filteredGroups.length === 0) {
+        resultsContainer.innerHTML = `
+            <div style="text-align: center; color: #64748b; padding: 20px;">
+                گروه/کانالی با این مشخصات یافت نشد
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    filteredGroups.forEach(group => {
+        const participantsCount = group.participants?.length || 0;
+        
+        html += `
+            <div class="search-user-result" onclick="joinGroup('${group.id}')">
+                <div class="search-user-avatar">
+                    <img src="${group.avatarUrl || avatars[group.avatar] || avatars['avatar1']}" alt="گروه">
+                </div>
+                <div class="search-user-info">
+                    <div class="search-user-name">
+                        ${group.name}
+                        ${group.hasTick ? '<span class="user-tick tick-creator"><i class="fas fa-check"></i></span>' : ''}
+                        <span style="font-size: 11px; color: #64748b;">(${group.type === 'channel' ? 'کانال' : 'گروه'})</span>
+                    </div>
+                    <div class="search-user-id">${group.inviteLink}</div>
+                    <div class="search-user-status">
+                        <i class="fas fa-users"></i> ${participantsCount} عضو
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    resultsContainer.innerHTML = html;
+}
+
+// ==================== تابع پیوستن به گروه ====================
+async function joinGroup(groupId) {
+    const serverData = await loadFromServer();
+    const chats = serverData?.chats || [];
+    const groupIndex = chats.findIndex(chat => chat.id === groupId);
+    
+    if (groupIndex !== -1) {
+        const group = chats[groupIndex];
+        
+        if (group.participants.includes(currentUser.userId)) {
+            showNotification('شما قبلاً در این گروه عضو هستید.', 'توجه', 'warning');
+            return;
+        }
+        
+        group.participants.push(currentUser.userId);
+        
+        const joinMessage = {
             id: Date.now(),
-            text: `📢 پیام همگانی از سازنده: ${message}`,
+            text: `👋 کاربر ${currentUser.name} (${currentUser.userId}) به گروه پیوست!`,
             senderId: 'system',
             time: new Date().toISOString(),
             read: false
         };
         
-        groupChat.messages.push(broadcastMessage);
-        groupChat.updatedAt = new Date().toISOString();
+        group.messages.push(joinMessage);
+        group.updatedAt = new Date().toISOString();
         
         const updatedData = {
             initialized: true,
             users: serverData?.users || [],
             chats: chats,
-            settings: serverData?.settings || {}
+            settings: serverData?.settings || {},
+            reports: serverData?.reports || [],
+            blocks: serverData?.blocks || []
         };
         
         saveDataToLocal(updatedData);
-        
-        document.getElementById('broadcast-message').value = '';
-        
-        showNotification('پیام همگانی ارسال شد', 'موفقیت', 'success');
         syncWithServer();
+        
+        closeNewChatModal();
+        showNotification(`به گروه ${group.name} پیوستید.`, 'موفقیت', 'success');
+        
+        setTimeout(() => {
+            openChat(group);
+        }, 500);
     }
 }
 
-// ==================== تنظیمات کاربر ====================
+// ==================== تابع شروع چت با کاربر ====================
+async function startChatWithUser(userId) {
+    if (userId === currentUser.userId) {
+        showNotification('نمی‌توانید با خودتان چت کنید.', 'خطا', 'error');
+        return;
+    }
+    
+    const serverData = await loadFromServer();
+    const users = serverData?.users || [];
+    const chats = serverData?.chats || [];
+    
+    const targetUser = users.find(u => u.userId === userId);
+    if (!targetUser) {
+        showNotification('کاربر یافت نشد.', 'خطا', 'error');
+        return;
+    }
+    
+    const existingChat = chats.find(chat => 
+        chat.type === 'private' && 
+        !chat.isSupport && 
+        chat.participants.includes(currentUser.userId) && 
+        chat.participants.includes(userId)
+    );
+    
+    if (existingChat) {
+        closeNewChatModal();
+        openChat(existingChat);
+        return;
+    }
+    
+    const newChatId = `private_${currentUser.userId}_${userId}`;
+    const newChat = {
+        id: newChatId,
+        type: 'private',
+        name: targetUser.name,
+        avatar: targetUser.avatar,
+        avatarUrl: targetUser.avatarUrl || avatars[targetUser.avatar],
+        participants: [currentUser.userId, userId],
+        messages: [
+            {
+                id: Date.now(),
+                text: `👋 گفتگو با ${targetUser.name} شروع شد!`,
+                senderId: 'system',
+                time: new Date().toISOString(),
+                read: false
+            }
+        ],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        isGroup: false,
+        hasTick: targetUser.hasBlueTick || targetUser.hasGoldTick,
+        isPrivate: true
+    };
+    
+    chats.push(newChat);
+    
+    const updatedData = {
+        initialized: true,
+        users: users,
+        chats: chats,
+        settings: serverData?.settings || {},
+        reports: serverData?.reports || [],
+        blocks: serverData?.blocks || []
+    };
+    
+    saveDataToLocal(updatedData);
+    syncWithServer();
+    
+    closeNewChatModal();
+    showNotification(`چت با ${targetUser.name} شروع شد.`, 'موفقیت', 'success');
+    
+    setTimeout(() => {
+        openChat(newChat);
+    }, 500);
+}
+
+// ==================== سوئیچ تب جستجو ====================
+function switchSearchTab(tab) {
+    searchActiveTab = tab;
+    
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    event.target.classList.add('active');
+    
+    if (tab === 'users') {
+        document.getElementById('search-users-tab').style.display = 'block';
+        document.getElementById('search-groups-tab').style.display = 'none';
+    } else {
+        document.getElementById('search-users-tab').style.display = 'none';
+        document.getElementById('search-groups-tab').style.display = 'block';
+    }
+}
+
+// ==================== مدیریت گروه در پنل ====================
+async function manageGroup(groupId, action) {
+    const serverData = await loadFromServer();
+    const chats = serverData?.chats || [];
+    const groupIndex = chats.findIndex(chat => chat.id === groupId);
+    
+    if (groupIndex === -1) {
+        showNotification('گروه یافت نشد.', 'خطا', 'error');
+        return;
+    }
+    
+    const group = chats[groupIndex];
+    
+    if (action === 'ban') {
+        if (confirm(`آیا مطمئن هستید که می‌خواهید گروه "${group.name}" را مسدود کنید؟`)) {
+            group.isActive = false;
+            showNotification(`گروه "${group.name}" مسدود شد.`, 'موفقیت', 'success');
+        }
+    } else if (action === 'tick') {
+        group.hasTick = !group.hasTick;
+        showNotification(`تیک گروه "${group.name}" ${group.hasTick ? 'اعطا' : 'حذف'} شد.`, 'موفقیت', 'success');
+    } else if (action === 'report') {
+        reportUser();
+    }
+    
+    const updatedData = {
+        initialized: true,
+        users: serverData?.users || [],
+        chats: chats,
+        settings: serverData?.settings || {},
+        reports: serverData?.reports || [],
+        blocks: serverData?.blocks || []
+    };
+    
+    saveDataToLocal(updatedData);
+    syncWithServer();
+    loadCreatorPanel();
+}
+
+// ==================== توابع تنظیمات ====================
 function showSettingsModal() {
     if (!currentUser) {
         showNotification('لطفا ابتدا وارد شوید.', 'خطا', 'error');
@@ -3217,15 +5030,17 @@ function showSettingsModal() {
     }
     
     document.getElementById('settings-modal').classList.add('active');
+    
     document.getElementById('settings-username').value = currentUser.name;
     document.getElementById('settings-userid').value = currentUser.userId;
     
-    const creatorSettings = document.getElementById('creator-settings');
     if (currentUser.phone === CREATOR_PHONE || currentUser.phone === ADMIN_PHONE) {
-        creatorSettings.style.display = 'block';
+        document.getElementById('creator-settings').style.display = 'block';
     } else {
-        creatorSettings.style.display = 'none';
+        document.getElementById('creator-settings').style.display = 'none';
     }
+    
+    loadPersonalStorageInfo();
 }
 
 function closeSettingsModal() {
@@ -3233,7 +5048,7 @@ function closeSettingsModal() {
 }
 
 function selectAvatarInModal(element, avatar) {
-    document.querySelectorAll('#settings-modal .avatar-option').forEach(opt => {
+    document.querySelectorAll('.avatar-option').forEach(opt => {
         opt.classList.remove('selected');
     });
     element.classList.add('selected');
@@ -3242,6 +5057,7 @@ function selectAvatarInModal(element, avatar) {
 
 async function updateUsername() {
     const newName = document.getElementById('settings-username').value.trim();
+    
     if (!newName) {
         showNotification('لطفا نام جدید را وارد کنید.', 'خطا', 'error');
         return;
@@ -3258,22 +5074,23 @@ async function updateUsername() {
             initialized: true,
             users: users,
             chats: serverData?.chats || [],
-            settings: serverData?.settings || {}
+            settings: serverData?.settings || {},
+            reports: serverData?.reports || [],
+            blocks: serverData?.blocks || []
         };
         
         saveDataToLocal(updatedData);
+        currentUser.name = newName;
+        localStorage.setItem('currentChatmaxUser', JSON.stringify(currentUser));
+        
+        syncWithServer();
+        showNotification('نام کاربری با موفقیت تغییر یافت.', 'موفقیت', 'success');
     }
-    
-    currentUser.name = newName;
-    localStorage.setItem('currentChatmaxUser', JSON.stringify(currentUser));
-    
-    showNotification('نام کاربری با موفقیت تغییر کرد.', 'موفقیت', 'success');
-    syncWithServer();
 }
 
 async function updateAvatar() {
-    if (!selectedAvatarInModal || !currentUser) {
-        showNotification('لطفا ابتدا آواتار جدید را انتخاب کنید.', 'خطا', 'error');
+    if (!selectedAvatarInModal) {
+        showNotification('لطفا آواتار جدید را انتخاب کنید.', 'خطا', 'error');
         return;
     }
     
@@ -3289,205 +5106,101 @@ async function updateAvatar() {
             initialized: true,
             users: users,
             chats: serverData?.chats || [],
-            settings: serverData?.settings || {}
+            settings: serverData?.settings || {},
+            reports: serverData?.reports || [],
+            blocks: serverData?.blocks || []
         };
         
         saveDataToLocal(updatedData);
-        
         currentUser.avatar = selectedAvatarInModal;
         currentUser.avatarUrl = avatars[selectedAvatarInModal];
         localStorage.setItem('currentChatmaxUser', JSON.stringify(currentUser));
         
-        showNotification('آواتار با موفقیت تغییر کرد.', 'موفقیت', 'success');
         syncWithServer();
+        showNotification('آواتار با موفقیت تغییر یافت.', 'موفقیت', 'success');
+        selectedAvatarInModal = null;
     }
 }
 
 async function updatePassword() {
-    const currentPass = document.getElementById('settings-current-password').value.trim();
-    const newPass = document.getElementById('settings-new-password').value.trim();
-    const confirmPass = document.getElementById('settings-confirm-password').value.trim();
+    const currentPassword = document.getElementById('settings-current-password').value;
+    const newPassword = document.getElementById('settings-new-password').value;
+    const confirmPassword = document.getElementById('settings-confirm-password').value;
     
-    if (!currentPass || !newPass || !confirmPass) {
-        showNotification('لطفا تمام فیلدهای رمز عبور را پر کنید.', 'خطا', 'error');
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        showNotification('لطفا تمام فیلدها را پر کنید.', 'خطا', 'error');
         return;
     }
     
-    if (newPass !== confirmPass) {
-        showNotification('رمز عبور جدید و تکرار آن مطابقت ندارند.', 'خطا', 'error');
-        return;
-    }
-    
-    if (currentPass !== currentUser.password) {
+    if (currentPassword !== currentUser.password) {
         showNotification('رمز عبور فعلی اشتباه است.', 'خطا', 'error');
         return;
     }
     
+    if (newPassword !== confirmPassword) {
+        showNotification('رمز عبور جدید با تکرار آن مطابقت ندارد.', 'خطا', 'error');
+        return;
+    }
+    
     const serverData = await loadFromServer();
     const users = serverData?.users || [];
     const userIndex = users.findIndex(u => u.id === currentUser.id);
     
     if (userIndex !== -1) {
-        users[userIndex].password = newPass;
+        users[userIndex].password = newPassword;
         
         const updatedData = {
             initialized: true,
             users: users,
             chats: serverData?.chats || [],
-            settings: serverData?.settings || {}
+            settings: serverData?.settings || {},
+            reports: serverData?.reports || [],
+            blocks: serverData?.blocks || []
         };
         
         saveDataToLocal(updatedData);
-        
-        currentUser.password = newPass;
+        currentUser.password = newPassword;
         localStorage.setItem('currentChatmaxUser', JSON.stringify(currentUser));
+        
+        syncWithServer();
+        showNotification('رمز عبور با موفقیت تغییر یافت.', 'موفقیت', 'success');
         
         document.getElementById('settings-current-password').value = '';
         document.getElementById('settings-new-password').value = '';
         document.getElementById('settings-confirm-password').value = '';
-        
-        showNotification('رمز عبور با موفقیت تغییر کرد.', 'موفقیت', 'success');
-        syncWithServer();
     }
 }
 
-async function logout() {
-    if (confirm('آیا از حساب خود خارج می‌شوید؟')) {
-        if (currentUser) {
-            const serverData = await loadFromServer();
-            const users = serverData?.users || [];
-            const userIndex = users.findIndex(u => u.id === currentUser.id);
-            
-            if (userIndex !== -1) {
-                users[userIndex].online = false;
-                users[userIndex].lastActivity = new Date().toISOString();
-                
-                const updatedData = {
-                    initialized: true,
-                    users: users,
-                    chats: serverData?.chats || [],
-                    settings: serverData?.settings || {}
-                };
-                
-                saveDataToLocal(updatedData);
-                syncWithServer();
-            }
-        }
-        
-        localStorage.removeItem('currentChatmaxUser');
+function logout() {
+    if (confirm('آیا مطمئن هستید که می‌خواهید خارج شوید؟')) {
         currentUser = null;
-        
-        if (chatUpdateInterval) {
-            clearInterval(chatUpdateInterval);
-            chatUpdateInterval = null;
-        }
-        
-        closeSettingsModal();
+        localStorage.removeItem('currentChatmaxUser');
+        showNotification('با موفقیت خارج شدید.', 'موفقیت', 'success');
         showPage('login-page');
-        showNotification('با موفقیت از حساب خارج شدید.', 'خروج', 'success');
     }
 }
 
-// ==================== اطلاعات چت ====================
-function showChatInfo() {
-    if (!currentChat) return;
-    
-    let infoText = `🔹 نام: ${currentChat.name}\n`;
-    infoText += `🔹 نوع: ${currentChat.isGroup ? 'گروه عمومی' : currentChat.isSupport ? 'پشتیبانی خصوصی' : 'چت خصوصی'}\n`;
-    infoText += `🔹 تعداد پیام‌ها: ${currentChat.messages.length}\n`;
-    infoText += `🔹 تاریخ ایجاد: ${new Date(currentChat.createdAt).toLocaleDateString('fa-IR')}\n`;
-    
-    if (currentChat.isGroup) {
-        infoText += `🔹 توضیحات: ${currentChat.description || 'گروه عمومی همه کاربران'}\n`;
-    }
-    
-    alert(infoText);
+// ==================== توابع مدال چت جدید ====================
+function showNewChatModal() {
+    document.getElementById('new-chat-modal').classList.add('active');
+    switchSearchTab('users');
 }
 
-// ==================== به‌روزرسانی وضعیت ====================
-function startChatUpdates() {
-    if (chatUpdateInterval) clearInterval(chatUpdateInterval);
-    
-    chatUpdateInterval = setInterval(async () => {
-        await updateOnlineStatus();
-    }, 15000);
+function closeNewChatModal() {
+    document.getElementById('new-chat-modal').classList.remove('active');
+    document.getElementById('search-user-input').value = '';
+    document.getElementById('search-group-input').value = '';
+    document.getElementById('search-results').innerHTML = `
+        <div style="text-align: center; color: #64748b; padding: 20px;">برای جستجو، آیدی کاربر را وارد کنید</div>
+    `;
 }
-
-async function updateOnlineStatus() {
-    if (!currentUser) return;
-    
-    const serverData = await loadFromServer();
-    const users = serverData?.users || [];
-    const userIndex = users.findIndex(u => u.id === currentUser.id);
-    
-    if (userIndex !== -1) {
-        users[userIndex].lastActivity = new Date().toISOString();
-        
-        const updatedData = {
-            initialized: true,
-            users: users,
-            chats: serverData?.chats || [],
-            settings: serverData?.settings || {}
-        };
-        
-        saveDataToLocal(updatedData);
-        currentUser.lastActivity = new Date().toISOString();
-        localStorage.setItem('currentChatmaxUser', JSON.stringify(currentUser));
-        
-        if (checkInternet()) {
-            syncWithServer();
-        }
-    }
-}
-
-// ==================== رویدادهای صفحه ====================
-document.addEventListener('DOMContentLoaded', function() {
-    // رویداد فرم چت
-    const chatForm = document.getElementById('chat-form');
-    if (chatForm) {
-        chatForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            sendMessage();
-        });
-    }
-    
-    // رویداد کلید Enter
-    const messageInput = document.getElementById('message-input');
-    if (messageInput) {
-        messageInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-    }
-    
-    // رویداد جستجو در حالت تایپ
-    const searchInput = document.getElementById('search-user-input');
-    if (searchInput) {
-        searchInput.addEventListener('input', searchUsers);
-    }
-    
-    // گوش دادن به تغییرات شبکه
-    window.addEventListener('online', () => {
-        checkInternet();
-        showNotification('اتصال اینترنت برقرار شد.', 'آنلاین', 'success');
-        syncWithServer();
-    });
-    
-    window.addEventListener('offline', () => {
-        checkInternet();
-    });
-});
 
 // ==================== راه‌اندازی برنامه ====================
 window.addEventListener('load', async function() {
     console.log('🚀 شروع راه‌اندازی...');
     
-    // بررسی اینترنت
     checkInternet();
     
-    // مخفی کردن صفحه لودینگ سریع
     setTimeout(() => {
         const loadingScreen = document.getElementById('loading-screen');
         if (loadingScreen) {
@@ -3495,13 +5208,11 @@ window.addEventListener('load', async function() {
             setTimeout(async () => {
                 loadingScreen.style.display = 'none';
                 
-                // بررسی کاربر ذخیره شده
                 const savedUser = localStorage.getItem('currentChatmaxUser');
                 if (savedUser) {
                     try {
                         currentUser = JSON.parse(savedUser);
                         
-                        // بررسی بن بودن
                         if (currentUser.bannedUntil && new Date(currentUser.bannedUntil) > new Date()) {
                             const remainingTime = Math.ceil((new Date(currentUser.bannedUntil) - new Date()) / 1000 / 60);
                             showNotification(`⛔ شما بن شده‌اید! زمان باقی‌مانده: ${remainingTime} دقیقه`, 'بن شده', 'error');
@@ -3511,7 +5222,6 @@ window.addEventListener('load', async function() {
                             return;
                         }
                         
-                        // بروزرسانی وضعیت
                         await updateOnlineStatus();
                         showPage('main-chat-page');
                     } catch (error) {
@@ -3524,7 +5234,399 @@ window.addEventListener('load', async function() {
             }, 300);
         }
     }, 1800);
+    
+    window.addEventListener('online', () => {
+        checkInternet();
+        showNotification('اتصال اینترنت برقرار شد.', 'آنلاین', 'success');
+        syncWithServer();
+    });
+    
+    window.addEventListener('offline', () => {
+        checkInternet();
+    });
 });
+
+// رویداد فرم چت
+document.addEventListener('DOMContentLoaded', function() {
+    const chatForm = document.getElementById('chat-form');
+    if (chatForm) {
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            sendMessage();
+        });
+    }
+    
+    const messageInput = document.getElementById('message-input');
+    if (messageInput) {
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    }
+});
+
+// توابع مدیریت کاربر (برای سازنده/ادمین)
+async function manageUser(userId) {
+    const serverData = await loadFromServer();
+    const users = serverData?.users || [];
+    const user = users.find(u => u.userId === userId);
+    
+    if (!user) return;
+    
+    userToManage = user;
+    
+    const modal = document.getElementById('user-management-modal');
+    const infoDiv = document.getElementById('user-management-info');
+    
+    const lastSeen = getLastSeenText(user.lastActivity);
+    const isBanned = user.bannedUntil && new Date(user.bannedUntil) > new Date();
+    const banStatus = isBanned ? 
+        `<span style="color: #ef4444; font-weight: bold;">⛔ بن شده تا ${new Date(user.bannedUntil).toLocaleString('fa-IR')}</span>` : 
+        '<span style="color: #10b981;">✅ فعال</span>';
+    
+    infoDiv.innerHTML = `
+        <div style="text-align: center; margin-bottom: 20px;">
+            <div style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; margin: 0 auto 10px;">
+                <img src="${user.avatarUrl || avatars[user.avatar]}" alt="آواتار" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <h4 style="margin: 5px 0;">${user.name}</h4>
+            <div style="color: #64748b; font-size: 13px;">@${user.userId}</div>
+            <div style="font-size: 12px; color: #64748b; margin-top: 5px;">
+                <div>📱 ${user.phone}</div>
+                <div>${user.online ? '🟢 آنلاین' : `⚫ آفلاین (${lastSeen})`}</div>
+                <div>${banStatus}</div>
+            </div>
+        </div>
+    `;
+    
+    const adminButton = document.getElementById('admin-toggle-button');
+    if (user.isAdmin) {
+        adminButton.innerHTML = '<i class="fas fa-user-shield"></i> حذف دسترسی ادمین';
+        adminButton.style.background = 'linear-gradient(to right, #ef4444, #dc2626)';
+    } else {
+        adminButton.innerHTML = '<i class="fas fa-user-shield"></i> اعطای دسترسی ادمین';
+        adminButton.style.background = 'linear-gradient(to right, #f59e0b, #d97706)';
+    }
+    
+    modal.classList.add('active');
+}
+
+function closeUserManagementModal() {
+    document.getElementById('user-management-modal').classList.remove('active');
+    userToManage = null;
+}
+
+async function toggleAdminStatus() {
+    if (!userToManage) return;
+    
+    const serverData = await loadFromServer();
+    const users = serverData?.users || [];
+    const userIndex = users.findIndex(u => u.id === userToManage.id);
+    
+    if (userIndex !== -1) {
+        users[userIndex].isAdmin = !users[userIndex].isAdmin;
+        
+        const updatedData = {
+            initialized: true,
+            users: users,
+            chats: serverData?.chats || [],
+            settings: serverData?.settings || {},
+            reports: serverData?.reports || [],
+            blocks: serverData?.blocks || []
+        };
+        
+        saveDataToLocal(updatedData);
+        syncWithServer();
+        
+        showNotification(`دسترسی ادمین ${users[userIndex].isAdmin ? 'اعطا' : 'حذف'} شد.`, 'موفقیت', 'success');
+        closeUserManagementModal();
+        loadCreatorPanel();
+    }
+}
+
+async function banUser() {
+    if (!userToManage) return;
+    
+    const duration = document.getElementById('ban-duration').value;
+    let bannedUntil = null;
+    
+    if (duration === 'permanent') {
+        bannedUntil = new Date(9999, 11, 31);
+    } else {
+        const minutes = parseInt(duration);
+        bannedUntil = new Date(Date.now() + minutes * 60000);
+    }
+    
+    const serverData = await loadFromServer();
+    const users = serverData?.users || [];
+    const userIndex = users.findIndex(u => u.id === userToManage.id);
+    
+    if (userIndex !== -1) {
+        users[userIndex].bannedUntil = bannedUntil.toISOString();
+        
+        const updatedData = {
+            initialized: true,
+            users: users,
+            chats: serverData?.chats || [],
+            settings: serverData?.settings || {},
+            reports: serverData?.reports || [],
+            blocks: serverData?.blocks || []
+        };
+        
+        saveDataToLocal(updatedData);
+        syncWithServer();
+        
+        showNotification(`کاربر ${duration === 'permanent' ? 'دائماً' : 'موقتاً'} بن شد.`, 'موفقیت', 'success');
+        closeUserManagementModal();
+        loadCreatorPanel();
+    }
+}
+
+async function giveTick(type) {
+    if (!userToManage) return;
+    
+    const serverData = await loadFromServer();
+    const users = serverData?.users || [];
+    const userIndex = users.findIndex(u => u.id === userToManage.id);
+    
+    if (userIndex !== -1) {
+        if (type === 'blue') {
+            users[userIndex].hasBlueTick = !users[userIndex].hasBlueTick;
+        } else if (type === 'gold') {
+            users[userIndex].hasGoldTick = !users[userIndex].hasGoldTick;
+        }
+        
+        const updatedData = {
+            initialized: true,
+            users: users,
+            chats: serverData?.chats || [],
+            settings: serverData?.settings || {},
+            reports: serverData?.reports || [],
+            blocks: serverData?.blocks || []
+        };
+        
+        saveDataToLocal(updatedData);
+        syncWithServer();
+        
+        showNotification(`تیک ${type === 'blue' ? 'آبی' : 'طلایی'} ${type === 'blue' ? users[userIndex].hasBlueTick ? 'اعطا' : 'حذف' : users[userIndex].hasGoldTick ? 'اعطا' : 'حذف'} شد.`, 'موفقیت', 'success');
+        closeUserManagementModal();
+        loadCreatorPanel();
+    }
+}
+
+async function sendDirectMessage() {
+    if (!userToManage) return;
+    
+    const messageText = document.getElementById('direct-message-text').value.trim();
+    if (!messageText) {
+        showNotification('لطفا پیام را وارد کنید.', 'خطا', 'error');
+        return;
+    }
+    
+    const serverData = await loadFromServer();
+    const chats = serverData?.chats || [];
+    
+    const existingChat = chats.find(chat => 
+        chat.type === 'private' && 
+        !chat.isSupport && 
+        chat.participants.includes(currentUser.userId) && 
+        chat.participants.includes(userToManage.userId)
+    );
+    
+    let chatId;
+    if (existingChat) {
+        chatId = existingChat.id;
+    } else {
+        chatId = `private_${currentUser.userId}_${userToManage.userId}`;
+        const newChat = {
+            id: chatId,
+            type: 'private',
+            name: userToManage.name,
+            avatar: userToManage.avatar,
+            avatarUrl: userToManage.avatarUrl || avatars[userToManage.avatar],
+            participants: [currentUser.userId, userToManage.userId],
+            messages: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            isGroup: false,
+            hasTick: userToManage.hasBlueTick || userToManage.hasGoldTick,
+            isPrivate: true
+        };
+        
+        chats.push(newChat);
+    }
+    
+    const chatIndex = chats.findIndex(c => c.id === chatId);
+    if (chatIndex !== -1) {
+        const directMessage = {
+            id: Date.now(),
+            text: `📢 پیام مدیریتی: ${messageText}`,
+            senderId: currentUser.userId,
+            time: new Date().toISOString(),
+            read: false
+        };
+        
+        chats[chatIndex].messages.push(directMessage);
+        chats[chatIndex].updatedAt = new Date().toISOString();
+        
+        const updatedData = {
+            initialized: true,
+            users: serverData?.users || [],
+            chats: chats,
+            settings: serverData?.settings || {},
+            reports: serverData?.reports || [],
+            blocks: serverData?.blocks || []
+        };
+        
+        saveDataToLocal(updatedData);
+        syncWithServer();
+        
+        document.getElementById('direct-message-text').value = '';
+        showNotification('پیام مدیریتی ارسال شد.', 'موفقیت', 'success');
+    }
+}
+
+// توابع باقیمانده
+async function openChatWithUser(userId) {
+    const serverData = await loadFromServer();
+    const chats = serverData?.chats || [];
+    
+    const existingChat = chats.find(chat => 
+        chat.type === 'private' && 
+        !chat.isSupport && 
+        chat.participants.includes(currentUser.userId) && 
+        chat.participants.includes(userId)
+    );
+    
+    if (existingChat) {
+        showPage('main-chat-page');
+        setTimeout(() => {
+            openChat(existingChat);
+        }, 100);
+    } else {
+        startChatWithUser(userId);
+    }
+}
+
+async function refreshReports() {
+    await loadCreatorPanel();
+    showNotification('گزارش‌ها بروزرسانی شدند.', 'موفقیت', 'success');
+}
+
+async function refreshUsersList() {
+    await loadCreatorPanel();
+    showNotification('لیست کاربران بروزرسانی شد.', 'موفقیت', 'success');
+}
+
+// توابع دیگر که در کد اصلی موجود هستند
+async function updateChatPassword() {
+    const newPassword = document.getElementById('new-chat-password').value.trim();
+    if (!newPassword) {
+        showNotification('لطفا رمز جدید را وارد کنید.', 'خطا', 'error');
+        return;
+    }
+    
+    currentChatPassword = newPassword;
+    
+    const serverData = await loadFromServer();
+    serverData.settings.chatRoomPassword = newPassword;
+    
+    saveDataToLocal(serverData);
+    syncWithServer();
+    
+    document.getElementById('new-chat-password').value = '';
+    document.getElementById('current-chat-password').textContent = newPassword;
+    
+    showNotification('رمز پیام‌رسان بروزرسانی شد.', 'موفقیت', 'success');
+}
+
+async function sendBroadcastMessage() {
+    const message = document.getElementById('broadcast-message').value.trim();
+    if (!message) {
+        showNotification('لطفا پیام را وارد کنید.', 'خطا', 'error');
+        return;
+    }
+    
+    const serverData = await loadFromServer();
+    const users = serverData?.users || [];
+    const chats = serverData?.chats || [];
+    
+    const groupChat = chats.find(chat => chat.id === GROUP_CHAT_ID);
+    if (groupChat) {
+        const broadcastMessage = {
+            id: Date.now(),
+            text: `📢 پیام مدیریتی: ${message}`,
+            senderId: currentUser.userId,
+            time: new Date().toISOString(),
+            read: false
+        };
+        
+        groupChat.messages.push(broadcastMessage);
+        groupChat.updatedAt = new Date().toISOString();
+        
+        const updatedData = {
+            initialized: true,
+            users: users,
+            chats: chats,
+            settings: serverData?.settings || {},
+            reports: serverData?.reports || [],
+            blocks: serverData?.blocks || []
+        };
+        
+        saveDataToLocal(updatedData);
+        syncWithServer();
+        
+        document.getElementById('broadcast-message').value = '';
+        showNotification('پیام عمومی ارسال شد.', 'موفقیت', 'success');
+    }
+}
+
+async function resolveReport(reportId, status) {
+    const serverData = await loadFromServer();
+    const reports = serverData?.reports || [];
+    const reportIndex = reports.findIndex(r => r.id === reportId);
+    
+    if (reportIndex !== -1) {
+        reports[reportIndex].status = status === 'accepted' ? 'resolved' : 'rejected';
+        reports[reportIndex].resolvedAt = new Date().toISOString();
+        
+        const updatedData = {
+            initialized: true,
+            users: serverData?.users || [],
+            chats: serverData?.chats || [],
+            settings: serverData?.settings || {},
+            reports: reports,
+            blocks: serverData?.blocks || []
+        };
+        
+        saveDataToLocal(updatedData);
+        syncWithServer();
+        
+        showNotification(`گزارش ${status === 'accepted' ? 'تایید' : 'رد'} شد.`, 'موفقیت', 'success');
+        loadCreatorPanel();
+    }
+}
+
+async function viewReportedChat(chatId) {
+    const serverData = await loadFromServer();
+    const chats = serverData?.chats || [];
+    const chat = chats.find(c => c.id === chatId);
+    
+    if (chat) {
+        closeUserManagementModal();
+        showPage('main-chat-page');
+        setTimeout(() => {
+            openChat(chat);
+        }, 100);
+    }
+}
 </script>
 </body>
 </html>
